@@ -9,11 +9,12 @@ interface ArticleCardProps {
   author: string
   category: string
   slug: string
+  _id: string
 }
 
-export function ArticleCard({ title, excerpt, image, date, author, category, slug }: ArticleCardProps) {
+export function ArticleCard({ title, excerpt, image, date, author, category, slug, _id }: ArticleCardProps) {
   return (
-    <Link href={slug} className="group">
+    <Link href={`/article-content/${_id}`} className="group">
       <div className="overflow-hidden rounded-lg mb-4">
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           <Image

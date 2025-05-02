@@ -8,8 +8,23 @@ import { NewsletterSignup } from "@/components/newsletter-signup"
 import { StreamOfThought } from "@/components/stream-of-thought"
 import { LinkedInArticles } from "@/components/linkedin-articles"
 import { HeroSection } from "@/components/hero-section"
+import connectDB from '@/lib/mongodb'
+import Article from '@/models/Article'
 
-export default function Home() {
+async function getRecentArticles() {
+  try {
+    await connectDB();
+    const articles = await Article.find().sort({ date: -1 }).limit(3);
+    return articles;
+  } catch (error) {
+    console.error('Error fetching recent articles:', error);
+    return [];
+  }
+}
+
+export default async function Home() {
+  const recentArticles = await getRecentArticles();
+  
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
@@ -28,18 +43,24 @@ export default function Home() {
       </section>
 
       {/* Featured Article */}
-      <section className="py-12 md:py-16" id="latest-articles">
+      <section className="py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-8">Featured Article</h2>
-          <FeaturedArticle
-            title="The Endurance Capital Interview"
-            excerpt="India is full of sound businesses around ₹10 cr revenue mark that struggle to scale as they are neither big enough to attract growth capital, nor small enough to be funded by friends and family. Endurance Capital is solving this gap."
-            image="/endurance-capital-interview.jpg"
-            date="11 APR 2023"
-            author="Akhil Handa"
-            category="Fintech"
-            slug="/articles/endurance-capital-interview"
-          />
+          {recentArticles[0] && (
+            <FeaturedArticle
+              title={recentArticles[0].title}
+              excerpt={recentArticles[0].excerpt}
+              image={recentArticles[0].image}
+              date={new Date(recentArticles[0].date).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+              }).toUpperCase()}
+              author={recentArticles[0].author}
+              category={recentArticles[0].category}
+              slug={recentArticles[0].slug}
+            />
+          )}
         </div>
       </section>
 
@@ -48,33 +69,22 @@ export default function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-8">Recent Articles</h2>
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            <ArticleCard
-              title="From 7-Day Waits to 60-Minute Delivery: The DocPharma Interview"
-              excerpt="While media writes epitaphs for brick-and-mortar retail, DocPharma is building a network of micro-warehouses to deliver medicines in under an hour."
-              image="/docpharma-interview.jpg"
-              date="8 APR 2023"
-              author="Akhil Handa"
-              category="Digital Transformation"
-              slug="/articles/docpharma-interview"
-            />
-            <ArticleCard
-              title="Solving For Mid-Mile Logistics: The JustDeliveries Interview"
-              excerpt="Food brands and QSRs often struggle with mid-mile logistics. JustDeliveries is solving this with their tech-enabled fleet management platform."
-              image="/justdeliveries-interview.jpg"
-              date="22 APR 2023"
-              author="Akhil Handa"
-              category="Innovation"
-              slug="/articles/justdeliveries-interview"
-            />
-            <ArticleCard
-              title="The Wrapper Theory: Building Great Products By Combining What Already Exists"
-              excerpt="Building a unique product/service is hard. But what if you could create value by simply combining existing products in novel ways?"
-              image="/wrapper-theory.jpg"
-              date="5 APR 2023"
-              author="Akhil Handa"
-              category="Product Strategy"
-              slug="/articles/wrapper-theory"
-            />
+            {recentArticles.map((article) => (
+              <ArticleCard
+                key={article._id.toString()}
+                title={article.title}
+                excerpt={article.excerpt}
+                image={article.image}
+                date={new Date(article.date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                }).toUpperCase()}
+                author={article.author}
+                category={article.category}
+                slug={article.slug}
+              />
+            ))}
           </div>
           <div className="mt-8 text-center">
             <Link href="/articles" className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
@@ -127,9 +137,9 @@ export default function Home() {
       </section>
 
       {/* LinkedIn Articles */}
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-2xl font-bold mb-8">My LinkedIn Articles</h2>
+          <h2 className="text-2xl font-bold mb-8">LinkedIn Articles</h2>
           <LinkedInArticles />
         </div>
       </section>

@@ -11,9 +11,10 @@ interface FeaturedArticleProps {
   author: string
   category: string
   slug: string
+  _id: string
 }
 
-export function FeaturedArticle({ title, excerpt, image, date, author, category, slug }: FeaturedArticleProps) {
+export function FeaturedArticle({ title, excerpt, image, date, author, category, slug, _id }: FeaturedArticleProps) {
   return (
     <div className="grid md:grid-cols-2 gap-8 items-center">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
@@ -31,7 +32,7 @@ export function FeaturedArticle({ title, excerpt, image, date, author, category,
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">By {author}</span>
           </div>
-          <Link href={slug}>
+          <Link href={`/article-content/${_id}`}>
             <Button variant="ghost" className="text-blue-600 hover:text-blue-800 p-0 h-auto font-medium">
               Read more
               <ArrowRight className="ml-1 h-4 w-4" />

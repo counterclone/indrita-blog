@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const thoughtSchema = new mongoose.Schema({
+const ThoughtSchema = new mongoose.Schema({
     content: String,
     date: Date,
     xUrl: String,
@@ -9,6 +9,4 @@ const thoughtSchema = new mongoose.Schema({
     replies: Number
 });
 
-const Thought = mongoose.models.Thought || mongoose.model('Thought', thoughtSchema);
-
-export default Thought;
+export default mongoose.models.Thought || mongoose.model('Thought', ThoughtSchema);

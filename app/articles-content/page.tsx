@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 interface Article {
-  _id: string;
+  id: string;
   title: string;
   excerpt: string;
   image: string;
@@ -65,7 +65,7 @@ export default function ArticlesPage() {
         <div className="grid gap-6 md:grid-cols-2">
           {articles.map((article) => (
             <article
-              key={article._id}
+              key={article.id}
               className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
             >
               <div className="relative h-48">
@@ -85,7 +85,7 @@ export default function ArticlesPage() {
                 </div>
                 
                 <h2 className="text-xl font-semibold mb-2">
-                  <Link href={`/article-content/${article._id}`} className="hover:text-blue-600">
+                  <Link href={`/articles-content/${article.slug}`} className="hover:text-blue-600">
                     {article.title}
                   </Link>
                 </h2>

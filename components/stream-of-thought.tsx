@@ -6,59 +6,15 @@ import { ArrowRight, MessageCircle, Repeat, Heart } from "lucide-react"
 import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
 
-// Sample stream of thought data
-const thoughtsData = [
-  {
-    id: 1,
-    content:
-      "Just had a fascinating conversation with a neobank founder who's pivoting to embedded finance. The shift from consumer-facing to B2B infrastructure is becoming a clear pattern among fintech startups that struggled with CAC.",
-    date: "2 hours ago",
-    xUrl: "https://x.com/akhilhanda12/status/1234567890",
-    likes: 42,
-    retweets: 12,
-    replies: 5,
-  },
-  {
-    id: 2,
-    content:
-      "Watching traditional banks struggle with cloud migration while fintechs are already exploring quantum computing feels like observing two different centuries of banking evolution happening simultaneously.",
-    date: "Yesterday",
-    xUrl: "https://x.com/akhilhanda12/status/1234567891",
-    likes: 78,
-    retweets: 23,
-    replies: 8,
-  },
-  {
-    id: 3,
-    content:
-      "The most interesting fintech innovations aren't coming from Silicon Valley or London anymore. Spent the morning reviewing case studies from Southeast Asia and Latin America that are leapfrogging Western markets.",
-    date: "2 days ago",
-    xUrl: "https://x.com/akhilhanda12/status/1234567892",
-    likes: 105,
-    retweets: 34,
-    replies: 12,
-  },
-  {
-    id: 4,
-    content:
-      "Hot take: Most 'AI in banking' implementations today are just fancy RPA with a marketing upgrade. True AI banking means systems that can reason about financial contexts and make autonomous decisions.",
-    date: "3 days ago",
-    xUrl: "https://x.com/akhilhanda12/status/1234567893",
-    likes: 156,
-    retweets: 48,
-    replies: 22,
-  },
-  {
-    id: 5,
-    content:
-      "Regulation will never keep pace with innovation in fintech. We need adaptive regulatory frameworks that can evolve with technology rather than constantly playing catch-up.",
-    date: "5 days ago",
-    xUrl: "https://x.com/akhilhanda12/status/1234567894",
-    likes: 92,
-    retweets: 27,
-    replies: 14,
-  },
-]
+interface Thought {
+  _id: string;
+  content: string;
+  date: string;
+  xUrl: string;
+  likes: number;
+  retweets: number;
+  replies: number;
+}
 
 // Wave animation component
 const WaveBackground = () => {
@@ -86,21 +42,41 @@ const WaveBackground = () => {
 }
 
 export function StreamOfThought() {
+  const [thoughts, setThoughts] = useState<Thought[]>([])
   const [visibleCount, setVisibleCount] = useState(3)
-  const [activeThought, setActiveThought] = useState<number | null>(null)
+  const [activeThought, setActiveThought] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Simulate loading data
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 800)
+    const fetchThoughts = async () => {
+      try {
+        const response = await fetch('/api/thoughts')
+        if (!response.ok) {
+          throw new Error('Failed to fetch thoughts')
+        }
+        const data = await response.json()
+        setThoughts(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
-    return () => clearTimeout(timer)
+    fetchThoughts()
   }, [])
 
   const showMore = () => {
-    setVisibleCount(Math.min(visibleCount + 3, thoughtsData.length))
+    setVisibleCount(Math.min(visibleCount + 3, thoughts.length))
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-red-600">Error: {error}</p>
+      </div>
+    )
   }
 
   return (
@@ -136,19 +112,19 @@ export function StreamOfThought() {
         ) : (
           <AnimatePresence>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {thoughtsData.slice(0, visibleCount).map((thought, index) => (
+              {thoughts.slice(0, visibleCount).map((thought, index) => (
                 <motion.div
-                  key={thought.id}
+                  key={thought._id}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                  onMouseEnter={() => setActiveThought(thought.id)}
+                  onMouseEnter={() => setActiveThought(thought._id)}
                   onMouseLeave={() => setActiveThought(null)}
                 >
                   <Card
                     className={`p-4 bg-white/90 backdrop-blur-sm border-gray-200 hover:border-blue-300 transition-all duration-300 ${
-                      activeThought === thought.id ? "shadow-md transform -translate-y-1" : "shadow-sm"
+                      activeThought === thought._id ? "shadow-md transform -translate-y-1" : "shadow-sm"
                     }`}
                   >
                     <div className="flex items-center gap-2 mb-3">
@@ -161,7 +137,12 @@ export function StreamOfThought() {
                         <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
                       </svg>
                       <span className="text-sm font-medium text-gray-800">@akhilhanda12</span>
-                      <span className="text-xs text-gray-500 ml-auto">{thought.date}</span>
+                      <span className="text-xs text-gray-500 ml-auto">
+                        {new Date(thought.date).toLocaleDateString('en-US', {
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </span>
                     </div>
                     <p className="text-gray-800 mb-4">{thought.content}</p>
                     <div className="flex justify-between items-center text-gray-500 text-xs">
@@ -195,22 +176,17 @@ export function StreamOfThought() {
           </AnimatePresence>
         )}
 
-        <div className="flex justify-between items-center mt-6">
-          {visibleCount < thoughtsData.length && (
-            <motion.button
+        {!isLoading && visibleCount < thoughts.length && (
+          <div className="flex justify-center mt-8">
+            <button
               onClick={showMore}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center gap-1 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
             >
               Show more thoughts
-            </motion.button>
-          )}
-          <Link href="/thoughts" className="text-blue-600 hover:text-blue-800 text-sm font-medium flex items-center">
-            View all thoughts
-            <ArrowRight className="ml-1 h-4 w-4" />
-          </Link>
-        </div>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

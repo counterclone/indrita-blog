@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Menu, XIcon, Mail, Linkedin } from "lucide-react"
 import { useState, useEffect } from "react"
 import { LogoModern } from "@/components/logo-modern"
+import { AdminLoginButton } from "@/components/admin-login-button"
 
 export function SiteHeader() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -62,6 +63,7 @@ export function SiteHeader() {
             <Link href="https://linkedin.com/in/akhilh" target="_blank" rel="noopener noreferrer">
               <Linkedin className="h-5 w-5 text-gray-500 hover:text-blue-700" />
             </Link>
+            <AdminLoginButton />
           </div>
           <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             {isMenuOpen ? <XIcon className="h-6 w-6 text-gray-900" /> : <Menu className="h-6 w-6 text-gray-900" />}
@@ -108,6 +110,7 @@ export function SiteHeader() {
                 <Mail className="mr-1 h-3 w-3" />
                 Subscribe
               </Button>
+              <AdminLoginButton />
             </div>
             <div className="flex gap-4 mt-4 justify-center">
               <Link href="https://x.com/akhilhanda12" target="_blank" rel="noopener noreferrer">

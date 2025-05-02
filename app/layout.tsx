@@ -4,6 +4,8 @@ import { Inter } from "next/font/google"
 import { ThemeProvider } from "@/components/theme-provider"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
+import { Providers } from "@/components/providers"
+import { Toaster } from 'sonner'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -41,7 +43,7 @@ export const metadata = {
   alternates: {
     canonical: "https://firsthand.akhilhanda.com",
   },
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -52,11 +54,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.className} bg-white text-gray-900`}>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
-          <SiteHeader />
-          <main>{children}</main>
-          <Footer />
-        </ThemeProvider>
+        <Providers>
+          <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
+            <SiteHeader />
+            <main>{children}</main>
+            <Footer />
+            <Toaster richColors position="top-center" />
+          </ThemeProvider>
+        </Providers>
       </body>
     </html>
   )

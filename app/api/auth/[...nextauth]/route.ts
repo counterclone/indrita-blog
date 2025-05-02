@@ -1,29 +1,53 @@
-import NextAuth from 'next-auth';
+import { NextAuthOptions } from 'next-auth';
+import NextAuth from 'next-auth/next';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import clientPromise from "@/lib/mongodb-adapter";
 
-export const authOptions = {
-    adapter: MongoDBAdapter(clientPromise),
+interface CustomUser {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+}
+
+declare module "next-auth" {
+    interface User extends CustomUser { }
+    interface Session {
+        user: CustomUser;
+    }
+}
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        role?: string;
+    }
+}
+
+export const authOptions: NextAuthOptions = {
     providers: [
         CredentialsProvider({
+            id: 'credentials',
             name: 'Credentials',
             credentials: {
                 username: { label: "Username", type: "text" },
                 password: { label: "Password", type: "password" }
             },
             async authorize(credentials) {
-                // Add your authentication logic here
-                if (credentials?.username === process.env.ADMIN_USERNAME &&
-                    credentials?.password === process.env.ADMIN_PASSWORD) {
-                    return {
-                        id: "1",
-                        name: "Admin",
-                        email: "admin@example.com",
-                        role: "admin"
-                    };
+                try {
+                    // This is a simple example. In production, you should validate against your database
+                    if (credentials?.username === process.env.ADMIN_USERNAME &&
+                        credentials?.password === process.env.ADMIN_PASSWORD) {
+                        return {
+                            id: '1',
+                            name: 'Admin',
+                            email: 'admin@example.com',
+                            role: 'admin'
+                        };
+                    }
+                    throw new Error('Invalid credentials');
+                } catch (error) {
+                    console.error('Auth error:', error);
+                    return null;
                 }
-                return null;
             }
         })
     ],
@@ -35,20 +59,24 @@ export const authOptions = {
             return token;
         },
         async session({ session, token }) {
-            if (session?.user) {
-                session.user.role = token.role;
+            if (session.user) {
+                session.user.role = token.role as string;
             }
             return session;
         }
     },
     pages: {
-        signIn: '/auth/signin',
+        signIn: '/admin/login',
+        error: '/admin/login',
+        signOut: '/'
     },
     session: {
-        strategy: "jwt",
+        strategy: 'jwt',
+        maxAge: 24 * 60 * 60, // 24 hours
     },
     secret: process.env.NEXTAUTH_SECRET,
+    debug: process.env.NODE_ENV === 'development'
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+export { handler as GET, handler as POST, handler as HEAD, handler as OPTIONS };
