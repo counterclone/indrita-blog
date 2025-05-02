@@ -65,9 +65,12 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
         async redirect({ url, baseUrl }) {
-            // If the url is an internal url, return it as-is
+            // Always redirect to /admin/articles after successful login
+            if (url.includes('/admin/login')) {
+                return `${baseUrl}/admin/articles`;
+            }
+            // For all other cases, use the default behavior
             if (url.startsWith(baseUrl)) return url;
-            // If the url is not internal but on the same origin, make it internal
             if (url.startsWith('/')) return `${baseUrl}${url}`;
             return baseUrl;
         }
