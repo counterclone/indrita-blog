@@ -1,20 +1,23 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function LoginPage() {
     const router = useRouter();
     const { data: session, status } = useSession();
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const searchParams = useSearchParams();
+    const callbackUrl = searchParams.get('callbackUrl') || '/admin/articles';
 
-    // If already authenticated, redirect to admin articles
-    if (status === 'authenticated') {
-        router.push('/admin/articles');
-        return null;
-    }
+    useEffect(() => {
+        if (status === 'authenticated') {
+            router.push('/admin/articles');
+            router.refresh();
+        }
+    }, [status, router]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -27,11 +30,10 @@ export default function LoginPage() {
             const res = await signIn('credentials', {
                 username: formData.get('username'),
                 password: formData.get('password'),
-                redirect: false,
+                redirect: true,
                 callbackUrl: '/admin/articles'
             });
             
-            // Note: This code won't run if redirect is true
             if (res?.error) {
                 setError('Incorrect username or password');
             }
