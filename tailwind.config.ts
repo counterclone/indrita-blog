@@ -80,11 +80,6 @@ const config = {
           "0%": { transform: "translate3d(-90px, 0, 0)" },
           "100%": { transform: "translate3d(85px, 0, 0)" },
         },
-        "shake": {
-          "0%, 100%": { transform: "translateX(0)" },
-          "25%": { transform: "translateX(-8px)" },
-          "75%": { transform: "translateX(8px)" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -92,7 +87,6 @@ const config = {
         "wave-slow": "wave-slow 18s linear infinite",
         "wave-middle": "wave-middle 12s linear infinite",
         "wave-fast": "wave-fast 8s linear infinite",
-        "shake": "shake 0.5s ease-in-out",
       },
     },
   },

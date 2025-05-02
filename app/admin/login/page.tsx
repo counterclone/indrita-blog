@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { toast } from 'sonner';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -23,33 +22,22 @@ export default function LoginPage() {
         setError('');
 
         const formData = new FormData(e.currentTarget);
-        const username = formData.get('username') as string;
-        const password = formData.get('password') as string;
         
         try {
             const res = await signIn('credentials', {
-                username,
-                password,
-                redirect: false
+                username: formData.get('username'),
+                password: formData.get('password'),
+                redirect: false,
+                callbackUrl: '/admin/articles'
             });
             
+            // Note: This code won't run if redirect is true
             if (res?.error) {
                 setError('Incorrect username or password');
-                toast.error('Login failed', {
-                    description: 'Please check your credentials and try again.'
-                });
-            } else if (res?.ok) {
-                toast.success('Login successful', {
-                    description: 'Redirecting to admin dashboard...'
-                });
-                router.push('/admin/articles');
             }
         } catch (error) {
             console.error('Login error:', error);
             setError('An error occurred during login. Please try again.');
-            toast.error('Login error', {
-                description: 'An unexpected error occurred. Please try again.'
-            });
         } finally {
             setIsLoading(false);
         }
@@ -69,7 +57,7 @@ export default function LoginPage() {
                 </div>
                 
                 {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-4 animate-shake">
+                    <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-4">
                         {error}
                     </div>
                 )}

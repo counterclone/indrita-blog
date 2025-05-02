@@ -5,7 +5,6 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { Providers } from "@/components/providers"
-import { Toaster } from 'sonner'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -59,7 +58,6 @@ export default function RootLayout({
             <SiteHeader />
             <main>{children}</main>
             <Footer />
-            <Toaster richColors position="top-center" />
           </ThemeProvider>
         </Providers>
       </body>
