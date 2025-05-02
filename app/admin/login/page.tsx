@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+// Create a separate component for the login form
+function LoginForm() {
     const router = useRouter();
     const { data: session, status } = useSession();
     const [error, setError] = useState('');
@@ -45,6 +46,7 @@ export default function LoginPage() {
         }
     };
 
+    // Show loading state while checking session
     if (status === 'loading') {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     }
@@ -105,4 +107,13 @@ export default function LoginPage() {
             </div>
         </div>
     );
-} 
+}
+
+// Main page component with Suspense boundary
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+            <LoginForm />
+        </Suspense>
+    );
+}
