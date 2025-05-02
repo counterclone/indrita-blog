@@ -63,13 +63,14 @@ export const authOptions: NextAuthOptions = {
                 session.user.role = token.role as string;
             }
             return session;
-                },
+        },
         async redirect({ url, baseUrl }) {
             // If the url is an internal url, return it as-is
             if (url.startsWith(baseUrl)) return url;
             // If the url is not internal but on the same origin, make it internal
             if (url.startsWith('/')) return `${baseUrl}${url}`;
             return baseUrl;
+        }
     },
     pages: {
         signIn: '/admin/login',
