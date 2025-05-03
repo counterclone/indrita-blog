@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, MessageCircle, Repeat, Heart } from "lucide-react";
+import { ArrowLeft, MessageCircle, Repeat, Heart, Twitter } from "lucide-react";
 
 interface Thought {
   _id: string;  // Changed from id to _id to match MongoDB's default
@@ -99,12 +99,29 @@ export default function ThoughtsPage() {
               key={thought._id}
               className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow"
             >
-              <p className="text-gray-800 mb-4">{thought.content}</p>
+              <div className="flex items-start space-x-4 mb-4">
+                <div className="flex-shrink-0">
+                  <Image
+                    src="/akhil-handa-avatar.jpg"
+                    alt="Akhil Handa"
+                    width={48}
+                    height={48}
+                    className="rounded-full"
+                  />
+                </div>
+                <div className="flex-grow">
+                  <div className="flex items-center mb-2">
+                    <span className="font-semibold text-gray-900">Akhil Handa</span>
+                    <span className="ml-2 text-gray-500">@akhilhanda12</span>
+                  </div>
+                  <p className="text-gray-800">{thought.content}</p>
+                </div>
+              </div>
               
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
                 <span>{formatDate(thought.date)}</span>
                 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-6">
                   <a
                     href={thought.xUrl}
                     target="_blank"
@@ -131,6 +148,15 @@ export default function ThoughtsPage() {
                   >
                     <MessageCircle className="w-4 h-4 mr-1" />
                     {thought.replies}
+                  </a>
+                  <a
+                    href={thought.xUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center text-[#1DA1F2] hover:text-[#1a8cd8]"
+                  >
+                    <Twitter className="w-5 h-5" />
+                    <span className="ml-1">View on X</span>
                   </a>
                 </div>
               </div>

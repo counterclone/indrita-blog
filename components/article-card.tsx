@@ -14,7 +14,7 @@ interface ArticleCardProps {
 
 export function ArticleCard({ title, excerpt, image, date, author, category, slug, _id }: ArticleCardProps) {
   return (
-    <Link href={`/article-content/${_id}`} className="group">
+    <Link href={`/article-content/${slug}`} className="group">
       <div className="overflow-hidden rounded-lg mb-4">
         <div className="relative aspect-[4/3] w-full overflow-hidden">
           <Image

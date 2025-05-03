@@ -85,7 +85,7 @@ export default function ArticlesPage() {
                 </div>
                 
                 <h2 className="text-xl font-semibold mb-2">
-                  <Link href={`/article-content/${article._id}`} className="hover:text-blue-600">
+                  <Link href={`/article-content/${article.slug}`} className="hover:text-blue-600">
                     {article.title}
                   </Link>
                 </h2>

@@ -11,14 +11,23 @@ export async function GET() {
         console.log('MongoDB connected successfully');
 
         console.log('Fetching articles...');
-        const articles = await Article.find().sort({ date: -1 });
-        console.log('Articles fetched:', articles);
+        const articles = await Article.find().sort({ date: -1 }).lean();
+        console.log('Articles fetched:', articles.length);
 
         if (!articles || articles.length === 0) {
             console.log('No articles found in database');
+            return NextResponse.json([], {
+                headers: {
+                    'Cache-Control': 'no-store',
+                }
+            });
         }
 
-        return NextResponse.json(articles);
+        return NextResponse.json(articles, {
+            headers: {
+                'Cache-Control': 'no-store',
+            }
+        });
     } catch (error) {
         console.error('Detailed error in GET /api/articles:', error);
         return NextResponse.json(
