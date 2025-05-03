@@ -4,6 +4,8 @@ import { authOptions } from '../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
     try {
         console.log('Attempting to connect to MongoDB...');
@@ -16,23 +18,37 @@ export async function GET() {
 
         if (!articles || articles.length === 0) {
             console.log('No articles found in database');
-            return NextResponse.json([], {
+            return new NextResponse(JSON.stringify([]), {
                 headers: {
-                    'Cache-Control': 'no-store',
-                }
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
+                },
             });
         }
 
-        return NextResponse.json(articles, {
+        return new NextResponse(JSON.stringify(articles), {
             headers: {
-                'Cache-Control': 'no-store',
-            }
+                'Content-Type': 'application/json',
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0',
+            },
         });
     } catch (error) {
         console.error('Detailed error in GET /api/articles:', error);
-        return NextResponse.json(
-            { error: 'Failed to fetch articles' },
-            { status: 500 }
+        return new NextResponse(
+            JSON.stringify({ error: 'Failed to fetch articles' }),
+            {
+                status: 500,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0',
+                },
+            }
         );
     }
 }

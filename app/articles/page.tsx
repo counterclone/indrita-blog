@@ -1,8 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import connectDB from "@/lib/mongodb";
-import Article from "@/models/Article";
-import { Document } from 'mongoose';
+import { headers } from 'next/headers';
 
 interface Article {
   _id: string;
@@ -16,13 +14,24 @@ interface Article {
   slug: string;
 }
 
-export const revalidate = 0; // Disable caching
+export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 async function getArticles(): Promise<Article[]> {
   try {
-    await connectDB();
-    const articles = await Article.find().sort({ date: -1 }).lean();
-    return articles as unknown as Article[];
+    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/articles`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch articles');
+    }
+
+    return response.json();
   } catch (error) {
     console.error('Error fetching articles:', error);
     throw new Error('Failed to fetch articles');
