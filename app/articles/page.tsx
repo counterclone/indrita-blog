@@ -1,6 +1,8 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { headers } from 'next/headers';
+import Image from "next/image";
 
 interface Article {
   _id: string;
@@ -14,32 +16,46 @@ interface Article {
   slug: string;
 }
 
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
+export default function ArticlesPage() {
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-async function getArticles(): Promise<Article[]> {
-  try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/articles`, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-      },
-    });
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch('/api/articles');
+        if (!response.ok) {
+          throw new Error('Failed to fetch articles');
+        }
+        const data = await response.json();
+        setArticles(data);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+        setError('Failed to load articles. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch articles');
-    }
+    fetchArticles();
+  }, []);
 
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching articles:', error);
-    throw new Error('Failed to fetch articles');
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
-}
 
-export default async function ArticlesPage() {
-  const articles = await getArticles();
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="text-red-600">{error}</div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-8">

@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
@@ -8,22 +11,42 @@ import { NewsletterSignup } from "@/components/newsletter-signup"
 import { StreamOfThought } from "@/components/stream-of-thought"
 import { LinkedInArticles } from "@/components/linkedin-articles"
 import { HeroSection } from "@/components/hero-section"
-import connectDB from '@/lib/mongodb'
-import Article from '@/models/Article'
 
-async function getRecentArticles() {
-  try {
-    await connectDB();
-    const articles = await Article.find().sort({ date: -1 }).limit(3);
-    return articles;
-  } catch (error) {
-    console.error('Error fetching recent articles:', error);
-    return [];
-  }
+interface Article {
+  _id: string;
+  title: string;
+  excerpt: string;
+  image: string;
+  date: string;
+  author: string;
+  category: string;
+  slug: string;
 }
 
-export default async function Home() {
-  const recentArticles = await getRecentArticles();
+export default function Home() {
+  const [recentArticles, setRecentArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchArticles = async () => {
+      try {
+        const response = await fetch('/api/articles');
+        if (!response.ok) {
+          throw new Error('Failed to fetch articles');
+        }
+        const data = await response.json();
+        setRecentArticles(data);
+      } catch (error) {
+        console.error('Error fetching articles:', error);
+        setError('Failed to load articles');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticles();
+  }, []);
   
   return (
     <div className="flex flex-col">
@@ -46,7 +69,13 @@ export default async function Home() {
       <section className="py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-8">Featured Article</h2>
-          {recentArticles[0] && (
+          {loading ? (
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : error ? (
+            <div className="text-red-600">{error}</div>
+          ) : recentArticles[0] && (
             <FeaturedArticle
               title={recentArticles[0].title}
               excerpt={recentArticles[0].excerpt}
@@ -59,6 +88,7 @@ export default async function Home() {
               author={recentArticles[0].author}
               category={recentArticles[0].category}
               slug={recentArticles[0].slug}
+              _id={recentArticles[0]._id}
             />
           )}
         </div>
@@ -68,24 +98,33 @@ export default async function Home() {
       <section className="py-12 md:py-16 bg-gray-50">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-8">Recent Articles</h2>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {recentArticles.map((article) => (
-              <ArticleCard
-                key={article._id.toString()}
-                title={article.title}
-                excerpt={article.excerpt}
-                image={article.image}
-                date={new Date(article.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                  day: 'numeric'
-                }).toUpperCase()}
-                author={article.author}
-                category={article.category}
-                slug={article.slug}
-              />
-            ))}
-          </div>
+          {loading ? (
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : error ? (
+            <div className="text-red-600">{error}</div>
+          ) : (
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {recentArticles.map((article) => (
+                <ArticleCard
+                  key={article._id}
+                  title={article.title}
+                  excerpt={article.excerpt}
+                  image={article.image}
+                  date={new Date(article.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  }).toUpperCase()}
+                  author={article.author}
+                  category={article.category}
+                  slug={article.slug}
+                  _id={article._id}
+                />
+              ))}
+            </div>
+          )}
           <div className="mt-8 text-center">
             <Link href="/articles" className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">
               View all articles

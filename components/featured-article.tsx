@@ -32,7 +32,7 @@ export function FeaturedArticle({ title, excerpt, image, date, author, category,
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">By {author}</span>
           </div>
-          <Link href={`/article-content/${_id}`}>
+          <Link href={`/article-content/${slug}`}>
             <Button variant="ghost" className="text-blue-600 hover:text-blue-800 p-0 h-auto font-medium">
               Read more
               <ArrowRight className="ml-1 h-4 w-4" />
