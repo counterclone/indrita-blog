@@ -5,11 +5,8 @@ import { useRouter } from 'next/navigation';
 
 interface ThoughtData {
     _id: string;
-    content: string;
-    xUrl: string;
-    likes: number;
-    retweets: number;
-    replies: number;
+    embedHtml: string;
+    date: string;
 }
 
 export default function EditThoughtPage({ params }: { params: { id: string } }) {
@@ -18,11 +15,8 @@ export default function EditThoughtPage({ params }: { params: { id: string } }) 
     const [error, setError] = useState('');
     const [formData, setFormData] = useState<ThoughtData>({
         _id: '',
-        content: '',
-        xUrl: '',
-        likes: 0,
-        retweets: 0,
-        replies: 0
+        embedHtml: '',
+        date: new Date().toISOString()
     });
 
     useEffect(() => {
@@ -66,14 +60,9 @@ export default function EditThoughtPage({ params }: { params: { id: string } }) 
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: name === 'likes' || name === 'retweets' || name === 'replies'
-                ? parseInt(value)
-                : value
-        }));
+        setFormData(prev => ({ ...prev, [name]: value }));
     };
 
     if (isLoading) return <div>Loading...</div>;
@@ -85,79 +74,21 @@ export default function EditThoughtPage({ params }: { params: { id: string } }) 
 
             <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                    <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-                        Content
+                    <label htmlFor="embedHtml" className="block text-sm font-medium text-gray-700">
+                        Twitter Embed HTML
                     </label>
+                    <p className="text-sm text-gray-500 mb-2">
+                        Paste the Twitter embed code here. You can get this by clicking "Embed Tweet" on Twitter.
+                    </p>
                     <textarea
-                        id="content"
-                        name="content"
-                        value={formData.content}
+                        id="embedHtml"
+                        name="embedHtml"
+                        value={formData.embedHtml}
                         onChange={handleChange}
-                        rows={3}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        rows={10}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
                         required
                     />
-                </div>
-
-                <div>
-                    <label htmlFor="xUrl" className="block text-sm font-medium text-gray-700">
-                        X (Twitter) URL
-                    </label>
-                    <input
-                        type="url"
-                        id="xUrl"
-                        name="xUrl"
-                        value={formData.xUrl}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    />
-                </div>
-
-                <div className="grid grid-cols-3 gap-4">
-                    <div>
-                        <label htmlFor="likes" className="block text-sm font-medium text-gray-700">
-                            Likes
-                        </label>
-                        <input
-                            type="number"
-                            id="likes"
-                            name="likes"
-                            value={formData.likes}
-                            onChange={handleChange}
-                            min="0"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="retweets" className="block text-sm font-medium text-gray-700">
-                            Retweets
-                        </label>
-                        <input
-                            type="number"
-                            id="retweets"
-                            name="retweets"
-                            value={formData.retweets}
-                            onChange={handleChange}
-                            min="0"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label htmlFor="replies" className="block text-sm font-medium text-gray-700">
-                            Replies
-                        </label>
-                        <input
-                            type="number"
-                            id="replies"
-                            name="replies"
-                            value={formData.replies}
-                            onChange={handleChange}
-                            min="0"
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        />
-                    </div>
                 </div>
 
                 <div className="flex justify-end space-x-3">

@@ -1,19 +1,13 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card } from "@/components/ui/card"
-import { ArrowRight, MessageCircle, Repeat, Heart } from "lucide-react"
-import Link from "next/link"
+import { ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 
 interface Thought {
   _id: string;
-  content: string;
+  embedHtml: string;
   date: string;
-  xUrl: string;
-  likes: number;
-  retweets: number;
-  replies: number;
 }
 
 // Wave animation component
@@ -44,7 +38,6 @@ const WaveBackground = () => {
 export function StreamOfThought() {
   const [thoughts, setThoughts] = useState<Thought[]>([])
   const [visibleCount, setVisibleCount] = useState(3)
-  const [activeThought, setActiveThought] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -66,6 +59,15 @@ export function StreamOfThought() {
 
     fetchThoughts()
   }, [])
+
+  // Load Twitter widgets after component mounts
+  useEffect(() => {
+    // @ts-ignore
+    if (window.twttr) {
+      // @ts-ignore
+      window.twttr.widgets.load()
+    }
+  }, [thoughts, visibleCount])
 
   const showMore = () => {
     setVisibleCount(Math.min(visibleCount + 3, thoughts.length))
@@ -94,14 +96,14 @@ export function StreamOfThought() {
           >
             <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
           </svg>
-          <Link
+          <a
             href="https://x.com/akhilhanda12"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 hover:underline font-medium"
           >
             @akhilhanda12
-          </Link>
+          </a>
           <span className="text-sm text-gray-500 ml-auto">President & CDO</span>
         </div>
 
@@ -111,7 +113,7 @@ export function StreamOfThought() {
           </div>
         ) : (
           <AnimatePresence>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {thoughts.slice(0, visibleCount).map((thought, index) => (
                 <motion.div
                   key={thought._id}
@@ -119,57 +121,12 @@ export function StreamOfThought() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.4, delay: index * 0.1 }}
-                  onMouseEnter={() => setActiveThought(thought._id)}
-                  onMouseLeave={() => setActiveThought(null)}
+                  className="min-h-[200px] flex items-start"
                 >
-                  <Card
-                    className={`p-4 bg-white/90 backdrop-blur-sm border-gray-200 hover:border-blue-300 transition-all duration-300 ${
-                      activeThought === thought._id ? "shadow-md transform -translate-y-1" : "shadow-sm"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 mb-3">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        viewBox="0 0 24 24"
-                        className="h-4 w-4 text-black"
-                        fill="currentColor"
-                      >
-                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                      </svg>
-                      <span className="text-sm font-medium text-gray-800">@akhilhanda12</span>
-                      <span className="text-xs text-gray-500 ml-auto">
-                        {new Date(thought.date).toLocaleDateString('en-US', {
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </span>
-                    </div>
-                    <p className="text-gray-800 mb-4">{thought.content}</p>
-                    <div className="flex justify-between items-center text-gray-500 text-xs">
-                      <Link
-                        href={thought.xUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-500 hover:text-blue-600 text-sm font-medium"
-                      >
-                        View on X
-                      </Link>
-                      <div className="flex items-center gap-3">
-                        <div className="flex items-center gap-1">
-                          <MessageCircle className="h-3.5 w-3.5" />
-                          <span>{thought.replies}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Repeat className="h-3.5 w-3.5" />
-                          <span>{thought.retweets}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Heart className="h-3.5 w-3.5" />
-                          <span>{thought.likes}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
+                  <div 
+                    dangerouslySetInnerHTML={{ __html: thought.embedHtml }} 
+                    className="w-full"
+                  />
                 </motion.div>
               ))}
             </div>

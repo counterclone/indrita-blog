@@ -5,6 +5,7 @@ import Link from 'next/link';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
 import ArticleContent from '@/models/ArticleContent';
+import '@/styles/article.css';
 
 interface ArticlePageProps {
   params: {
@@ -132,7 +133,7 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
           )}
 
           <div 
-            className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-p:mb-4 prose-ul:my-4 prose-li:ml-4"
+            className="article-content"
             dangerouslySetInnerHTML={{ __html: article.htmlContent || '' }}
           />
         </div>

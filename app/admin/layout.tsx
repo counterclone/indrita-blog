@@ -38,6 +38,12 @@ export default function AdminLayout({
                                     >
                                         Thoughts
                                     </Link>
+                                    <Link
+                                        href="/admin/gallery"
+                                        className={`px-3 py-2 rounded-md text-sm font-medium ${isActive('/admin/gallery')}`}
+                                    >
+                                        Gallery
+                                    </Link>
                                 </div>
                             </div>
                         </div>

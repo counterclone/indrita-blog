@@ -7,12 +7,8 @@ import { useRouter } from 'next/navigation';
 
 interface Thought {
     _id: string;
-    content: string;
+    embedHtml: string;
     date: string;
-    xUrl: string;
-    likes: number;
-    retweets: number;
-    replies: number;
 }
 
 export default function ThoughtsPage() {
@@ -90,41 +86,30 @@ export default function ThoughtsPage() {
             <div className="bg-white shadow overflow-hidden sm:rounded-md">
                 <ul className="divide-y divide-gray-200">
                     {thoughts.map((thought) => (
-                        <li key={thought._id}>
-                            <div className="px-4 py-4 sm:px-6">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex-1 min-w-0">
-                                        <p className="text-lg text-gray-900">
-                                            {thought.content}
-                                        </p>
-                                        <div className="mt-1 flex items-center text-sm text-gray-500">
-                                            <span>{new Date(thought.date).toLocaleDateString()}</span>
-                                            <span className="mx-2">•</span>
-                                            <span>Likes: {thought.likes}</span>
-                                            <span className="mx-2">•</span>
-                                            <span>Retweets: {thought.retweets}</span>
-                                            <span className="mx-2">•</span>
-                                            <span>Replies: {thought.replies}</span>
-                                        </div>
-                                        {thought.xUrl && (
-                                            <a
-                                                href={thought.xUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="text-blue-600 hover:text-blue-800 text-sm"
-                                            >
-                                                View on X (Twitter)
-                                            </a>
-                                        )}
+                        <li key={thought._id} className="p-4">
+                            <div className="flex justify-between items-start">
+                                <div className="flex-1 min-w-0">
+                                    <div 
+                                        dangerouslySetInnerHTML={{ __html: thought.embedHtml }} 
+                                        className="mb-2"
+                                    />
+                                    <div className="mt-2 flex items-center text-sm text-gray-500">
+                                        <span>{new Date(thought.date).toLocaleDateString()}</span>
                                     </div>
-                                    <div className="ml-4 flex-shrink-0">
-                                        <button
-                                            onClick={() => handleDelete(thought._id)}
-                                            className="text-red-600 hover:text-red-900 text-sm font-medium"
-                                        >
-                                            Delete
-                                        </button>
-                                    </div>
+                                </div>
+                                <div className="ml-4 flex items-center space-x-4">
+                                    <Link
+                                        href={`/admin/thoughts/edit/${thought._id}`}
+                                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                                    >
+                                        Edit
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDelete(thought._id)}
+                                        className="text-red-600 hover:text-red-900 text-sm font-medium"
+                                    >
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
                         </li>

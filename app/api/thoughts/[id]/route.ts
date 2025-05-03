@@ -52,9 +52,17 @@ export async function PUT(
         await connectDB();
         const data = await request.json();
 
+        // Validate required fields
+        if (!data.embedHtml) {
+            return NextResponse.json(
+                { error: 'Twitter embed HTML is required' },
+                { status: 400 }
+            );
+        }
+
         const thought = await Thought.findByIdAndUpdate(
             params.id,
-            { ...data, updatedAt: new Date() },
+            { embedHtml: data.embedHtml, updatedAt: new Date() },
             { new: true }
         );
 

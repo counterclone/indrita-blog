@@ -2,17 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { ArrowLeft, MessageCircle, Repeat, Heart, Twitter } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 interface Thought {
-  _id: string;  // Changed from id to _id to match MongoDB's default
-  content: string;
+  _id: string;
+  embedHtml: string;
   date: string;
-  xUrl: string;
-  likes: number;
-  retweets: number;
-  replies: number;
 }
 
 // Helper function to format date consistently
@@ -64,6 +59,15 @@ export default function ThoughtsPage() {
     fetchThoughts();
   }, []);
 
+  // Load Twitter widgets after thoughts are loaded
+  useEffect(() => {
+    // @ts-ignore
+    if (window.twttr && thoughts.length > 0) {
+      // @ts-ignore
+      window.twttr.widgets.load();
+    }
+  }, [thoughts]);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -93,72 +97,17 @@ export default function ThoughtsPage() {
 
         <h1 className="text-3xl font-bold mb-8">Thoughts</h1>
 
-        <div className="space-y-6">
+        <div className="grid gap-8 md:grid-cols-2">
           {thoughts.map((thought) => (
             <div
               key={thought._id}
               className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow"
             >
-              <div className="flex items-start space-x-4 mb-4">
-                <div className="flex-shrink-0">
-                  <Image
-                    src="/akhil-handa-avatar.jpg"
-                    alt="Akhil Handa"
-                    width={48}
-                    height={48}
-                    className="rounded-full"
-                  />
-                </div>
-                <div className="flex-grow">
-                  <div className="flex items-center mb-2">
-                    <span className="font-semibold text-gray-900">Akhil Handa</span>
-                    <span className="ml-2 text-gray-500">@akhilhanda12</span>
-                  </div>
-                  <p className="text-gray-800">{thought.content}</p>
-                </div>
-              </div>
-              
-              <div className="flex items-center justify-between text-sm text-gray-500 mt-4">
-                <span>{formatDate(thought.date)}</span>
-                
-                <div className="flex items-center space-x-6">
-                  <a
-                    href={thought.xUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center hover:text-blue-600"
-                  >
-                    <Heart className="w-4 h-4 mr-1" />
-                    {thought.likes}
-                  </a>
-                  <a
-                    href={thought.xUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center hover:text-blue-600"
-                  >
-                    <Repeat className="w-4 h-4 mr-1" />
-                    {thought.retweets}
-                  </a>
-                  <a
-                    href={thought.xUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center hover:text-blue-600"
-                  >
-                    <MessageCircle className="w-4 h-4 mr-1" />
-                    {thought.replies}
-                  </a>
-                  <a
-                    href={thought.xUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center text-[#1DA1F2] hover:text-[#1a8cd8]"
-                  >
-                    <Twitter className="w-5 h-5" />
-                    <span className="ml-1">View on X</span>
-                  </a>
-                </div>
+              <div
+                dangerouslySetInnerHTML={{ __html: thought.embedHtml }}
+              />
+              <div className="mt-4 text-sm text-gray-500">
+                {formatDate(thought.date)}
               </div>
             </div>
           ))}

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
-import Thought from '@/models/Thought';
+import Gallery from '@/models/Gallery';
 
 interface CustomSession {
     user: {
@@ -16,11 +16,13 @@ interface CustomSession {
 export async function GET() {
     try {
         await connectDB();
-        const thoughts = await Thought.find().sort({ date: -1 });
-        return NextResponse.json(thoughts);
-    } catch (error) {
-        console.error('Error fetching thoughts:', error);
-        return NextResponse.json({ error: 'Failed to fetch thoughts' }, { status: 500 });
+        const gallery = await Gallery.find().sort({ date: -1 });
+        return NextResponse.json(gallery);
+    } catch (error: any) {
+        return NextResponse.json(
+            { error: 'Failed to fetch gallery items', details: error.message },
+            { status: 500 }
+        );
     }
 }
 
@@ -36,24 +38,25 @@ export async function POST(request: Request) {
         const data = await request.json();
 
         // Validate required fields
-        if (!data.embedHtml) {
+        if (!data.imageUrl || !data.title) {
             return NextResponse.json(
-                { error: 'Twitter embed HTML is required' },
+                { error: 'Image URL and title are required' },
                 { status: 400 }
             );
         }
 
-        const thoughtData = {
-            embedHtml: data.embedHtml,
+        const galleryData = {
+            imageUrl: data.imageUrl,
+            title: data.title,
             date: data.date || new Date()
         };
 
-        const thought = await Thought.create(thoughtData);
-        return NextResponse.json(thought);
+        const galleryItem = await Gallery.create(galleryData);
+        return NextResponse.json(galleryItem);
     } catch (error: any) {
         return NextResponse.json(
-            { error: 'Failed to create thought', details: error.message },
+            { error: 'Failed to create gallery item', details: error.message },
             { status: 500 }
         );
     }
-}
+} 

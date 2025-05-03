@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { Providers } from "@/components/providers"
+import Script from 'next/script'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -51,7 +52,10 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <Script src="https://platform.twitter.com/widgets.js" strategy="lazyOnload" />
+      </head>
       <body className={`${inter.className} bg-white text-gray-900`}>
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>

@@ -2,73 +2,92 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 
-interface ArticleData {
-    _id: string;
+interface FormData {
     title: string;
     excerpt: string;
     image: string;
     author: string;
     category: string;
     readTime: string;
-    slug: string;
-    htmlContent?: string;
+    htmlContent: string;
 }
 
 export default function EditArticlePage({ params }: { params: { id: string } }) {
     const router = useRouter();
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState('');
-    const [formData, setFormData] = useState<ArticleData>({
-        _id: '',
+    const [formData, setFormData] = useState<FormData>({
         title: '',
         excerpt: '',
         image: '',
         author: '',
         category: '',
         readTime: '',
-        slug: '',
         htmlContent: ''
     });
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetchArticleData();
-    }, [params.id]);
+    }, []);
 
     const fetchArticleData = async () => {
         try {
-            // Fetch article metadata
-            const articleRes = await fetch(`/api/articles/${params.id}`);
-            if (!articleRes.ok) throw new Error('Failed to fetch article');
-            const article = await articleRes.json();
+            // Fetch article data
+            const articleResponse = await fetch(`/api/articles/${params.id}`);
+            if (!articleResponse.ok) throw new Error('Failed to fetch article');
+            const article = await articleResponse.json();
 
             // Fetch article content
-            const contentRes = await fetch(`/api/article-content/${params.id}`);
-            if (!contentRes.ok) throw new Error('Failed to fetch article content');
-            const content = await contentRes.json();
+            const contentResponse = await fetch(`/api/article-content/${params.id}`);
+            if (!contentResponse.ok) throw new Error('Failed to fetch article content');
+            const content = await contentResponse.json();
 
             setFormData({
-                ...article,
+                title: article.title,
+                excerpt: article.excerpt,
+                image: article.image,
+                author: article.author,
+                category: article.category,
+                readTime: article.readTime,
                 htmlContent: content.htmlContent
             });
         } catch (err) {
-            setError('Failed to load article data');
-            console.error(err);
+            setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
-            setIsLoading(false);
+            setLoading(false);
         }
+    };
+
+    const handleChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setIsLoading(true);
-        setError('');
+        setSaving(true);
+        setError(null);
 
         try {
-            // Update article metadata
-            const articleRes = await fetch(`/api/articles/${params.id}`, {
+            // Update article data
+            const articleResponse = await fetch(`/api/articles/${params.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({
                     title: formData.title,
                     excerpt: formData.excerpt,
@@ -80,148 +99,160 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
                 }),
             });
 
-            if (!articleRes.ok) throw new Error('Failed to update article');
+            if (!articleResponse.ok) {
+                const data = await articleResponse.json();
+                throw new Error(data.error || 'Failed to update article');
+            }
+
+            const article = await articleResponse.json();
 
             // Update article content
-            const contentRes = await fetch(`/api/article-content/${params.id}`, {
+            const contentResponse = await fetch(`/api/article-content/${params.id}`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                },
                 body: JSON.stringify({
+                    articleId: article._id,
+                    slug: article.slug,
                     htmlContent: formData.htmlContent
                 }),
             });
 
-            if (!contentRes.ok) throw new Error('Failed to update article content');
+            if (!contentResponse.ok) {
+                const data = await contentResponse.json();
+                throw new Error(data.error || 'Failed to update article content');
+            }
 
             router.push('/admin/articles');
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
-            setIsLoading(false);
+            setSaving(false);
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
-    };
-
-    if (isLoading) return <div>Loading...</div>;
-    if (error) return <div className="text-red-600">{error}</div>;
+    if (loading) return <div className="p-6">Loading...</div>;
 
     return (
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto p-6">
+            <div className="mb-6">
+                <Link href="/admin/articles" className="inline-flex items-center text-blue-600 hover:text-blue-800">
+                    <ArrowLeft className="h-4 w-4 mr-2" />
+                    Back to Articles
+                </Link>
+            </div>
+
             <h1 className="text-2xl font-bold mb-6">Edit Article</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                    <label htmlFor="title" className="block text-sm font-medium text-gray-700">Title</label>
-                    <input
-                        type="text"
+                <div className="space-y-2">
+                    <Label htmlFor="title">Title</Label>
+                    <Input
                         id="title"
                         name="title"
                         value={formData.title}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        placeholder="Enter title"
                         required
                     />
                 </div>
 
-                <div>
-                    <label htmlFor="excerpt" className="block text-sm font-medium text-gray-700">Excerpt</label>
-                    <textarea
+                <div className="space-y-2">
+                    <Label htmlFor="excerpt">Excerpt</Label>
+                    <Textarea
                         id="excerpt"
                         name="excerpt"
                         value={formData.excerpt}
                         onChange={handleChange}
-                        rows={3}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        placeholder="Enter excerpt"
                         required
                     />
                 </div>
 
-                <div>
-                    <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image URL</label>
-                    <input
-                        type="url"
+                <div className="space-y-2">
+                    <Label htmlFor="image">Image URL</Label>
+                    <Input
                         id="image"
                         name="image"
+                        type="url"
                         value={formData.image}
                         onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                        placeholder="Enter image URL"
                         required
                     />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                    <div>
-                        <label htmlFor="author" className="block text-sm font-medium text-gray-700">Author</label>
-                        <input
-                            type="text"
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="author">Author</Label>
+                        <Input
                             id="author"
                             name="author"
                             value={formData.author}
                             onChange={handleChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="Enter author name"
                             required
                         />
                     </div>
 
-                    <div>
-                        <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
-                        <input
-                            type="text"
+                    <div className="space-y-2">
+                        <Label htmlFor="category">Category</Label>
+                        <Input
                             id="category"
                             name="category"
                             value={formData.category}
                             onChange={handleChange}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                            placeholder="Enter category"
+                            required
+                        />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="readTime">Read Time</Label>
+                        <Input
+                            id="readTime"
+                            name="readTime"
+                            value={formData.readTime}
+                            onChange={handleChange}
+                            placeholder="e.g., 5 min read"
                             required
                         />
                     </div>
                 </div>
 
-                <div>
-                    <label htmlFor="readTime" className="block text-sm font-medium text-gray-700">Read Time</label>
-                    <input
-                        type="text"
-                        id="readTime"
-                        name="readTime"
-                        value={formData.readTime}
-                        onChange={handleChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                        required
-                    />
-                </div>
-
-                <div>
-                    <label htmlFor="htmlContent" className="block text-sm font-medium text-gray-700">Content (HTML)</label>
-                    <textarea
+                <div className="space-y-2">
+                    <Label htmlFor="htmlContent">Content (HTML)</Label>
+                    <Textarea
                         id="htmlContent"
                         name="htmlContent"
                         value={formData.htmlContent}
                         onChange={handleChange}
                         rows={15}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
+                        className="font-mono"
+                        placeholder="Enter article content in HTML format"
                         required
                     />
                 </div>
 
-                <div className="flex justify-end space-x-3">
-                    <button
+                {error && (
+                    <div className="text-red-500 text-sm">{error}</div>
+                )}
+
+                <div className="flex justify-end gap-3">
+                    <Button
                         type="button"
+                        variant="outline"
                         onClick={() => router.push('/admin/articles')}
-                        className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
                     >
                         Cancel
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                         type="submit"
-                        disabled={isLoading}
-                        className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                        disabled={saving}
                     >
-                        {isLoading ? 'Saving...' : 'Save Changes'}
-                    </button>
+                        {saving ? 'Saving...' : 'Save Changes'}
+                    </Button>
                 </div>
             </form>
         </div>
