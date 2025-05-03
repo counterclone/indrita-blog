@@ -1,8 +1,8 @@
-"use client";
-
-import { useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
+import connectDB from "@/lib/mongodb";
+import Article from "@/models/Article";
+import { Document } from 'mongoose';
 
 interface Article {
   _id: string;
@@ -16,46 +16,21 @@ interface Article {
   slug: string;
 }
 
-export default function ArticlesPage() {
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const revalidate = 0; // Disable caching
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await fetch('/api/articles');
-        if (!response.ok) {
-          throw new Error('Failed to fetch articles');
-        }
-        const data = await response.json();
-        setArticles(data);
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-        setError('Failed to load articles. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, []);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-      </div>
-    );
+async function getArticles(): Promise<Article[]> {
+  try {
+    await connectDB();
+    const articles = await Article.find().sort({ date: -1 }).lean();
+    return articles as unknown as Article[];
+  } catch (error) {
+    console.error('Error fetching articles:', error);
+    throw new Error('Failed to fetch articles');
   }
+}
 
-  if (error) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="text-red-600">{error}</div>
-      </div>
-    );
-  }
+export default async function ArticlesPage() {
+  const articles = await getArticles();
 
   return (
     <div className="container mx-auto px-4 py-8">

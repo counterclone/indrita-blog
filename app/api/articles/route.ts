@@ -31,7 +31,7 @@ export async function GET() {
     } catch (error) {
         console.error('Detailed error in GET /api/articles:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch articles', details: error.message },
+            { error: 'Failed to fetch articles' },
             { status: 500 }
         );
     }
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     } catch (error) {
         console.error('Error creating article:', error);
         return NextResponse.json(
-            { error: 'Failed to create article', details: error.message },
+            { error: 'Failed to create article' },
             { status: 500 }
         );
     }
