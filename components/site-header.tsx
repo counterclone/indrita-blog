@@ -1,8 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Menu, XIcon, Mail, Linkedin } from "lucide-react"
+import { Menu, XIcon, Linkedin } from "lucide-react"
 import { useState, useEffect } from "react"
 import { LogoModern } from "@/components/logo-modern"
 
@@ -48,10 +47,7 @@ export function SiteHeader() {
           </Link>
         </nav>
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" className="hidden md:flex border-blue-600 text-blue-600 hover:bg-blue-50">
-            Subscribe
-          </Button>
-          <div className="hidden md:flex items-center gap-3 ml-2">
+          <div className="hidden md:flex items-center gap-3">
             <Link href="https://x.com/akhilhanda12" target="_blank" rel="noopener noreferrer">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -113,12 +109,6 @@ export function SiteHeader() {
             >
               About Me
             </Link>
-            <div className="flex flex-col gap-2 pt-2">
-              <Button variant="outline" size="sm" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50">
-                <Mail className="mr-1 h-3 w-3" />
-                Subscribe
-              </Button>
-            </div>
             <div className="flex gap-4 mt-4 justify-center">
               <Link href="https://x.com/akhilhanda12" target="_blank" rel="noopener noreferrer">
                 <svg

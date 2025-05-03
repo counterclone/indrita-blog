@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { Providers } from "@/components/providers"
+import { Toaster } from "@/components/ui/toaster"
 import Script from 'next/script'
 
 const inter = Inter({ subsets: ["latin"] })
@@ -62,6 +63,7 @@ export default function RootLayout({
             <SiteHeader />
             <main>{children}</main>
             <Footer />
+            <Toaster />
           </ThemeProvider>
         </Providers>
       </body>

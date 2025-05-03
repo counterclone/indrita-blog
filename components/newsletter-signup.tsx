@@ -2,22 +2,47 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { useToast } from "@/hooks/use-toast"
 
 export function NewsletterSignup() {
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [message, setMessage] = useState("")
+  const { toast } = useToast()
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
 
-    setMessage("Thank you for subscribing!")
-    setEmail("")
-    setIsSubmitting(false)
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+
+      toast({
+        title: "Success!",
+        description: data.message || "Thank you for subscribing!",
+        variant: "success"
+      });
+      setEmail("")
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: err instanceof Error ? err.message : 'Failed to subscribe',
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -40,7 +65,6 @@ export function NewsletterSignup() {
           {isSubmitting ? "Subscribing..." : "Subscribe"}
         </Button>
       </form>
-      {message && <p className="mt-4 text-green-600">{message}</p>}
     </div>
   )
 }
