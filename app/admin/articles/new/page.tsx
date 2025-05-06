@@ -16,11 +16,13 @@ export default function NewArticlePage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [createdArticleId, setCreatedArticleId] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
+    setCreatedArticleId(null);
 
     try {
       // First create the article
@@ -42,10 +44,13 @@ export default function NewArticlePage() {
       });
 
       if (!articleResponse.ok) {
-        throw new Error('Failed to create article');
+        const errorData = await articleResponse.json();
+        throw new Error(errorData.error || 'Failed to create article');
       }
 
       const article = await articleResponse.json();
+      // Keep track that we successfully created the article
+      setCreatedArticleId(article._id);
 
       // Then create the article content
       const contentResponse = await fetch('/api/article-content', {
@@ -61,12 +66,24 @@ export default function NewArticlePage() {
       });
 
       if (!contentResponse.ok) {
-        throw new Error('Failed to create article content');
+        const errorData = await contentResponse.json();
+        // Even if content creation fails, article might have been created
+        throw new Error(`Article was created, but content could not be saved: ${errorData.error || 'Unknown error'}`);
       }
 
       router.push('/admin/articles');
     } catch (err: any) {
-      setError(err.message);
+      if (createdArticleId) {
+        // If we have a created article ID, let the user know the article was created
+        // but there was an issue with the content
+        setError(`Note: The article was created and notification sent, but there was an error: ${err.message}`);
+        // Give them a few seconds to see the message before redirecting
+        setTimeout(() => {
+          router.push('/admin/articles');
+        }, 3000);
+      } else {
+        setError(err.message);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -82,7 +99,7 @@ export default function NewArticlePage() {
       <h1 className="text-2xl font-bold mb-6">Create New Article</h1>
       
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-4 mb-6">
+        <div className={`border rounded-lg p-4 mb-6 ${error.includes('Note:') ? 'bg-yellow-50 border-yellow-200 text-yellow-700' : 'bg-red-50 border-red-200 text-red-600'}`}>
           {error}
         </div>
       )}

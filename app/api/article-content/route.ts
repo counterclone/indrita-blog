@@ -23,17 +23,34 @@ export async function POST(request: Request) {
             );
         }
 
-        const articleContent = await ArticleContent.create({
-            ...data,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        });
-
-        return NextResponse.json(articleContent);
+        try {
+            const articleContent = await ArticleContent.create({
+                ...data,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+            
+            return NextResponse.json(articleContent);
+        } catch (dbError: any) {
+            // Check for duplicate key error (commonly caused by duplicate slug)
+            if (dbError.code === 11000 && dbError.keyPattern?.slug) {
+                return NextResponse.json(
+                    { error: 'An article with this slug already exists', details: 'Please use a different title' },
+                    { status: 409 }
+                );
+            }
+            
+            // Handle other database errors
+            throw dbError;
+        }
     } catch (error: any) {
         console.error('Error creating article content:', error);
         return NextResponse.json(
-            { error: 'Failed to create article content', details: error.message },
+            { 
+                error: 'Failed to create article content', 
+                details: error.message,
+                code: error.code || 'unknown'
+            },
             { status: 500 }
         );
     }
