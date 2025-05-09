@@ -10,17 +10,6 @@ interface Thought {
   date: string;
 }
 
-// Helper function to format date consistently
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC' // Add this to ensure consistent timezone
-  });
-};
-
 export default function ThoughtsPage() {
   const [thoughts, setThoughts] = useState<Thought[]>([]);
   const [loading, setLoading] = useState(true);
@@ -106,9 +95,6 @@ export default function ThoughtsPage() {
               <div
                 dangerouslySetInnerHTML={{ __html: thought.embedHtml }}
               />
-              <div className="mt-4 text-sm text-gray-500">
-                {formatDate(thought.date)}
-              </div>
             </div>
           ))}
         </div>

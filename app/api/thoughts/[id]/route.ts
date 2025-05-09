@@ -62,7 +62,11 @@ export async function PUT(
 
         const thought = await Thought.findByIdAndUpdate(
             params.id,
-            { embedHtml: data.embedHtml, updatedAt: new Date() },
+            { 
+                embedHtml: data.embedHtml,
+                date: new Date(data.date),
+                updatedAt: new Date()
+            },
             { new: true }
         );
 

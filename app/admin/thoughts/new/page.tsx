@@ -7,6 +7,7 @@ export default function NewThoughtPage() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         embedHtml: '',
+        date: new Date().toISOString().split('T')[0], // Default to today's date
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
@@ -24,7 +25,7 @@ export default function NewThoughtPage() {
                 },
                 body: JSON.stringify({
                     embedHtml: formData.embedHtml,
-                    date: new Date()
+                    date: new Date(formData.date)
                 }),
             });
 
@@ -40,7 +41,7 @@ export default function NewThoughtPage() {
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -70,6 +71,24 @@ export default function NewThoughtPage() {
                         onChange={handleChange}
                         rows={10}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+                        Tweet Date
+                    </label>
+                    <p className="text-sm text-gray-500 mb-2">
+                        Enter the original date of the tweet
+                    </p>
+                    <input
+                        type="date"
+                        id="date"
+                        name="date"
+                        value={formData.date}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         required
                     />
                 </div>

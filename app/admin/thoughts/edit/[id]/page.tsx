@@ -16,7 +16,7 @@ export default function EditThoughtPage({ params }: { params: { id: string } }) 
     const [formData, setFormData] = useState<ThoughtData>({
         _id: '',
         embedHtml: '',
-        date: new Date().toISOString()
+        date: new Date().toISOString().split('T')[0]
     });
 
     useEffect(() => {
@@ -28,6 +28,8 @@ export default function EditThoughtPage({ params }: { params: { id: string } }) 
             const response = await fetch(`/api/thoughts/${params.id}`);
             if (!response.ok) throw new Error('Failed to fetch thought');
             const thought = await response.json();
+            // Convert the date to YYYY-MM-DD format for the date input
+            thought.date = new Date(thought.date).toISOString().split('T')[0];
             setFormData(thought);
         } catch (err) {
             setError('Failed to load thought data');
@@ -48,7 +50,10 @@ export default function EditThoughtPage({ params }: { params: { id: string } }) 
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(formData),
+                body: JSON.stringify({
+                    ...formData,
+                    date: new Date(formData.date)
+                }),
             });
 
             if (!response.ok) throw new Error('Failed to update thought');
@@ -60,7 +65,7 @@ export default function EditThoughtPage({ params }: { params: { id: string } }) 
         }
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -87,6 +92,24 @@ export default function EditThoughtPage({ params }: { params: { id: string } }) 
                         onChange={handleChange}
                         rows={10}
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 font-mono text-sm"
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor="date" className="block text-sm font-medium text-gray-700">
+                        Tweet Date
+                    </label>
+                    <p className="text-sm text-gray-500 mb-2">
+                        Enter the original date of the tweet
+                    </p>
+                    <input
+                        type="date"
+                        id="date"
+                        name="date"
+                        value={formData.date}
+                        onChange={handleChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                         required
                     />
                 </div>
