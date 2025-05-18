@@ -24,10 +24,10 @@ export function SiteHeader() {
         scrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <LogoModern size={32} />
-          <span className="text-lg font-medium text-gray-900">FirstHand</span>
+      <div className="container mx-auto flex h-24 items-center justify-between px-0">
+        <Link href="/" className="flex items-center gap-4 py-2">
+          <LogoModern size={48} />
+          <span className="text-3xl font-bold tracking-tight text-gray-900">FirstHand</span>
         </Link>
         <nav className="hidden md:flex gap-8">
           <Link href="/" className="text-sm font-medium text-gray-900 hover:text-blue-600">
