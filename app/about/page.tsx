@@ -5,94 +5,96 @@ import { Button } from "@/components/ui/button"
 export const metadata = {
   title: "About Akhil Handa | FirstHand",
   description: "Learn more about Akhil Handa, Digital Banking Strategist and chronicler of fintech evolution.",
-  keywords: "Akhil Handa, digital banking, fintech, AI, Bank of Baroda, FirstHand",
+  keywords: "Akhil Handa, digital banking, fintech, AI, Bank of Baroda, JPMorgan, Citibank, Bank of America, FirstHand",
 }
 
 export default function AboutPage() {
   return (
     <div className="container mx-auto px-4 md:px-6 py-12">
       <div className="max-w-3xl mx-auto">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6">About Me</h1>
-
-        <div className="flex flex-col md:flex-row gap-8 items-start mb-12">
-          <div className="md:w-1/3">
-            <Image src="/akhil-handa-profile.jpg" alt="Akhil Handa" width={300} height={300} className="rounded-lg" />
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="font-medium">Former Chief Digital Officer – Global Top-10 Bank</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="font-medium">Board Advisor</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <span className="font-medium">Fintech & Policy Architect</span>
-              </div>
-            </div>
+        <h1 className="text-4xl font-extrabold mb-6">About Me</h1>
+        <div className="mb-8">
+          <div className="text-2xl font-bold text-gray-900 mb-2">Akhil Handa</div>
+          <div className="text-lg font-semibold text-blue-700 mb-1">Former President & Chief Digital Officer – Global Top-10 Bank</div>
+          <div className="text-base font-medium text-gray-700 mb-4">Board Advisor | Fintech & Policy Architect</div>
+          <p className="text-lg text-gray-700 mb-6">
+            Welcome to <span className="font-bold">FirstHand</span>. I'm Akhil Handa—an explorer at the intersection of digital banking, fintech, and public infrastructure. Over the past two decades, I've had the unique opportunity to witness and shape the evolution of financial services from the inside—across India, the UAE, Southeast Asia, and Hong Kong.
+          </p>
+          <p className="text-lg text-gray-700 mb-6">
+            My journey spans from a global banking perspective at <span className="font-semibold">JPMorgan</span>, where I experienced world-class capital markets and institutional banking, to the deep Indian banking evolution as <span className="font-semibold">President & Chief Digital Officer of Bank of Baroda</span>, India's second-largest public bank. I led one of the most ambitious digital transformations in Indian banking history—reimagining how over 200 million customers engage with their money.
+          </p>
+          <p className="text-lg text-gray-700 mb-6">
+            This wasn't just about tech—it was about unlocking real utility through innovation. From launching mobile-first experiences and digital lending to implementing performance-driven marketing funnels and real-time analytics—I've seen firsthand what it takes to scale digital banking with trust, reliability, and intelligence.
+          </p>
+          <div className="mb-6">
+            <div className="font-semibold text-gray-900 mb-2">I was responsible for:</div>
+            <ul className="list-disc pl-6 space-y-2 text-gray-700">
+              <li>Powering over <span className="font-bold">$1 trillion</span> in annual digital payments</li>
+              <li>Rolling out scalable platforms across lending, payments, and onboarding</li>
+              <li>Driving initiatives across <span className="font-bold">25+ international markets</span> with a global lens</li>
+              <li>Leading customer experience across digital lending, mobile banking, and embedded finance</li>
+            </ul>
           </div>
-          <div className="md:w-2/3">
-            <p className="text-gray-600 mb-6">
-              I'm Akhil Handa, a global leader in AI-powered digital banking and platform transformation, with two
-              decades of experience shaping the future of financial services across India, the UAE, SE-Asia and Hong
-              Kong.
-            </p>
-            <p className="text-gray-600 mb-6">
-              As the President & CDO of a global top 10 bank (by customers), I led the digital transformation of Bank of
-              Baroda, overseeing a bank with over 300bn USD total business, presence in 25 international markets, and
-              USD 1 trillion in annual digital payments, and launching scaled digital platforms across lending,
-              payments, and mobile banking.
-            </p>
-            <p className="text-gray-600 mb-6">
-              Through FirstHand, I chronicle my observations, insights, and conversations with innovators who are
-              reshaping how we think about banking and financial services.
-            </p>
-          </div>
+          <p className="text-lg text-gray-700 mb-6">
+            What you'll find on <span className="font-bold">FirstHand</span> is my ongoing chronicle of real-world experiences: the wins, the mistakes, the experiments that worked, and the pivots that didn't. From working with startups to steering national platforms, I've had a front-row seat to financial transformation.
+          </p>
         </div>
 
         <h2 className="text-2xl font-bold mb-4">Professional Background</h2>
         <div className="mb-8">
-          <p className="text-gray-600 mb-4">
-            Under my leadership, Bank of Baroda rolled out and scaled award-winning platforms and products, including
-            bob World—India's second most downloaded digital banking app—as well as an AI-first digital lending stack
-            and embedded finance infrastructure. I've built strategic partnerships with over 100 fintechs and technology
-            firms, across credit, payments, KYC, underwriting, and open data.
-          </p>
-
-          <h3 className="text-xl font-semibold mt-6 mb-3">Board Roles</h3>
-          <p className="text-gray-600 mb-4">
-            I have held independent board roles in pioneering digital finance institutions, including:
-          </p>
-          <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
-            <li>
-              <span className="font-medium">IBBIC Ltd</span> – Indian Banks' Blockchain Infrastructure Company backed by
-              15 Indian banks and tech firms like IBM and Infosys Finacle, focused on digitizing trade finance
-            </li>
-            <li>
-              <span className="font-medium">Online PSB Loans Ltd</span> – India's public credit marketplace funded by
-              public sector banks, SIDBI, TransUnion, Experian, NABARD, and HSBC, advancing MSME credit inclusion
-            </li>
-            <li>
-              <span className="font-medium">Baroda Global Shared Services Ltd</span> – overseeing digital operations and
-              enterprise platforms
-            </li>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-6">
+            <li><span className="font-semibold">Architected digital operations at scale</span>—serving a customer base of over 200M users across platforms</li>
+            <li><span className="font-semibold">Built bob World</span>, India's second most downloaded digital banking app</li>
+            <li><span className="font-semibold">Set up digital lending from scratch</span>, enabling the bank to lend over USD 10 billion annually across personal, SME, and co-lending segments</li>
+            <li><span className="font-semibold">Established conversational banking</span> from scratch, integrating natural language and AI-driven interfaces into daily banking</li>
+            <li><span className="font-semibold">Led funnel optimization</span> across all digital loan journeys, boosting customer conversion and retention</li>
+            <li><span className="font-semibold">Designed and launched India's first Startup Banking vertical</span>, supporting new-age businesses with tailored digital products</li>
+            <li><span className="font-semibold">Rolled out the Innovation Centre at IIT Bombay</span>, enabling deeper fintech-bank collaborations</li>
+            <li><span className="font-semibold">Championed blockchain adoption in trade finance</span>, co-leading the formation of IBBIC Ltd</li>
+            <li><span className="font-semibold">Set up a Digital Analytics Centre of Excellence</span>, leveraging a cloud-based data lake for advanced analytics and machine learning</li>
+            <li><span className="font-semibold">Created a full-stack digital marketing capability</span> for performance-based user acquisition and engagement</li>
+            <li><span className="font-semibold">Built and scaled partnerships with 100+ fintechs</span> across credit, payments, KYC, AML, and onboarding</li>
+            <li><span className="font-semibold">Upgraded and ran an ATM/CR/Cashpoint network of over 10,000 touchpoints</span></li>
+            <li><span className="font-semibold">Setup state of the art Digital Payments Fraud Monitoring Unit for prevention and detection</span></li>
+            <li><span className="font-semibold">Setup state of the art Digital Payments Fraud Monitoring Unit for prevention and detection</span></li>
+      
           </ul>
-
-          <h3 className="text-xl font-semibold mt-6 mb-3">Policy Contributions</h3>
-          <p className="text-gray-600 mb-4">
-            I've been a key contributor to national digital finance policy and infrastructure, serving on:
+          <p className="text-lg text-gray-700 mb-6">
+            From crafting customer journeys to managing 24x7 backend operations, this journey has been one of continuous iteration—where speed, empathy, and clarity make all the difference.
           </p>
-          <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
-            <li>RBI's Central Bank Digital Currency (CBDC) Core Committee – shaping India's digital rupee</li>
-            <li>Ministry of Finance's JanSamarth Taskforce – powering the national unified credit platform</li>
-            <li>Account Aggregator HLWG – architecting India's consent-based financial data-sharing framework</li>
-            <li>IDRBT AI in Banking Committee – advancing responsible AI in finance</li>
-            <li>IBA Digital Payments Standing Committee</li>
-          </ul>
+        </div>
 
-          <h3 className="text-xl font-semibold mt-6 mb-3">Industry Recognition</h3>
-          <p className="text-gray-600 mb-4">I've received top industry accolades, including:</p>
-          <ul className="list-disc pl-6 space-y-2 text-gray-600 mb-6">
+        <h2 className="text-2xl font-bold mb-4">Board Roles</h2>
+        <div className="mb-8">
+          <p className="text-lg text-gray-700 mb-4">I've contributed as a board member to several pioneering institutions:</p>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <li><span className="font-semibold">IBBIC Ltd</span> – Indian Banks' Blockchain Infrastructure Company (15-bank consortium + IBM/Infosys)</li>
+            <li><span className="font-semibold">Online PSB Loans Ltd</span> – India's public credit platform backed by SIDBI, NABARD, HSBC, and Experian</li>
+            <li><span className="font-semibold">Baroda Global Shared Services Ltd</span> – Digital operations and enterprise platform delivery</li>
+            <li><span className="font-semibold">Baroda Sun Technologies Ltd</span> – Captive tech arm of Bank of Baroda</li>
+            <li><span className="font-semibold">Mitra Microfinance</span> – Entrepreneurial microfinance venture</li>
+          </ul>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-4">Policy Contributions</h2>
+        <div className="mb-8">
+          <p className="text-lg text-gray-700 mb-4">India's digital public infrastructure story is deeply personal to me. I've been involved in shaping it through roles in:</p>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700">
+            <li>RBI's CBDC Core Committee – Designing the architecture of India's digital rupee</li>
+            <li>Ministry of Finance's JanSamarth Taskforce – Building India's unified credit access platform</li>
+            <li>Account Aggregator HLWG – Creating the foundation for India's consent-based data economy</li>
+            <li>IDRBT's AI in Banking Committee – Establishing responsible AI frameworks for financial institutions</li>
+            <li>IBA's Digital Payments Standing Committee – Driving interoperability and innovation</li>
+            <li>NITI Aayog's Women Entrepreneurship Platform – Supporting inclusive fintech design</li>
+          </ul>
+        </div>
+
+        <h2 className="text-2xl font-bold mb-4">Industry Recognition</h2>
+        <div className="mb-8">
+          <p className="text-lg text-gray-700 mb-4">Along the way, I've been humbled to be recognized by peers and institutions:</p>
+          <ul className="list-disc pl-6 space-y-2 text-gray-700">
             <li>Visionary Leader of the Year – Financial Express (2022 & 2023)</li>
-            <li>Best Chief Digital Officer – Indian Express BFSI Tech Awards & IDC</li>
+            <li>Best Chief Digital Officer – Indian Express BFSI Tech Awards, IDC</li>
             <li>Top AI Leader in India – Analytics India Magazine</li>
             <li>Best Fintech Innovator – Business Today | KPMG</li>
             <li>Best Digital Banking Product – Economic Times BFSI Innovation Awards</li>
@@ -100,17 +102,17 @@ export default function AboutPage() {
         </div>
 
         <h2 className="text-2xl font-bold mb-4">Why FirstHand?</h2>
-        <p className="text-gray-600 mb-6">
-          The name "FirstHand" reflects my approach to documenting the digital banking evolution - through direct
-          observations, personal conversations with innovators, and firsthand experiences with emerging technologies.
-          It's also a subtle nod to my surname, Handa, representing my personal perspective on these transformations.
-        </p>
-        <p className="text-gray-600 mb-6">
-          As co-author of Transformational Leadership in Banking and host of the FinTalk podcast, I regularly engage
-          with global fintech, AI, and regulatory thought leaders. An alumnus of IIT Delhi, I'm now building my next
-          AI-native venture focused on intelligent capital allocation, embedded finance, and digital infrastructure for
-          the next era of financial services.
-        </p>
+        <div className="mb-8">
+          <p className="text-lg text-gray-700 mb-6">
+            Because the future of finance isn't unfolding in theory—it's happening in the trenches: in code, in customer conversations, in failed experiments, and in unexpected product-market fits. <span className="font-bold">FirstHand</span> is my attempt to document that future—not through press releases, but through observations, insights, and unfiltered learnings.
+          </p>
+          <p className="text-lg text-gray-700 mb-6">
+            The name is a nod to my personal perspective (Handa) and the spirit of staying close to the action. Through <span className="font-bold">FirstHand</span>, I hope to share what I've learned—and learn from those walking similar paths.
+          </p>
+          <p className="text-lg text-gray-700 mb-6">
+            As co-author of <span className="font-semibold">Transformational Leadership in Banking</span> and host of the <span className="font-semibold">FinTalk podcast</span>, I continue to engage with global fintech, AI, and regulatory thought leaders. An IIT Delhi alumnus, I'm currently building my next AI-native venture focused on intelligent capital allocation, embedded finance, and digital infrastructure for the next era of financial services.
+          </p>
+        </div>
 
         <h2 className="text-2xl font-bold mb-4">My Focus Areas</h2>
         <div className="grid gap-4 md:grid-cols-2 mb-8">
