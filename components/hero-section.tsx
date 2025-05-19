@@ -106,11 +106,9 @@ export function HeroSection() {
           </div>
 
           {/* Cutting-edge visual element with global focus */}
-          <div className="relative hidden md:block h-[400px]">
+          <div className="relative h-[400px]">
             {/* Background glow effect */}
             <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-blue-400 rounded-full opacity-10 blur-3xl"></div>
-
-          
 
             {/* Glassmorphism card with terminal */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md">
