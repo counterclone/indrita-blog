@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import { ArrowRight, Globe, TrendingUp, Lock, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 // Futuristic terminal component with global banking focus
 const FuturisticTerminal = () => {
@@ -62,11 +63,13 @@ export function HeroSection() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div className="max-w-xl">
             <div className="flex items-center gap-2 mb-6">
-              <Image src="/akhil-handa-avatar.jpg" alt="Akhil Handa" width={48} height={48} className="rounded-full" />
-              <div>
-                <h2 className="text-sm font-medium">Akhil Handa</h2>
-                <p className="text-xs text-gray-500">Digital Banking Strategist</p>
-              </div>
+              <Link href="/about" className="flex items-center gap-2 mb-6 cursor-pointer">
+                <Image src="/akhil-handa-avatar.jpg" alt="Akhil Handa" width={48} height={48} className="rounded-full" />
+                <div>
+                  <h2 className="text-sm font-medium">Akhil Handa</h2>
+                  <p className="text-xs text-gray-500">Digital Banking Strategist</p>
+                </div>
+              </Link>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">FirstHand</h1>
             <p className="text-xl text-gray-600 mb-8">
