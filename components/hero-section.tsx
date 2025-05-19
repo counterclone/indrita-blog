@@ -106,12 +106,12 @@ export function HeroSection() {
           </div>
 
           {/* Cutting-edge visual element with global focus */}
-          <div className="relative h-[400px]">
+          <div className="relative h-[475px]">
             {/* Background glow effect */}
-            <div className="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] h-[350px] bg-blue-400 rounded-full opacity-10 blur-3xl"></div>
+            <div className="absolute md:-z-10 md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 w-[350px] h-[350px] bg-blue-400 rounded-full opacity-10 blur-3xl"></div>
 
             {/* Glassmorphism card with terminal */}
-            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md">
+            <div className="w-[90%] max-w-md mx-auto mt-8 md:mt-0 md:absolute md:top-1/2 md:left-1/2 md:transform md:-translate-x-1/2 md:-translate-y-1/2">
               <div className="backdrop-blur-xl bg-white/30 rounded-2xl border border-white/20 shadow-xl p-6 overflow-hidden">
                 <div className="mb-4">
                   <FuturisticTerminal />
