@@ -12,7 +12,7 @@ if (!MONGODB_URI) {
 
 async function insertArticleContent() {
     try {
-        await mongoose.connect(MONGODB_URI);
+        await mongoose.connect(MONGODB_URI!);
         console.log('Connected to MongoDB');
 
         // Define the article content schema
