@@ -33,7 +33,7 @@ export default function AboutPage() {
             <div className="mb-6">
               <div className="font-semibold text-gray-900 mb-2">I was responsible for:</div>
               <ul className="list-disc pl-6 space-y-2 text-gray-700">
-                <li>Powering over <span className="font-bold">$1 trillion</span> in annual digital payments</li>
+                <li>Powering over <span className="font-bold">$1 trillion</span> in annual digital payments settlements</li>
                 <li>Rolling out scalable platforms across lending, payments, and onboarding</li>
                 <li>Driving initiatives across <span className="font-bold">25+ international markets</span> with a global lens</li>
                 <li>Leading customer experience across digital lending, mobile banking, and embedded finance</li>
@@ -53,15 +53,16 @@ export default function AboutPage() {
             <li><span className="font-semibold">Set up digital lending from scratch</span>, enabling the bank to lend over USD 10 billion annually across personal, SME, and co-lending segments</li>
             <li><span className="font-semibold">Established conversational banking</span> from scratch, integrating natural language and AI-driven interfaces into daily banking</li>
             <li><span className="font-semibold">Led funnel optimization</span> across all digital loan journeys, boosting customer conversion and retention</li>
-            <li><span className="font-semibold">Designed and launched India's first Startup Banking vertical</span>, supporting new-age businesses with tailored digital products</li>
+            <li><span className="font-semibold">Designed and launched India's first Startup Banking vertical, banking nearly 10% of eligible startups at peak</span>, supporting new-age businesses with tailored digital products</li>
             <li><span className="font-semibold">Rolled out the Innovation Centre at IIT Bombay</span>, enabling deeper fintech-bank collaborations</li>
             <li><span className="font-semibold">Championed blockchain adoption in trade finance</span>, co-leading the formation of IBBIC Ltd</li>
-            <li><span className="font-semibold">Set up a Digital Analytics Centre of Excellence</span>, leveraging a cloud-based data lake for advanced analytics and machine learning</li>
+            <li><span className="font-semibold">Set up a Digital Analytics Bench of Excellence</span>, leveraging a cloud-based data lake for advanced analytics and machine learning</li>
             <li><span className="font-semibold">Created a full-stack digital marketing capability</span> for performance-based user acquisition and engagement</li>
-            <li><span className="font-semibold">Built and scaled partnerships with 100+ fintechs</span> across credit, payments, KYC, AML, and onboarding</li>
+            <li><span className="font-semibold">Built and scaled partnerships with 50+ fintechs</span> across credit, payments, KYC, AML, and onboarding</li>
             <li><span className="font-semibold">Upgraded and ran an ATM/CR/Cashpoint network of over 10,000 touchpoints</span></li>
             <li><span className="font-semibold">Setup state of the art Digital Payments Fraud Monitoring Unit for prevention and detection</span></li>
-            <li><span className="font-semibold">Setup state of the art Digital Payments Fraud Monitoring Unit for prevention and detection</span></li>
+            <li><span className="font-semibold">Setup novel Digital banking Units - new branch concept for delivering services phygitally</span></li>
+            
       
           </ul>
           <p className="text-lg text-gray-700 mb-6">
@@ -71,7 +72,7 @@ export default function AboutPage() {
 
         <h2 className="text-2xl font-bold mb-4">Board Roles</h2>
         <div className="mb-8">
-          <p className="text-lg text-gray-700 mb-4">I've contributed as a board member to several pioneering institutions:</p>
+          <p className="text-lg text-gray-700 mb-4">I've contributed as a board member to several pioneering institutions, including:</p>
           <ul className="list-disc pl-6 space-y-2 text-gray-700">
             <li><span className="font-semibold">IBBIC Ltd</span> – Indian Banks' Blockchain Infrastructure Company (15-bank consortium + IBM/Infosys)</li>
             <li><span className="font-semibold">Online PSB Loans Ltd</span> – India's public credit platform backed by SIDBI, NABARD, HSBC, and Experian</li>
@@ -81,15 +82,16 @@ export default function AboutPage() {
           </ul>
         </div>
 
-        <h2 className="text-2xl font-bold mb-4">Policy Contributions</h2>
+        <h2 className="text-2xl font-bold mb-4">Some Policy Contributions</h2>
         <div className="mb-8">
           <p className="text-lg text-gray-700 mb-4">India's digital public infrastructure story is deeply personal to me. I've been involved in shaping it through roles in:</p>
           <ul className="list-disc pl-6 space-y-2 text-gray-700">
             <li>RBI's CBDC Core Committee – Designing the architecture of India's digital rupee</li>
             <li>Ministry of Finance's JanSamarth Taskforce – Building India's unified credit access platform</li>
+            <li>Ministry of Finance's JanSuraksha Taskforce – Building India's unified benefits insurance access platform</li>
             <li>Account Aggregator HLWG – Creating the foundation for India's consent-based data economy</li>
             <li>IDRBT's AI in Banking Committee – Establishing responsible AI frameworks for financial institutions</li>
-            <li>IBA's Digital Payments Standing Committee – Driving interoperability and innovation</li>
+            <li>Indian Bank's Association (IBA's) Digital Payments Standing Committee – Driving interoperability and innovation</li>
             <li>NITI Aayog's Women Entrepreneurship Platform – Supporting inclusive fintech design</li>
           </ul>
         </div>
