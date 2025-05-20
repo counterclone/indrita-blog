@@ -13,31 +13,36 @@ export default function AboutPage() {
     <div className="container mx-auto px-4 md:px-6 py-12">
       <div className="max-w-3xl mx-auto">
         <h1 className="text-4xl font-extrabold mb-6">About Me</h1>
-        <div className="mb-8">
-          <div className="text-2xl font-bold text-gray-900 mb-2">Akhil Handa</div>
-          <div className="text-lg font-semibold text-blue-700 mb-1">Former President & Chief Digital Officer – Global Top-10 Bank</div>
-          <div className="text-base font-medium text-gray-700 mb-4">Board Advisor | Fintech & Policy Architect</div>
-          <p className="text-lg text-gray-700 mb-6">
-            Welcome to <span className="font-bold">FirstHand</span>. I'm Akhil Handa—an explorer at the intersection of digital banking, fintech, and public infrastructure. Over the past two decades, I've had the unique opportunity to witness and shape the evolution of financial services from the inside—across India, the UAE, Southeast Asia, and Hong Kong.
-          </p>
-          <p className="text-lg text-gray-700 mb-6">
-            My journey spans from a global banking perspective at <span className="font-semibold">JPMorgan</span>, where I experienced world-class capital markets and institutional banking, to the deep Indian banking evolution as <span className="font-semibold">President & Chief Digital Officer of Bank of Baroda</span>, India's second-largest public bank. I led one of the most ambitious digital transformations in Indian banking history—reimagining how over 200 million customers engage with their money.
-          </p>
-          <p className="text-lg text-gray-700 mb-6">
-            This wasn't just about tech—it was about unlocking real utility through innovation. From launching mobile-first experiences and digital lending to implementing performance-driven marketing funnels and real-time analytics—I've seen firsthand what it takes to scale digital banking with trust, reliability, and intelligence.
-          </p>
-          <div className="mb-6">
-            <div className="font-semibold text-gray-900 mb-2">I was responsible for:</div>
-            <ul className="list-disc pl-6 space-y-2 text-gray-700">
-              <li>Powering over <span className="font-bold">$1 trillion</span> in annual digital payments</li>
-              <li>Rolling out scalable platforms across lending, payments, and onboarding</li>
-              <li>Driving initiatives across <span className="font-bold">25+ international markets</span> with a global lens</li>
-              <li>Leading customer experience across digital lending, mobile banking, and embedded finance</li>
-            </ul>
+        <div className="flex flex-col md:flex-row gap-8 items-start mb-8">
+          <div className="md:w-1/3 flex-shrink-0 flex justify-center md:justify-start">
+            <Image src="/akhil-handa-profile.jpg" alt="Akhil Handa" width={240} height={240} className="rounded-lg shadow-lg" />
           </div>
-          <p className="text-lg text-gray-700 mb-6">
-            What you'll find on <span className="font-bold">FirstHand</span> is my ongoing chronicle of real-world experiences: the wins, the mistakes, the experiments that worked, and the pivots that didn't. From working with startups to steering national platforms, I've had a front-row seat to financial transformation.
-          </p>
+          <div className="md:w-2/3 w-full">
+            <div className="text-2xl font-bold text-gray-900 mb-2">Akhil Handa</div>
+            <div className="text-lg font-semibold text-blue-700 mb-1">Former President & Chief Digital Officer – Global Top-10 Bank</div>
+            <div className="text-base font-medium text-gray-700 mb-4">Board Advisor | Fintech & Policy Architect</div>
+            <p className="text-lg text-gray-700 mb-6">
+              Welcome to <span className="font-bold">FirstHand</span>. I'm Akhil Handa—an explorer at the intersection of digital banking, fintech, and public infrastructure. Over the past two decades, I've had the unique opportunity to witness and shape the evolution of financial services from the inside—across India, the UAE, Southeast Asia, and Hong Kong.
+            </p>
+            <p className="text-lg text-gray-700 mb-6">
+              My journey spans from a global banking perspective at <span className="font-semibold">JPMorgan</span>, where I experienced world-class capital markets and institutional banking, to the deep Indian banking evolution as <span className="font-semibold">President & Chief Digital Officer of Bank of Baroda</span>, India's second-largest public bank. I led one of the most ambitious digital transformations in Indian banking history—reimagining how over 200 million customers engage with their money.
+            </p>
+            <p className="text-lg text-gray-700 mb-6">
+              This wasn't just about tech—it was about unlocking real utility through innovation. From launching mobile-first experiences and digital lending to implementing performance-driven marketing funnels and real-time analytics—I've seen firsthand what it takes to scale digital banking with trust, reliability, and intelligence.
+            </p>
+            <div className="mb-6">
+              <div className="font-semibold text-gray-900 mb-2">I was responsible for:</div>
+              <ul className="list-disc pl-6 space-y-2 text-gray-700">
+                <li>Powering over <span className="font-bold">$1 trillion</span> in annual digital payments</li>
+                <li>Rolling out scalable platforms across lending, payments, and onboarding</li>
+                <li>Driving initiatives across <span className="font-bold">25+ international markets</span> with a global lens</li>
+                <li>Leading customer experience across digital lending, mobile banking, and embedded finance</li>
+              </ul>
+            </div>
+            <p className="text-lg text-gray-700 mb-6">
+              What you'll find on <span className="font-bold">FirstHand</span> is my ongoing chronicle of real-world experiences: the wins, the mistakes, the experiments that worked, and the pivots that didn't. From working with startups to steering national platforms, I've had a front-row seat to financial transformation.
+            </p>
+          </div>
         </div>
 
         <h2 className="text-2xl font-bold mb-4">Professional Background</h2>
