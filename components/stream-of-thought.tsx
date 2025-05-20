@@ -1,14 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { ArrowRight } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-
-interface Thought {
-  _id: string;
-  embedHtml: string;
-  date: string;
-}
+import { ArrowRight } from "lucide-react"
+import { useTweets } from "@/hooks/useTweets"
 
 // Wave animation component
 const WaveBackground = () => {
@@ -36,49 +30,14 @@ const WaveBackground = () => {
 }
 
 export function StreamOfThought() {
-  const [thoughts, setThoughts] = useState<Thought[]>([])
-  const [visibleCount, setVisibleCount] = useState(3)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const fetchThoughts = async () => {
-      try {
-        const response = await fetch('/api/thoughts')
-        if (!response.ok) {
-          throw new Error('Failed to fetch thoughts')
-        }
-        const data = await response.json()
-        setThoughts(data)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchThoughts()
-  }, [])
-
-  // Load Twitter widgets after component mounts
-  useEffect(() => {
-    // @ts-ignore
-    if (window.twttr) {
-      // @ts-ignore
-      window.twttr.widgets.load()
-    }
-  }, [thoughts, visibleCount])
-
-  const showMore = () => {
-    setVisibleCount(Math.min(visibleCount + 3, thoughts.length))
-  }
+  const { tweets, loading, error, hasMore, loadMore } = useTweets();
 
   if (error) {
     return (
       <div className="text-center py-12">
         <p className="text-red-600">Error: {error}</p>
       </div>
-    )
+    );
   }
 
   return (
@@ -107,14 +66,14 @@ export function StreamOfThought() {
           <span className="text-sm text-gray-500 ml-auto">President & CDO</span>
         </div>
 
-        {isLoading ? (
+        {loading ? (
           <div className="flex justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
         ) : (
           <AnimatePresence>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {thoughts.slice(0, visibleCount).map((thought, index) => (
+              {tweets.map((thought, index) => (
                 <motion.div
                   key={thought._id}
                   initial={{ opacity: 0, y: 20 }}
@@ -133,10 +92,10 @@ export function StreamOfThought() {
           </AnimatePresence>
         )}
 
-        {!isLoading && visibleCount < thoughts.length && (
+        {hasMore && !loading && (
           <div className="flex justify-center mt-8">
             <button
-              onClick={showMore}
+              onClick={loadMore}
               className="flex items-center gap-2 px-4 py-2 text-blue-600 hover:text-blue-800 font-medium"
             >
               Show more thoughts
@@ -146,5 +105,5 @@ export function StreamOfThought() {
         )}
       </div>
     </div>
-  )
+  );
 }

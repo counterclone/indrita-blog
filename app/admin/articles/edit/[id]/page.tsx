@@ -14,7 +14,7 @@ interface FormData {
     excerpt: string;
     image: string;
     author: string;
-    category: string;
+    category: string[];
     readTime: string;
     htmlContent: string;
 }
@@ -26,7 +26,7 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
         excerpt: '',
         image: '',
         author: '',
-        category: '',
+        category: [],
         readTime: '',
         htmlContent: ''
     });
@@ -34,32 +34,88 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    const categories = [
+        "AI in Banking",
+        "Digital Transformation",
+        "Fintech Innovation",
+        "Global Trends"
+    ];
+
     useEffect(() => {
         fetchArticleData();
     }, []);
 
     const fetchArticleData = async () => {
         try {
+            console.log('Fetching article data for ID:', params.id);
+            
             // Fetch article data
             const articleResponse = await fetch(`/api/articles/${params.id}`);
-            if (!articleResponse.ok) throw new Error('Failed to fetch article');
+            if (!articleResponse.ok) {
+                const errorData = await articleResponse.json();
+                console.error('Failed to fetch article:', errorData);
+                throw new Error(errorData.error || 'Failed to fetch article');
+            }
             const article = await articleResponse.json();
+            console.log('Article data fetched:', article);
+
+            // Convert category to array if it's a string
+            let categoryArray: string[] = [];
+            if (article.category) {
+                if (Array.isArray(article.category)) {
+                    categoryArray = article.category;
+                } else if (typeof article.category === 'string') {
+                    // Handle legacy data where category was a single string
+                    categoryArray = [article.category];
+                }
+            }
 
             // Fetch article content
-            const contentResponse = await fetch(`/api/article-content/${params.id}`);
-            if (!contentResponse.ok) throw new Error('Failed to fetch article content');
-            const content = await contentResponse.json();
-
-            setFormData({
-                title: article.title,
-                excerpt: article.excerpt,
-                image: article.image,
-                author: article.author,
-                category: article.category,
-                readTime: article.readTime,
-                htmlContent: content.htmlContent
-            });
+            try {
+                const contentResponse = await fetch(`/api/article-content/${params.id}`);
+                if (!contentResponse.ok) {
+                    const errorData = await contentResponse.json();
+                    console.error('Failed to fetch article content:', errorData);
+                    // Don't throw here, just set a default empty content
+                    setFormData({
+                        title: article.title || '',
+                        excerpt: article.excerpt || '',
+                        image: article.image || '',
+                        author: article.author || '',
+                        category: categoryArray,
+                        readTime: article.readTime || '',
+                        htmlContent: '' // Empty content as fallback
+                    });
+                    setError('Article content not found. Starting with empty content that will be created on save.');
+                } else {
+                    const content = await contentResponse.json();
+                    console.log('Article content fetched:', content);
+                    setFormData({
+                        title: article.title || '',
+                        excerpt: article.excerpt || '',
+                        image: article.image || '',
+                        author: article.author || '',
+                        category: categoryArray,
+                        readTime: article.readTime || '',
+                        htmlContent: content.htmlContent || ''
+                    });
+                }
+            } catch (contentErr) {
+                console.error('Error fetching content:', contentErr);
+                // Still allow editing the article even if content fetch fails
+                setFormData({
+                    title: article.title || '',
+                    excerpt: article.excerpt || '',
+                    image: article.image || '',
+                    author: article.author || '',
+                    category: categoryArray,
+                    readTime: article.readTime || '',
+                    htmlContent: '' // Empty content as fallback
+                });
+                setError('Error loading article content. Starting with empty content that will be created on save.');
+            }
         } catch (err) {
+            console.error('Error in fetchArticleData:', err);
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
@@ -76,12 +132,34 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
         }));
     };
 
+    const handleCategoryChange = (category: string) => {
+        setFormData(prev => {
+            if (prev.category.includes(category)) {
+                // Remove category if it's already selected
+                return {
+                    ...prev,
+                    category: prev.category.filter(cat => cat !== category)
+                };
+            } else {
+                // Add category if it's not selected
+                return {
+                    ...prev,
+                    category: [...prev.category, category]
+                };
+            }
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setSaving(true);
         setError(null);
 
         try {
+            // Log what we're submitting
+            console.log('Submitting form data:', formData);
+            console.log('Category type:', typeof formData.category, 'Value:', formData.category);
+            
             // Update article data
             const articleResponse = await fetch(`/api/articles/${params.id}`, {
                 method: 'PUT',
@@ -101,6 +179,7 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
 
             if (!articleResponse.ok) {
                 const data = await articleResponse.json();
+                console.error('API error response:', data);
                 throw new Error(data.error || 'Failed to update article');
             }
 
@@ -113,7 +192,7 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    articleId: article._id,
+                    articleId: params.id,
                     slug: article.slug,
                     htmlContent: formData.htmlContent
                 }),
@@ -197,15 +276,23 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="category">Category</Label>
-                        <Input
-                            id="category"
-                            name="category"
-                            value={formData.category}
-                            onChange={handleChange}
-                            placeholder="Enter category"
-                            required
-                        />
+                        <Label>Categories</Label>
+                        <div className="space-y-2 pt-1">
+                            {categories.map((category) => (
+                                <div key={category} className="flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        id={`category-${category}`}
+                                        checked={formData.category.includes(category)}
+                                        onChange={() => handleCategoryChange(category)}
+                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    />
+                                    <label htmlFor={`category-${category}`} className="ml-2 text-sm text-gray-700">
+                                        {category}
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <div className="space-y-2">

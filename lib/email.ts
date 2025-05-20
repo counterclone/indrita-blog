@@ -14,34 +14,42 @@ export async function sendNewArticleNotification(articleTitle: string, articleEx
     try {
         // Get all active subscribers
         const subscribers = await Subscriber.find({ subscribed: true });
-        const subscriberEmails = subscribers.map(sub => sub.email);
-
-        if (subscriberEmails.length === 0) {
+        
+        if (subscribers.length === 0) {
             console.log('No subscribers to notify');
             return;
         }
+        
+        console.log(`Sending notification to ${subscribers.length} subscribers`);
+        
+        // Send individual emails to each subscriber
+        for (const subscriber of subscribers) {
+            // Create personalized unsubscribe link
+            const unsubscribeUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/unsubscribe?email=${encodeURIComponent(subscriber.email)}`;
+            
+            // Email content
+            const mailOptions = {
+                from: process.env.EMAIL_USER,
+                to: subscriber.email,
+                subject: `New Article: ${articleTitle}`,
+                html: `
+                    <h2>${articleTitle}</h2>
+                    <p>${articleExcerpt}</p>
+                    <p>Read the full article: <a href="${articleUrl}">${articleUrl}</a></p>
+                    <hr>
+                    <p style="font-size: 12px; color: #666;">
+                        You're receiving this because you subscribed to article updates. 
+                        <a href="${unsubscribeUrl}">Unsubscribe</a>
+                    </p>
+                `
+            };
 
-        // Email content
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
-            bcc: subscriberEmails, // Use BCC for privacy
-            subject: `New Article: ${articleTitle}`,
-            html: `
-                <h2>${articleTitle}</h2>
-                <p>${articleExcerpt}</p>
-                <p>Read the full article: <a href="${articleUrl}">${articleUrl}</a></p>
-                <hr>
-                <p style="font-size: 12px; color: #666;">
-                    You're receiving this because you subscribed to article updates. 
-                    <a href="${process.env.NEXT_PUBLIC_SITE_URL}/unsubscribe">Unsubscribe</a>
-                </p>
-            `
-        };
-
-        // Send email
-        const info = await transporter.sendMail(mailOptions);
-        console.log('Email notification sent:', info.messageId);
-        return info;
+            // Send email
+            const info = await transporter.sendMail(mailOptions);
+            console.log(`Email sent to ${subscriber.email}: ${info.messageId}`);
+        }
+        
+        return { success: true, count: subscribers.length };
 
     } catch (error) {
         console.error('Failed to send email notification:', error);

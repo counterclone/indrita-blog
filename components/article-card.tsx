@@ -7,12 +7,17 @@ interface ArticleCardProps {
   image: string
   date: string
   author: string
-  category: string
+  category: string | string[]
   slug: string
   _id: string
 }
 
 export function ArticleCard({ title, excerpt, image, date, author, category, slug, _id }: ArticleCardProps) {
+  // Format category for display
+  const categoryDisplay = Array.isArray(category) 
+    ? category.join(", ") 
+    : category;
+    
   return (
     <Link href={`/article-content/${slug}`} className="group">
       <div className="overflow-hidden rounded-lg mb-4">
@@ -27,7 +32,7 @@ export function ArticleCard({ title, excerpt, image, date, author, category, slu
       </div>
       <div>
         <div className="mb-2 flex items-center gap-2">
-          <span className="text-xs font-medium text-blue-600">{category}</span>
+          <span className="text-xs font-medium text-blue-600">{categoryDisplay}</span>
           <span className="text-xs text-gray-500">•</span>
           <span className="text-xs text-gray-500">{date}</span>
         </div>

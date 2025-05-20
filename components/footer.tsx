@@ -65,23 +65,23 @@ export function Footer() {
             <h3 className="text-sm font-medium mb-3">Topics</h3>
             <ul className="space-y-2">
               <li>
-                <Link href="/topics/ai" className="text-sm text-gray-500 hover:text-blue-600">
+                <Link href="/topics/ai-banking" className="text-sm text-gray-500 hover:text-blue-600">
                   AI in Banking
                 </Link>
               </li>
               <li>
-                <Link href="/topics/fintech" className="text-sm text-gray-500 hover:text-blue-600">
+                <Link href="/topics/fintech-innovation" className="text-sm text-gray-500 hover:text-blue-600">
                   Fintech Innovation
                 </Link>
               </li>
               <li>
-                <Link href="/topics/digital" className="text-sm text-gray-500 hover:text-blue-600">
+                <Link href="/topics/digital-transformation" className="text-sm text-gray-500 hover:text-blue-600">
                   Digital Transformation
                 </Link>
               </li>
               <li>
-                <Link href="/topics/regulation" className="text-sm text-gray-500 hover:text-blue-600">
-                  Regulation & Compliance
+                <Link href="/topics/global-trends" className="text-sm text-gray-500 hover:text-blue-600">
+                  Global Trends
                 </Link>
               </li>
             </ul>

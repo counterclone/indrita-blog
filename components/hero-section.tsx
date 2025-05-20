@@ -49,12 +49,28 @@ export function HeroSection() {
     e.preventDefault()
     setIsSubmitting(true)
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
 
-    setMessage("Thank you for subscribing!")
-    setEmail("")
-    setIsSubmitting(false)
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+
+      setMessage(data.message || "Thank you for subscribing!");
+      setEmail("")
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed to subscribe');
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (

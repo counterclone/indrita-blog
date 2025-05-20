@@ -6,7 +6,7 @@ import { SiteHeader } from "@/components/site-header"
 import { Footer } from "@/components/footer"
 import { Providers } from "@/components/providers"
 import { Toaster } from "@/components/ui/toaster"
-import Script from 'next/script'
+import { TwitterScript } from "@/components/twitter-script"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -16,6 +16,20 @@ export const metadata = {
   description:
     "Akhil Handa's personal chronicle of digital banking evolution, fintech innovations, and emerging trends in financial services.",
   keywords: "Akhil Handa, digital banking, fintech, banking innovation, financial technology, FirstHand",
+  icons: {
+    icon: [
+      { url: "/favicon.png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-48x48.png", sizes: "48x48", type: "image/png" },
+      { url: "/favicon-64x64.png", sizes: "64x64", type: "image/png" },
+      { url: "/favicon-128x128.png", sizes: "128x128", type: "image/png" },
+      { url: "/favicon-256x256.png", sizes: "256x256", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png" },
+    ],
+  },
   openGraph: {
     title: "FirstHand by Akhil Handa | Digital Banking Evolution",
     description:
@@ -55,9 +69,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <Script src="https://platform.twitter.com/widgets.js" strategy="lazyOnload" />
+        <TwitterScript />
+        <link rel="icon" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
       </head>
-      <body className={`${inter.className} bg-white text-gray-900`}>
+      <body className={`${inter.className} bg-white text-gray-900`} suppressHydrationWarning>
         <Providers>
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem disableTransitionOnChange>
             <SiteHeader />

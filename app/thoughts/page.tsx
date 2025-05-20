@@ -1,72 +1,51 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useTweets } from "@/hooks/useTweets";
 
-interface Thought {
-  _id: string;
-  embedHtml: string;
-  date: string;
-}
-
-// Helper function to format date consistently
 const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', {
+  return new Date(dateString).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
-    timeZone: 'UTC' // Add this to ensure consistent timezone
+    day: 'numeric'
   });
 };
 
 export default function ThoughtsPage() {
-  const [thoughts, setThoughts] = useState<Thought[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { tweets, loading, loadingMore, error, hasMore, loadMore } = useTweets();
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const loadingRef = useRef<HTMLDivElement>(null);
 
+  // Callback for intersection observer
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const target = entries[0];
+    if (target.isIntersecting && hasMore && !loadingMore) {
+      loadMore();
+    }
+  }, [hasMore, loadMore, loadingMore]);
+
+  // Set up intersection observer
   useEffect(() => {
-    const fetchThoughts = async () => {
-      try {
-        const response = await fetch('/api/thoughts', {
-          method: 'GET',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (!response.ok) {
-          const errorData = await response.text();
-          console.error('Error response:', errorData);
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-          throw new Error('Invalid data format received');
-        }
-        setThoughts(data);
-      } catch (error) {
-        console.error('Error fetching thoughts:', error);
-        setError('Failed to load thoughts. Please try again later.');
-      } finally {
-        setLoading(false);
-      }
+    const options = {
+      root: null,
+      rootMargin: '20px',
+      threshold: 0.1,
     };
 
-    fetchThoughts();
-  }, []);
-
-  // Load Twitter widgets after thoughts are loaded
-  useEffect(() => {
-    // @ts-ignore
-    if (window.twttr && thoughts.length > 0) {
-      // @ts-ignore
-      window.twttr.widgets.load();
+    observerRef.current = new IntersectionObserver(handleObserver, options);
+    
+    if (loadingRef.current) {
+      observerRef.current.observe(loadingRef.current);
     }
-  }, [thoughts]);
+
+    return () => {
+      if (observerRef.current) {
+        observerRef.current.disconnect();
+      }
+    };
+  }, [handleObserver]);
 
   if (loading) {
     return (
@@ -97,8 +76,8 @@ export default function ThoughtsPage() {
 
         <h1 className="text-3xl font-bold mb-8">Thoughts</h1>
 
-        <div className="grid gap-8 md:grid-cols-2">
-          {thoughts.map((thought) => (
+        <div className="grid gap-8 md:grid-cols-2 tweet-container">
+          {tweets.map((thought) => (
             <div
               key={thought._id}
               className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow"
@@ -111,6 +90,13 @@ export default function ThoughtsPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Loading indicator and observer target */}
+        <div ref={loadingRef} className="py-8 flex justify-center">
+          {loadingMore && (
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          )}
         </div>
       </div>
     </div>

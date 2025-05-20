@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -11,12 +11,12 @@ interface Article {
   image: string;
   date: string;
   author: string;
-  category: string | string[];
+  category: string[];
   readTime: string;
   slug: string;
 }
 
-export default function ArticlesPage() {
+export default function DigitalTransformationPage() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -29,7 +29,13 @@ export default function ArticlesPage() {
           throw new Error('Failed to fetch articles');
         }
         const data = await response.json();
-        setArticles(data);
+        // Filter articles that have the "Digital Transformation" category
+        const digitalArticles = data.filter((article: Article) => 
+          Array.isArray(article.category) 
+            ? article.category.includes("Digital Transformation")
+            : article.category === "Digital Transformation"
+        );
+        setArticles(digitalArticles);
       } catch (error) {
         console.error('Error fetching articles:', error);
         setError('Failed to load articles. Please try again later.');
@@ -58,10 +64,17 @@ export default function ArticlesPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold mb-8">Articles</h1>
-        
+    <div className="max-w-4xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4">Digital Transformation</h1>
+      <p className="text-gray-600 mb-8">
+        Documenting how traditional banks are evolving in the digital age and the challenges they face.
+      </p>
+      
+      {articles.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-gray-500">No articles found in this category.</p>
+        </div>
+      ) : (
         <div className="grid gap-6 md:grid-cols-2">
           {articles.map((article) => (
             <article
@@ -106,7 +119,7 @@ export default function ArticlesPage() {
             </article>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
-}
+} 

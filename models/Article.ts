@@ -7,9 +7,11 @@ const ArticleSchema = new mongoose.Schema({
     image: String,
     date: Date,
     author: String,
-    category: String,
+    category: [String],
     readTime: String,
     slug: String
 });
 
-export default mongoose.models.Article || mongoose.model('Article', ArticleSchema);
+// Use this pattern to avoid model redefinition errors
+const Article = mongoose.models.Article || mongoose.model('Article', ArticleSchema);
+export default Article;

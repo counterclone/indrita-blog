@@ -10,13 +10,20 @@ export default function NewArticlePage() {
     excerpt: '',
     image: '',
     author: '',
-    category: '',
+    category: [] as string[],
     readTime: '',
     htmlContent: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [createdArticleId, setCreatedArticleId] = useState<string | null>(null);
+
+  const categories = [
+    "AI in Banking",
+    "Digital Transformation",
+    "Fintech Innovation",
+    "Global Trends"
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,6 +32,10 @@ export default function NewArticlePage() {
     setCreatedArticleId(null);
 
     try {
+      // Log what we're submitting
+      console.log('Submitting form data:', formData);
+      console.log('Category type:', typeof formData.category, 'Value:', formData.category);
+      
       // First create the article
       const articleResponse = await fetch('/api/articles', {
         method: 'POST',
@@ -45,6 +56,7 @@ export default function NewArticlePage() {
 
       if (!articleResponse.ok) {
         const errorData = await articleResponse.json();
+        console.error('API error response:', errorData);
         throw new Error(errorData.error || 'Failed to create article');
       }
 
@@ -92,6 +104,24 @@ export default function NewArticlePage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCategoryChange = (category: string) => {
+    setFormData(prev => {
+      if (prev.category.includes(category)) {
+        // Remove category if it's already selected
+        return {
+          ...prev,
+          category: prev.category.filter(cat => cat !== category)
+        };
+      } else {
+        // Add category if it's not selected
+        return {
+          ...prev,
+          category: [...prev.category, category]
+        };
+      }
+    });
   };
 
   return (
@@ -167,18 +197,25 @@ export default function NewArticlePage() {
           </div>
 
           <div>
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
-              Category
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Categories
             </label>
-            <input
-              type="text"
-              id="category"
-              name="category"
-              value={formData.category}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
+            <div className="space-y-2">
+              {categories.map((category) => (
+                <div key={category} className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id={`category-${category}`}
+                    checked={formData.category.includes(category)}
+                    onChange={() => handleCategoryChange(category)}
+                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor={`category-${category}`} className="ml-2 text-sm text-gray-700">
+                    {category}
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

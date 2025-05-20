@@ -19,7 +19,7 @@ interface Article {
   image: string;
   date: string;
   author: string;
-  category: string;
+  category: string | string[];
   slug: string;
 }
 

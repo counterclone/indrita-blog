@@ -9,12 +9,17 @@ interface FeaturedArticleProps {
   image: string
   date: string
   author: string
-  category: string
+  category: string | string[]
   slug: string
   _id: string
 }
 
 export function FeaturedArticle({ title, excerpt, image, date, author, category, slug, _id }: FeaturedArticleProps) {
+  // Format category for display
+  const categoryDisplay = Array.isArray(category) 
+    ? category.join(", ") 
+    : category;
+    
   return (
     <div className="grid md:grid-cols-2 gap-8 items-center">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
@@ -22,7 +27,7 @@ export function FeaturedArticle({ title, excerpt, image, date, author, category,
       </div>
       <div>
         <div className="mb-2 flex items-center gap-2">
-          <span className="text-xs font-medium text-blue-600">{category}</span>
+          <span className="text-xs font-medium text-blue-600">{categoryDisplay}</span>
           <span className="text-xs text-gray-500">•</span>
           <span className="text-xs text-gray-500">{date}</span>
         </div>
