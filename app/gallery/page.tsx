@@ -65,9 +65,6 @@ export default function GalleryPage() {
                             <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-30 transition-opacity flex items-end">
                                 <div className="w-full p-4 text-white bg-gradient-to-t from-black/60 to-transparent">
                                     <h3 className="font-semibold">{item.title}</h3>
-                                    <p className="text-sm opacity-75">
-                                        {new Date(item.date).toLocaleDateString()}
-                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -80,9 +77,6 @@ export default function GalleryPage() {
                     <DialogContent className="max-w-4xl">
                         <DialogHeader>
                             <DialogTitle>{selectedImage.title}</DialogTitle>
-                            <DialogDescription>
-                                {new Date(selectedImage.date).toLocaleDateString()}
-                            </DialogDescription>
                         </DialogHeader>
                         <div className="relative aspect-auto w-full overflow-hidden rounded-lg">
                             <Image

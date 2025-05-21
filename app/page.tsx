@@ -11,6 +11,7 @@ import { NewsletterSignup } from "@/components/newsletter-signup"
 import { StreamOfThought } from "@/components/stream-of-thought"
 import { LinkedInArticles } from "@/components/linkedin-articles"
 import { HeroSection } from "@/components/hero-section"
+import { SubscribeDialog } from '@/components/subscribe-dialog'
 
 interface Article {
   _id: string;

@@ -1,23 +1,28 @@
 import { useState, useEffect, useCallback } from 'react';
 
+// Add Twitter widget type declarations
+declare global {
+  interface Window {
+    twttr: {
+      widgets: {
+        load: (element?: HTMLElement) => Promise<void>;
+        createTweet: (tweetId: string, element: HTMLElement, options?: any) => Promise<void>;
+      };
+    };
+  }
+}
+
 interface Thought {
   _id: string;
   embedHtml: string;
   date: string;
 }
 
-interface CachedTweet {
-  _id: string;
-  embedHtml: string;
-  date: string;
-  renderedHtml?: string;
-}
-
-const BATCH_SIZE = 6;
+const BATCH_SIZE = 3;
 const TWEET_CACHE_KEY = 'cached_tweets';
 
 export function useTweets() {
-  const [allTweets, setAllTweets] = useState<CachedTweet[]>([]);
+  const [allTweets, setAllTweets] = useState<Thought[]>([]);
   const [visibleCount, setVisibleCount] = useState(BATCH_SIZE);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +40,7 @@ export function useTweets() {
     }
   }, []);
 
-  // Fetch tweets from API - only on mount
+  // Fetch tweets from API
   useEffect(() => {
     const fetchThoughts = async () => {
       try {
@@ -75,40 +80,7 @@ export function useTweets() {
     };
 
     fetchThoughts();
-  }, []); // Only run on mount
-
-  // Effect to reload Twitter widgets when new tweets are added
-  useEffect(() => {
-    const reloadWidgets = () => {
-      // @ts-ignore
-      if (window.twttr && !loading && !loadingMore) {
-        // @ts-ignore
-        window.twttr.widgets.load();
-      }
-    };
-
-    // Initial load
-    reloadWidgets();
-
-    // Set up a mutation observer to watch for new tweets
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        if (mutation.addedNodes.length > 0) {
-          reloadWidgets();
-        }
-      }
-    });
-
-    // Start observing the tweet container
-    const tweetContainer = document.querySelector('.tweet-container');
-    if (tweetContainer) {
-      observer.observe(tweetContainer, { childList: true, subtree: true });
-    }
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [loading, loadingMore]);
+  }, []);
 
   // Load more tweets
   const loadMore = useCallback(() => {
@@ -116,7 +88,6 @@ export function useTweets() {
       setLoadingMore(true);
       const newVisibleCount = Math.min(visibleCount + BATCH_SIZE, allTweets.length);
       
-      // Simulate network delay to prevent rapid loading
       setTimeout(() => {
         setVisibleCount(newVisibleCount);
         setHasMore(newVisibleCount < allTweets.length);

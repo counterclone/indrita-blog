@@ -1,12 +1,9 @@
+'use client';
+
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
-
-export const metadata = {
-  title: "About Akhil Handa | FirstHand",
-  description: "Learn more about Akhil Handa, Digital Banking Strategist and chronicler of fintech evolution.",
-  keywords: "Akhil Handa, digital banking, fintech, AI, Bank of Baroda, JPMorgan, Citibank, Bank of America, FirstHand",
-}
+import { SubscribeDialog } from "@/components/subscribe-dialog"
 
 export default function AboutPage() {
   return (
@@ -161,9 +158,11 @@ export default function AboutPage() {
             Contact Me
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
-          <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-            Subscribe to Updates
-          </Button>
+          <SubscribeDialog>
+            <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+              Subscribe to Updates
+            </Button>
+          </SubscribeDialog>
         </div>
       </div>
     </div>
