@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer"
 import { Providers } from "@/components/providers"
 import { Toaster } from "@/components/ui/toaster"
 import { TwitterScript } from "@/components/twitter-script"
+import GoogleAnalytics from '@/components/google-analytics'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -72,6 +73,9 @@ export default function RootLayout({
         <TwitterScript />
         <link rel="icon" href="/favicon.png" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        {process.env.NEXT_PUBLIC_GA_ID && (
+          <GoogleAnalytics GA_ID={process.env.NEXT_PUBLIC_GA_ID} />
+        )}
       </head>
       <body className={`${inter.className} bg-white text-gray-900`} suppressHydrationWarning>
         <Providers>
