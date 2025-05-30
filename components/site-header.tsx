@@ -45,6 +45,9 @@ export function SiteHeader() {
           <Link href="/about" className="text-sm font-medium text-gray-600 hover:text-blue-600">
             About Me
           </Link>
+          <Link href="/contact" className="text-sm font-medium text-blue-600 hover:text-blue-700">
+            Contact
+          </Link>
         </nav>
         <div className="flex items-center gap-4">
           <div className="hidden md:flex items-center gap-3">
@@ -108,6 +111,13 @@ export function SiteHeader() {
               onClick={() => setIsMenuOpen(false)}
             >
               About Me
+            </Link>
+            <Link
+              href="/contact"
+              className="text-sm font-medium p-2 rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact
             </Link>
             <div className="flex gap-4 mt-4 justify-center">
               <Link href="https://x.com/akhilhanda12" target="_blank" rel="noopener noreferrer">

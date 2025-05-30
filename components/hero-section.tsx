@@ -44,6 +44,24 @@ export function HeroSection() {
   const [email, setEmail] = useState("")
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState("")
+  const [latestArticle, setLatestArticle] = useState<{ slug: string } | null>(null)
+
+  useEffect(() => {
+    const fetchLatestArticle = async () => {
+      try {
+        const response = await fetch('/api/articles')
+        if (!response.ok) throw new Error('Failed to fetch articles')
+        const articles = await response.json()
+        if (articles && articles.length > 0) {
+          setLatestArticle(articles[0])
+        }
+      } catch (error) {
+        console.error('Error fetching latest article:', error)
+      }
+    }
+
+    fetchLatestArticle()
+  }, [])
 
   const handleSubmit = async (e: any) => {
     e.preventDefault()
@@ -95,10 +113,10 @@ export function HeroSection() {
             <div className="flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row gap-2">
                 <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
-                  <a href="#latest-articles">
+                  <Link href={latestArticle ? `/article-content/${latestArticle.slug}` : "/articles"}>
                     Read Latest
                     <ArrowRight className="ml-2 h-4 w-4" />
-                  </a>
+                  </Link>
                 </Button>
               </div>
 

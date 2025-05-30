@@ -4,6 +4,7 @@ import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { SubscribeDialog } from "@/components/subscribe-dialog"
+import Link from "next/link"
 
 export default function AboutPage() {
   return (
@@ -83,13 +84,13 @@ export default function AboutPage() {
         <div className="mb-8">
           <p className="text-lg text-gray-700 mb-4">India's digital public infrastructure story is deeply personal to me. I've been involved in shaping it through roles in:</p>
           <ul className="list-disc pl-6 space-y-2 text-gray-700">
-            <li>RBI's CBDC Core Committee – Designing the architecture of India's digital rupee</li>
-            <li>Ministry of Finance's JanSamarth Taskforce – Building India's unified credit access platform</li>
-            <li>Ministry of Finance's JanSuraksha Taskforce – Building India's unified benefits insurance access platform</li>
-            <li>Account Aggregator HLWG – Creating the foundation for India's consent-based data economy</li>
-            <li>IDRBT's AI in Banking Committee – Establishing responsible AI frameworks for financial institutions</li>
-            <li>Indian Bank's Association (IBA's) Digital Payments Standing Committee – Driving interoperability and innovation</li>
-            <li>NITI Aayog's Women Entrepreneurship Platform – Supporting inclusive fintech design</li>
+            <li><span className="font-semibold">RBI's CBDC Core Committee</span> – Designing the architecture of India's digital rupee</li>
+            <li><span className="font-semibold">Ministry of Finance's JanSamarth Taskforce</span> – Building India's unified credit access platform</li>
+            <li><span className="font-semibold">Ministry of Finance's JanSuraksha Taskforce</span> – Building India's unified benefits insurance access platform</li>
+            <li><span className="font-semibold">Account Aggregator HLWG</span> – Creating the foundation for India's consent-based data economy</li>
+            <li><span className="font-semibold">IDRBT's AI in Banking Committee</span> – Establishing responsible AI frameworks for financial institutions</li>
+            <li><span className="font-semibold">Indian Bank's Association (IBA's) Digital Payments Standing Committee</span> – Driving interoperability and innovation</li>
+            <li><span className="font-semibold">NITI Aayog's Women Entrepreneurship Platform</span> – Supporting inclusive fintech design</li>
           </ul>
         </div>
 
@@ -97,11 +98,11 @@ export default function AboutPage() {
         <div className="mb-8">
           <p className="text-lg text-gray-700 mb-4">Along the way, I've been humbled to be recognized by peers and institutions:</p>
           <ul className="list-disc pl-6 space-y-2 text-gray-700">
-            <li>Visionary Leader of the Year – Financial Express (2022 & 2023)</li>
-            <li>Best Chief Digital Officer – Indian Express BFSI Tech Awards, IDC</li>
-            <li>Top AI Leader in India – Analytics India Magazine</li>
-            <li>Best Fintech Innovator – Business Today | KPMG</li>
-            <li>Best Digital Banking Product – Economic Times BFSI Innovation Awards</li>
+            <li><span className="font-semibold">Visionary Leader of the Year</span> – Financial Express (2022 & 2023)</li>
+            <li><span className="font-semibold">Best Chief Digital Officer</span> – Indian Express BFSI Tech Awards, IDC</li>
+            <li><span className="font-semibold">Top AI Leader in India</span> – Analytics India Magazine</li>
+            <li><span className="font-semibold">Best Fintech Innovator</span> – Business Today | KPMG</li>
+            <li><span className="font-semibold">Best Digital Banking Product</span> – Economic Times BFSI Innovation Awards</li>
           </ul>
         </div>
 
@@ -154,12 +155,14 @@ export default function AboutPage() {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-            Contact Me
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
+          <Link href="/contact">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto">
+              Let's Connect
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
           <SubscribeDialog>
-            <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
+            <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 w-full sm:w-auto">
               Subscribe to Updates
             </Button>
           </SubscribeDialog>

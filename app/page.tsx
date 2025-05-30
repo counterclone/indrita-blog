@@ -216,6 +216,12 @@ export default function Home() {
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
+              <Link href="/contact" className="ml-4">
+                <Button className="bg-blue-600 text-white hover:bg-blue-700">
+                  Let's Connect
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

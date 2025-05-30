@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { Linkedin } from "lucide-react"
 import { LogoModern } from "@/components/logo-modern"
+import { ArrowRight } from "lucide-react"
 
 export function Footer() {
   return (
@@ -91,9 +92,14 @@ export function Footer() {
             <p className="text-sm text-gray-500 mb-3">
               Follow my journey through the evolving landscape of digital banking.
             </p>
-            <Link href="/subscribe" className="text-sm font-medium text-blue-600 hover:text-blue-800">
-              Subscribe to updates →
-            </Link>
+            <div className="space-y-2">
+              <Link href="/contact" className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                Let's Connect <ArrowRight className="ml-1 h-3 w-3" />
+              </Link>
+              <Link href="/subscribe" className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
+                Subscribe to updates <ArrowRight className="ml-1 h-3 w-3" />
+              </Link>
+            </div>
           </div>
         </div>
         <div className="mt-8 border-t border-gray-100 pt-8 flex flex-col md:flex-row justify-between">
