@@ -163,7 +163,7 @@ export default function AboutPage() {
           </Link>
           <SubscribeDialog>
             <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50 w-full sm:w-auto">
-              Subscribe to Updates
+              Subscribe to Updates 
             </Button>
           </SubscribeDialog>
         </div>
