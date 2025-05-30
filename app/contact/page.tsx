@@ -41,9 +41,9 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-3 gap-6 mb-16">
             <div className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-blue-100 transform group-hover:scale-105 transition-transform duration-300"></div>
-              <div className="relative p-8 text-center h-full flex flex-col justify-between">
+              <div className="relative p-8 text-center h-full flex flex-col">
                 <Coffee className="h-10 w-10 text-blue-600 mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300" />
-                <div>
+                <div className="mt-auto">
                   <h3 className="text-lg font-semibold mb-3">Industry Insights</h3>
                   <p className="text-gray-600">Share your perspectives on digital banking transformation</p>
                 </div>
@@ -52,25 +52,26 @@ export default function ContactPage() {
 
             <div className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-purple-100 transform group-hover:scale-105 transition-transform duration-300"></div>
-              <div className="relative p-8 text-center h-full flex flex-col justify-between">
+              <div className="relative p-8 text-center h-full flex flex-col">
                 <MessageCircle className="h-10 w-10 text-purple-600 mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300" />
-                <div>
+                <div className="mt-auto">
                   <h3 className="text-lg font-semibold mb-3">Collaboration</h3>
                   <p className="text-gray-600">Explore partnerships in fintech innovation and digital banking</p>
                 </div>
               </div>
             </div>
-
             <div className="group relative overflow-hidden rounded-xl transition-all duration-300 hover:shadow-lg">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-50 to-indigo-100 transform group-hover:scale-105 transition-transform duration-300"></div>
-              <div className="relative p-8 text-center h-full flex flex-col justify-between">
-                <Heart className="h-10 w-10 text-indigo-600 mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300" />
-                <div>
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-50 to-purple-100 transform group-hover:scale-105 transition-transform duration-300"></div>
+              <div className="relative p-8 text-center h-full flex flex-col">
+                <Heart className="h-10 w-10 text-purple-600 mx-auto mb-4 transform group-hover:scale-110 transition-transform duration-300" />
+                <div className="mt-auto">
                   <h3 className="text-lg font-semibold mb-3">Connect</h3>
                   <p className="text-gray-600">Join the conversation on the future of financial services</p>
                 </div>
               </div>
             </div>
+
+        
           </div>
 
           <div className="grid md:grid-cols-2 gap-10">
