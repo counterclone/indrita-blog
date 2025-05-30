@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
 import Subscriber from '@/models/Subscriber';
+import { sendWelcomeEmail } from '@/lib/email';
 
 interface CustomSession {
     user: {
@@ -82,6 +83,14 @@ export async function POST(request: Request) {
                 } else {
                     await Subscriber.create({ email: email.toLowerCase() });
                     results.added.push(email);
+                    
+                    // Send welcome email to new subscribers
+                    try {
+                        await sendWelcomeEmail(email.toLowerCase());
+                    } catch (emailError) {
+                        console.error(`Failed to send welcome email to ${email}:`, emailError);
+                        // Don't fail the subscription if welcome email fails
+                    }
                 }
             } catch (error) {
                 console.error(`Error processing email ${email}:`, error);

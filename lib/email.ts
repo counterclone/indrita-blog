@@ -10,6 +10,46 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+export async function sendWelcomeEmail(email: string) {
+    try {
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://firsthand.akhilhanda.com';
+        const unsubscribeUrl = `${siteUrl}/unsubscribe?email=${encodeURIComponent(email)}`;
+
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Welcome to Our Newsletter!',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2>Welcome to Our Newsletter!</h2>
+                    <p>Thank you for subscribing to our newsletter. We're excited to have you join our community!</p>
+                    <p>You'll receive updates about:</p>
+                    <ul>
+                        <li>New articles and insights</li>
+                        <li>Digital banking evolution</li>
+                        <li>Fintech innovations</li>
+                        <li>Latest industry trends</li>
+                    </ul>
+                    <p>Stay tuned for our upcoming content!</p>
+                    <hr>
+                    <p style="font-size: 12px; color: #666;">
+                        You're receiving this because you subscribed to our newsletter. 
+                        <a href="${unsubscribeUrl}">Unsubscribe</a>
+                    </p>
+                </div>
+            `
+        };
+
+        const info = await transporter.sendMail(mailOptions);
+        console.log(`Welcome email sent to ${email}: ${info.messageId}`);
+        return { success: true };
+
+    } catch (error) {
+        console.error('Failed to send welcome email:', error);
+        throw error;
+    }
+}
+
 export async function sendNewArticleNotification(articleTitle: string, articleExcerpt: string, articleUrl: string) {
     try {
         // Get all active subscribers

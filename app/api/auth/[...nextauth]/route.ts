@@ -65,7 +65,7 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
         async redirect({ url, baseUrl }) {
-            // Always redirect to /admin/articles after successful login
+            // Always redirect to admin articles after successful login
             if (url.includes('/admin/login')) {
                 return `${baseUrl}/admin/articles`;
             }
@@ -84,8 +84,19 @@ export const authOptions: NextAuthOptions = {
         strategy: 'jwt',
         maxAge: 24 * 60 * 60, // 24 hours
     },
+    cookies: {
+        sessionToken: {
+            name: process.env.NODE_ENV === 'production' ? '__Secure-next-auth.session-token' : 'next-auth.session-token',
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/',
+                secure: process.env.NODE_ENV === 'production'
+            }
+        }
+    },
     secret: process.env.NEXTAUTH_SECRET,
-    debug: process.env.NODE_ENV === 'development'
+    debug: true // Enable debug logs to help troubleshoot production issues
 };
 
 const handler = NextAuth(authOptions);

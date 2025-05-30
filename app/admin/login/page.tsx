@@ -14,11 +14,12 @@ function LoginForm() {
     const callbackUrl = searchParams.get('callbackUrl') || '/admin/articles';
 
     useEffect(() => {
-        if (status === 'authenticated') {
-            router.push('/admin/articles');
-            router.refresh();
+        // Check for error in URL parameters
+        const errorParam = searchParams.get('error');
+        if (errorParam) {
+            setError('Authentication failed. Please try again.');
         }
-    }, [status, router]);
+    }, [searchParams]);
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -31,17 +32,19 @@ function LoginForm() {
             const res = await signIn('credentials', {
                 username: formData.get('username'),
                 password: formData.get('password'),
-                redirect: true,
-                callbackUrl: '/admin/articles'
+                callbackUrl: '/admin/articles',
+                redirect: true
             });
             
+            // Note: We won't reach this code if redirect is true
+            // This is just a fallback
             if (res?.error) {
-                setError('Incorrect username or password');
+                setError('Invalid credentials');
+                setIsLoading(false);
             }
         } catch (error) {
             console.error('Login error:', error);
             setError('An error occurred during login. Please try again.');
-        } finally {
             setIsLoading(false);
         }
     };
@@ -49,6 +52,11 @@ function LoginForm() {
     // Show loading state while checking session
     if (status === 'loading') {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    }
+
+    // If already authenticated, NextAuth will handle the redirect
+    if (status === 'authenticated' && session?.user?.role === 'admin') {
+        return <div className="min-h-screen flex items-center justify-center">Redirecting...</div>;
     }
 
     return (
