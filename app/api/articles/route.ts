@@ -106,24 +106,6 @@ export async function POST(request: Request) {
             // Don't fail the whole operation if content creation fails
         }
 
-        // Send notification about new article
-        try {
-            console.log('Preparing to send email notifications...');
-            const articleUrl = `https://www.akhilhanda.com/article-content/${article.slug}`;
-            console.log('Generated article URL:', articleUrl);
-            
-            const notificationResult = await sendNewArticleNotification(
-                article.title,
-                article.excerpt,
-                articleUrl
-            );
-            
-            console.log('Email notification result:', notificationResult);
-        } catch (emailError) {
-            console.error('Failed to send email notification. Detailed error:', emailError);
-            // Don't fail the request if email fails
-        }
-
         return NextResponse.json(article);
     } catch (error: any) {
         console.error('Error creating article:', error);

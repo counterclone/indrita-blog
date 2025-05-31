@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Pencil, Trash2 } from 'lucide-react';
+import { PlusCircle, Pencil, Trash2, Mail } from 'lucide-react';
 
 interface Article {
     _id: string;
@@ -21,6 +21,7 @@ export default function ArticlesPage() {
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
     useEffect(() => {
         fetchArticles();
@@ -52,6 +53,30 @@ export default function ArticlesPage() {
             setArticles(articles.filter(article => article._id !== id));
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Failed to delete article');
+        }
+    };
+
+    const handleSendEmail = async (id: string) => {
+        if (!confirm('Are you sure you want to send email notifications for this article?')) return;
+
+        setSendingEmail(id);
+        try {
+            const response = await fetch('/api/articles/send-notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ articleId: id }),
+            });
+
+            if (!response.ok) throw new Error('Failed to send email notifications');
+            
+            const data = await response.json();
+            alert('Email notifications sent successfully!');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to send email notifications');
+        } finally {
+            setSendingEmail(null);
         }
     };
 
@@ -90,20 +115,30 @@ export default function ArticlesPage() {
                                         {article.excerpt}
                                     </p>
                                 </div>
-                                <div className="flex gap-2 ml-4">
+                                <div className="flex items-center gap-2 ml-4">
                                     <Link href={`/admin/articles/edit/${article._id}`}>
                                         <Button variant="outline" size="sm">
-                                            <Pencil className="h-4 w-4 mr-1" />
-                                            Edit
+                                            <Pencil className="h-4 w-4" />
                                         </Button>
                                     </Link>
                                     <Button
-                                        variant="destructive"
+                                        variant="outline"
                                         size="sm"
                                         onClick={() => handleDelete(article._id)}
                                     >
-                                        <Trash2 className="h-4 w-4 mr-1" />
-                                        Delete
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleSendEmail(article._id)}
+                                        disabled={sendingEmail === article._id}
+                                    >
+                                        {sendingEmail === article._id ? (
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                        ) : (
+                                            <Mail className="h-4 w-4" />
+                                        )}
                                     </Button>
                                 </div>
                             </div>
