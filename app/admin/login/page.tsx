@@ -4,11 +4,37 @@ import { useState, useEffect, Suspense } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
+// Add ErrorPopup component
+function ErrorPopup({ message, onClose }: { message: string; onClose: () => void }) {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onClose();
+        }, 5000); // Auto-close after 5 seconds
+
+        return () => clearTimeout(timer);
+    }, [onClose]);
+
+    return (
+        <div className="fixed top-4 right-4 bg-red-600 text-white px-6 py-4 rounded-lg shadow-lg z-50 animate-fade-in">
+            <div className="flex items-center">
+                <span>{message}</span>
+                <button
+                    onClick={onClose}
+                    className="ml-4 text-white hover:text-red-200 focus:outline-none"
+                >
+                    ×
+                </button>
+            </div>
+        </div>
+    );
+}
+
 // Create a separate component for the login form
 function LoginForm() {
     const router = useRouter();
     const { data: session, status } = useSession();
     const [error, setError] = useState('');
+    const [showErrorPopup, setShowErrorPopup] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '/admin/articles';
@@ -18,6 +44,7 @@ function LoginForm() {
         const errorParam = searchParams.get('error');
         if (errorParam) {
             setError('Authentication failed. Please try again.');
+            setShowErrorPopup(true);
         }
     }, [searchParams]);
 
@@ -25,6 +52,7 @@ function LoginForm() {
         e.preventDefault();
         setIsLoading(true);
         setError('');
+        setShowErrorPopup(false);
 
         const formData = new FormData(e.currentTarget);
         
@@ -36,15 +64,21 @@ function LoginForm() {
                 redirect: true
             });
             
-            // Note: We won't reach this code if redirect is true
-            // This is just a fallback
+            // Note: The code below won't execute if redirect is true
+            // This is just a fallback in case redirect fails
             if (res?.error) {
-                setError('Invalid credentials');
+                setError('Invalid username or password');
+                setShowErrorPopup(true);
                 setIsLoading(false);
+            } else if (!res?.error && !res?.url) {
+                // If no error but also no redirect URL, force redirect
+                console.log('Login successful, forcing redirect...');
+                router.push('/admin/articles');
             }
         } catch (error) {
             console.error('Login error:', error);
             setError('An error occurred during login. Please try again.');
+            setShowErrorPopup(true);
             setIsLoading(false);
         }
     };
@@ -54,13 +88,31 @@ function LoginForm() {
         return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
     }
 
-    // If already authenticated, NextAuth will handle the redirect
+    // If already authenticated, show redirect message with fallback
     if (status === 'authenticated' && session?.user?.role === 'admin') {
-        return <div className="min-h-screen flex items-center justify-center">Redirecting...</div>;
+        return <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+                <div>Redirecting to admin dashboard...</div>
+                <div className="text-sm text-gray-500 mt-2">
+                    If you are not redirected, <button 
+                        onClick={() => router.push('/admin/articles')}
+                        className="text-blue-500 hover:text-blue-700 underline"
+                    >
+                        click here
+                    </button>
+                </div>
+            </div>
+        </div>;
     }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+            {showErrorPopup && error && (
+                <ErrorPopup
+                    message={error}
+                    onClose={() => setShowErrorPopup(false)}
+                />
+            )}
             <div className="max-w-md w-full space-y-8">
                 <div>
                     <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
@@ -68,12 +120,6 @@ function LoginForm() {
                     </h2>
                 </div>
                 
-                {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-600 rounded-lg p-4">
-                        {error}
-                    </div>
-                )}
-
                 <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
                     <div className="rounded-md shadow-sm -space-y-px">
                         <div>

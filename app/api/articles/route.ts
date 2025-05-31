@@ -107,22 +107,21 @@ export async function POST(request: Request) {
         }
 
         // Send notification about new article
-        if (process.env.ENABLE_EMAIL_NOTIFICATIONS === 'true') {
-            try {
-                const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://firsthand.akhilhanda.com';
-                const articleUrl = `${siteUrl}/articles/${article.slug}`;
-                
-                await sendNewArticleNotification(
-                    article.title,
-                    article.excerpt,
-                    articleUrl
-                );
-                
-                console.log('Email notification sent for new article');
-            } catch (emailError) {
-                console.error('Failed to send email notification:', emailError);
-                // Don't fail the request if email fails
-            }
+        try {
+            console.log('Preparing to send email notifications...');
+            const articleUrl = `https://www.akhilhanda.com/article-content/${article.slug}`;
+            console.log('Generated article URL:', articleUrl);
+            
+            const notificationResult = await sendNewArticleNotification(
+                article.title,
+                article.excerpt,
+                articleUrl
+            );
+            
+            console.log('Email notification result:', notificationResult);
+        } catch (emailError) {
+            console.error('Failed to send email notification. Detailed error:', emailError);
+            // Don't fail the request if email fails
         }
 
         return NextResponse.json(article);
