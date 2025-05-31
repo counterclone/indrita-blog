@@ -32,7 +32,7 @@ export async function POST(request: Request) {
 
     // Email content
     const mailOptions = {
-      from: process.env.SMTP_FROM_EMAIL,
+      from: process.env.EMAIL_USER,
       to: 'hello@akhilhanda.com',
       replyTo: data.email,
       subject: `[Website Contact] ${data.subject}`,
