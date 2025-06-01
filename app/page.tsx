@@ -210,9 +210,9 @@ export default function Home() {
             <div className="md:w-2/3">
               <h2 className="text-2xl font-bold mb-4">About Me</h2>
               <p className="text-gray-600 mb-4">
-                I'm Akhil Handa, a global leader in AI-powered digital banking with two decades of experience shaping
+                I'm a global leader in AI-powered digital banking with two decades of experience shaping
                 the future of financial services. As the President & CDO of a global top 10 bank (by customers), I led
-                digital transformation initiatives, overseeing a bank with over 300bn USD total business, presence in 25
+                digital transformation initiatives, overseeing a bank with over USD 300 billion total business, presence in 25
                 international markets, and USD 1 trillion in annual digital payments.
               </p>
               <p className="text-gray-600 mb-6">

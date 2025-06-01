@@ -46,9 +46,9 @@ async function getArticleWithContent(id: string): Promise<ArticleData | null> {
     console.log('Found article:', article);
     console.log('Article ID:', article._id);
 
-    // Log all article content documents to debug
-    const allArticleContents = await ArticleContent.find({});
-    console.log('All article contents in database:', allArticleContents);
+    // // Log all article content documents to debug
+    // const allArticleContents = await ArticleContent.find({});
+    // console.log('All article contents in database:', allArticleContents);
 
     // Try to find article content by both slug and articleId
     const articleContent = await ArticleContent.findOne({
