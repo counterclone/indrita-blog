@@ -55,6 +55,7 @@ export default function Home() {
       <HeroSection />
 
       {/* Stream of Thought */}
+      {/* Commenting out Stream of Thought section
       <section className="py-12 md:py-16 bg-gray-50">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-6">Stream of Thought</h2>
@@ -65,6 +66,7 @@ export default function Home() {
           <StreamOfThought />
         </div>
       </section>
+      */}
 
       {/* Featured Article */}
       <section className="py-12 md:py-16 bg-white">
@@ -107,7 +109,7 @@ export default function Home() {
             <div className="text-red-600">{error}</div>
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {recentArticles.map((article) => (
+              {recentArticles.slice(0, 6).map((article) => (
                 <ArticleCard
                   key={article._id}
                   title={article.title}
