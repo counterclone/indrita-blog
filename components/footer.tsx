@@ -98,7 +98,7 @@ export function Footer() {
               </Link>
               <Link href="/subscribe" className="text-sm font-medium text-blue-600 hover:text-blue-800 flex items-center">
                 Subscribe to updates <ArrowRight className="ml-1 h-3 w-3" />
-              </Link>
+            </Link>
             </div>
           </div>
         </div>
