@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const subscriberSchema = new mongoose.Schema({
+const activeSubscriberSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
@@ -8,16 +8,12 @@ const subscriberSchema = new mongoose.Schema({
         trim: true,
         lowercase: true
     },
-    subscribed: {
-        type: Boolean,
-        default: true
-    },
     subscribedAt: {
         type: Date,
         default: Date.now
     }
 });
 
-const Subscriber = mongoose.models.Subscriber || mongoose.model('Subscriber', subscriberSchema);
+const ActiveSubscriber = mongoose.models.ActiveSubscriber || mongoose.model('ActiveSubscriber', activeSubscriberSchema);
 
-export default Subscriber; 
+export default ActiveSubscriber; 

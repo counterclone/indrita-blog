@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import Subscriber from '@/models/Subscriber';
+import ActiveSubscriber from '@/models/ActiveSubscriber';
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport({
@@ -69,7 +69,7 @@ export async function sendNewArticleNotification(articleTitle: string, articleEx
         });
 
         // Get all active subscribers
-        const subscribers = await Subscriber.find({ subscribed: true });
+        const subscribers = await ActiveSubscriber.find();
         console.log(`Found ${subscribers.length} active subscribers`);
         
         if (subscribers.length === 0) {

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Subscriber from '@/models/Subscriber';
+import ActiveSubscriber from '@/models/ActiveSubscriber';
+import UnsubscribedUser from '@/models/UnsubscribedUser';
 
 export async function POST(request: Request) {
     try {
@@ -15,26 +16,32 @@ export async function POST(request: Request) {
 
         await connectDB();
 
-        // Find the subscriber
-        const subscriber = await Subscriber.findOne({ email });
+        // Find the active subscriber
+        const subscriber = await ActiveSubscriber.findOne({ email });
         
         if (!subscriber) {
+            // Check if already unsubscribed
+            const unsubscribed = await UnsubscribedUser.findOne({ email });
+            if (unsubscribed) {
+                return NextResponse.json({ 
+                    message: 'You are already unsubscribed' 
+                });
+            }
             return NextResponse.json(
                 { error: 'Email not found in our subscriber list' },
                 { status: 404 }
             );
         }
 
-        // If already unsubscribed
-        if (!subscriber.subscribed) {
-            return NextResponse.json({ 
-                message: 'You are already unsubscribed' 
-            });
-        }
+        // Move subscriber to unsubscribed collection
+        await UnsubscribedUser.create({
+            email: subscriber.email,
+            previousSubscriptionDate: subscriber.subscribedAt,
+            unsubscribedAt: new Date()
+        });
 
-        // Update the subscriber status
-        subscriber.subscribed = false;
-        await subscriber.save();
+        // Remove from active subscribers
+        await ActiveSubscriber.deleteOne({ email });
 
         return NextResponse.json({ 
             message: 'You have been successfully unsubscribed' 

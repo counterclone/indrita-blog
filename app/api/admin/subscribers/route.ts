@@ -2,7 +2,8 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
-import Subscriber from '@/models/Subscriber';
+import ActiveSubscriber from '@/models/ActiveSubscriber';
+import UnsubscribedUser from '@/models/UnsubscribedUser';
 import { sendWelcomeEmail } from '@/lib/email';
 
 interface CustomSession {
@@ -14,7 +15,7 @@ interface CustomSession {
     };
 }
 
-// Get all subscribers
+// Get all subscribers (both active and unsubscribed)
 export async function GET() {
     try {
         const session = await getServerSession(authOptions) as CustomSession;
@@ -23,7 +24,28 @@ export async function GET() {
         }
 
         await connectDB();
-        const subscribers = await Subscriber.find().sort({ subscribedAt: -1 });
+        
+        // Get both active and unsubscribed users
+        const activeSubscribers = await ActiveSubscriber.find().sort({ subscribedAt: -1 });
+        const unsubscribedUsers = await UnsubscribedUser.find().sort({ unsubscribedAt: -1 });
+
+        // Format the response
+        const subscribers = [
+            ...activeSubscribers.map(sub => ({
+                _id: sub._id,
+                email: sub.email,
+                subscribed: true,
+                subscribedAt: sub.subscribedAt
+            })),
+            ...unsubscribedUsers.map(sub => ({
+                _id: sub._id,
+                email: sub.email,
+                subscribed: false,
+                subscribedAt: sub.previousSubscriptionDate,
+                unsubscribedAt: sub.unsubscribedAt
+            }))
+        ];
+
         return NextResponse.json(subscribers);
     } catch (error: any) {
         return NextResponse.json(
@@ -69,24 +91,32 @@ export async function POST(request: Request) {
             }
 
             try {
-                // Check if subscriber exists
-                const existingSubscriber = await Subscriber.findOne({ email: email.toLowerCase() });
+                const normalizedEmail = email.toLowerCase();
+                // Check if already an active subscriber
+                const existingActive = await ActiveSubscriber.findOne({ email: normalizedEmail });
+                if (existingActive) {
+                    results.existing.push(email);
+                    continue;
+                }
 
-                if (existingSubscriber) {
-                    if (!existingSubscriber.subscribed) {
-                        existingSubscriber.subscribed = true;
-                        await existingSubscriber.save();
-                        results.reactivated.push(email);
-                    } else {
-                        results.existing.push(email);
-                    }
+                // Check if user was previously unsubscribed
+                const unsubscribed = await UnsubscribedUser.findOne({ email: normalizedEmail });
+                if (unsubscribed) {
+                    // Move back to active subscribers
+                    await ActiveSubscriber.create({
+                        email: normalizedEmail,
+                        subscribedAt: new Date()
+                    });
+                    await UnsubscribedUser.deleteOne({ email: normalizedEmail });
+                    results.reactivated.push(email);
                 } else {
-                    await Subscriber.create({ email: email.toLowerCase() });
+                    // Create new subscriber
+                    await ActiveSubscriber.create({ email: normalizedEmail });
                     results.added.push(email);
                     
                     // Send welcome email to new subscribers
                     try {
-                        await sendWelcomeEmail(email.toLowerCase());
+                        await sendWelcomeEmail(normalizedEmail);
                     } catch (emailError) {
                         console.error(`Failed to send welcome email to ${email}:`, emailError);
                         // Don't fail the subscription if welcome email fails
@@ -127,21 +157,48 @@ export async function PATCH(request: Request) {
         }
 
         await connectDB();
-        const subscriber = await Subscriber.findById(subscriberId);
 
-        if (!subscriber) {
-            return NextResponse.json(
-                { error: 'Subscriber not found' },
-                { status: 404 }
-            );
+        if (subscribed) {
+            // Moving from unsubscribed to active
+            const unsubscribed = await UnsubscribedUser.findById(subscriberId);
+            if (!unsubscribed) {
+                return NextResponse.json(
+                    { error: 'Subscriber not found' },
+                    { status: 404 }
+                );
+            }
+
+            // Create active subscriber
+            await ActiveSubscriber.create({
+                email: unsubscribed.email,
+                subscribedAt: new Date()
+            });
+
+            // Remove from unsubscribed
+            await UnsubscribedUser.deleteOne({ _id: subscriberId });
+        } else {
+            // Moving from active to unsubscribed
+            const active = await ActiveSubscriber.findById(subscriberId);
+            if (!active) {
+                return NextResponse.json(
+                    { error: 'Subscriber not found' },
+                    { status: 404 }
+                );
+            }
+
+            // Create unsubscribed user
+            await UnsubscribedUser.create({
+                email: active.email,
+                previousSubscriptionDate: active.subscribedAt,
+                unsubscribedAt: new Date()
+            });
+
+            // Remove from active subscribers
+            await ActiveSubscriber.deleteOne({ _id: subscriberId });
         }
 
-        subscriber.subscribed = subscribed;
-        await subscriber.save();
-
         return NextResponse.json({
-            message: `Subscriber ${subscribed ? 'activated' : 'deactivated'} successfully`,
-            subscriber
+            message: `Subscriber ${subscribed ? 'activated' : 'deactivated'} successfully`
         });
     } catch (error: any) {
         return NextResponse.json(
@@ -170,9 +227,15 @@ export async function DELETE(request: Request) {
         }
 
         await connectDB();
-        const subscriber = await Subscriber.findByIdAndDelete(subscriberId);
 
-        if (!subscriber) {
+        // Try to delete from active subscribers first
+        let deleted = await ActiveSubscriber.findByIdAndDelete(subscriberId);
+        if (!deleted) {
+            // If not found in active, try unsubscribed
+            deleted = await UnsubscribedUser.findByIdAndDelete(subscriberId);
+        }
+
+        if (!deleted) {
             return NextResponse.json(
                 { error: 'Subscriber not found' },
                 { status: 404 }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import Subscriber from '@/models/Subscriber';
+import ActiveSubscriber from '@/models/ActiveSubscriber';
+import UnsubscribedUser from '@/models/UnsubscribedUser';
 import { sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(request: Request) {
@@ -16,24 +17,30 @@ export async function POST(request: Request) {
 
         await connectDB();
 
-        // Check if subscriber already exists
-        const existingSubscriber = await Subscriber.findOne({ email });
+        // Check if already an active subscriber
+        const existingSubscriber = await ActiveSubscriber.findOne({ email });
         if (existingSubscriber) {
-            if (existingSubscriber.subscribed) {
-                return NextResponse.json(
-                    { error: 'Email already subscribed' },
-                    { status: 400 }
-                );
-            } else {
-                // Reactivate subscription
-                existingSubscriber.subscribed = true;
-                await existingSubscriber.save();
-                return NextResponse.json({ message: 'Subscription reactivated' });
-            }
+            return NextResponse.json(
+                { error: 'Email already subscribed' },
+                { status: 400 }
+            );
+        }
+
+        // Check if user was previously unsubscribed
+        const unsubscribedUser = await UnsubscribedUser.findOne({ email });
+        if (unsubscribedUser) {
+            // Move user back to active subscribers
+            await ActiveSubscriber.create({
+                email,
+                subscribedAt: new Date()
+            });
+            // Remove from unsubscribed users
+            await UnsubscribedUser.deleteOne({ email });
+            return NextResponse.json({ message: 'Subscription reactivated' });
         }
 
         // Create new subscriber
-        const subscriber = await Subscriber.create({ email });
+        await ActiveSubscriber.create({ email });
 
         // Send welcome email
         try {
