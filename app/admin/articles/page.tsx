@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { PlusCircle, Pencil, Trash2, Mail } from 'lucide-react';
+import { PlusCircle, Pencil, Trash2, Mail, TestTube } from 'lucide-react';
 
 interface Article {
     _id: string;
@@ -22,6 +22,7 @@ export default function ArticlesPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [sendingEmail, setSendingEmail] = useState<string | null>(null);
+    const [sendingTestEmail, setSendingTestEmail] = useState<string | null>(null);
 
     useEffect(() => {
         fetchArticles();
@@ -80,6 +81,30 @@ export default function ArticlesPage() {
         }
     };
 
+    const handleSendTestEmail = async (id: string) => {
+        if (!confirm('Are you sure you want to send test email notifications for this article?')) return;
+
+        setSendingTestEmail(id);
+        try {
+            const response = await fetch('/api/articles/send-test-notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ articleId: id }),
+            });
+
+            if (!response.ok) throw new Error('Failed to send test email notifications');
+            
+            const data = await response.json();
+            alert('Test email notifications sent successfully!');
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to send test email notifications');
+        } finally {
+            setSendingTestEmail(null);
+        }
+    };
+
     if (loading) return <div className="p-4">Loading...</div>;
     if (error) return <div className="p-4 text-red-500">Error: {error}</div>;
 
@@ -133,11 +158,25 @@ export default function ArticlesPage() {
                                         size="sm"
                                         onClick={() => handleSendEmail(article._id)}
                                         disabled={sendingEmail === article._id}
+                                        title="Send email to all subscribers"
                                     >
                                         {sendingEmail === article._id ? (
                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                                         ) : (
                                             <Mail className="h-4 w-4" />
+                                        )}
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleSendTestEmail(article._id)}
+                                        disabled={sendingTestEmail === article._id}
+                                        title="Send test email to test subscribers"
+                                    >
+                                        {sendingTestEmail === article._id ? (
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                        ) : (
+                                            <TestTube className="h-4 w-4" />
                                         )}
                                     </Button>
                                 </div>

@@ -50,7 +50,12 @@ export async function sendWelcomeEmail(email: string) {
     }
 }
 
-export async function sendNewArticleNotification(articleTitle: string, articleExcerpt: string, articleUrl: string) {
+export async function sendNewArticleNotification(
+    articleTitle: string, 
+    articleExcerpt: string, 
+    articleUrl: string,
+    specificRecipients?: string[]
+) {
     try {
         console.log('Starting email notification process...');
         
@@ -68,9 +73,16 @@ export async function sendNewArticleNotification(articleTitle: string, articleEx
             siteUrl: siteUrl
         });
 
-        // Get all active subscribers
-        const subscribers = await ActiveSubscriber.find();
-        console.log(`Found ${subscribers.length} active subscribers`);
+        let subscribers;
+        if (specificRecipients) {
+            // Use provided recipients list
+            subscribers = specificRecipients.map(email => ({ email }));
+            console.log(`Using ${subscribers.length} specific recipients`);
+        } else {
+            // Get all active subscribers
+            subscribers = await ActiveSubscriber.find();
+            console.log(`Found ${subscribers.length} active subscribers`);
+        }
         
         if (subscribers.length === 0) {
             console.log('No subscribers to notify');

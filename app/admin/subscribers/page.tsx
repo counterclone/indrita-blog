@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import {
     AlertDialog,
@@ -23,18 +24,28 @@ interface Subscriber {
     subscribedAt: string;
 }
 
+interface TestSubscriber {
+    _id: string;
+    email: string;
+    createdAt: string;
+}
+
 export default function SubscribersPage() {
     const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+    const [testSubscribers, setTestSubscribers] = useState<TestSubscriber[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [bulkEmails, setBulkEmails] = useState('');
+    const [testEmail, setTestEmail] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [selectedSubscriber, setSelectedSubscriber] = useState<Subscriber | null>(null);
+    const [selectedTestSubscriber, setSelectedTestSubscriber] = useState<TestSubscriber | null>(null);
     const { toast } = useToast();
 
     useEffect(() => {
         fetchSubscribers();
+        fetchTestSubscribers();
     }, []);
 
     const fetchSubscribers = async () => {
@@ -47,6 +58,17 @@ export default function SubscribersPage() {
             setError(err instanceof Error ? err.message : 'An error occurred');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchTestSubscribers = async () => {
+        try {
+            const response = await fetch('/api/test-subscribers');
+            if (!response.ok) throw new Error('Failed to fetch test subscribers');
+            const data = await response.json();
+            setTestSubscribers(data);
+        } catch (err) {
+            console.error('Error fetching test subscribers:', err);
         }
     };
 
@@ -98,6 +120,70 @@ export default function SubscribersPage() {
             });
         } finally {
             setIsSubmitting(false);
+        }
+    };
+
+    const handleAddTestSubscriber = async () => {
+        if (!testEmail.trim()) return;
+
+        try {
+            const response = await fetch('/api/test-subscribers', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email: testEmail.trim() }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to add test subscriber');
+            }
+
+            toast({
+                title: 'Success',
+                description: 'Test subscriber added successfully',
+            });
+
+            setTestEmail('');
+            fetchTestSubscribers();
+        } catch (err) {
+            toast({
+                title: 'Error',
+                description: err instanceof Error ? err.message : 'Failed to add test subscriber',
+                variant: 'destructive',
+            });
+        }
+    };
+
+    const handleDeleteTestSubscriber = async (email: string) => {
+        try {
+            const response = await fetch('/api/test-subscribers', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email }),
+            });
+
+            if (!response.ok) {
+                const data = await response.json();
+                throw new Error(data.error || 'Failed to delete test subscriber');
+            }
+
+            toast({
+                title: 'Success',
+                description: 'Test subscriber deleted successfully',
+            });
+
+            fetchTestSubscribers();
+        } catch (err) {
+            toast({
+                title: 'Error',
+                description: err instanceof Error ? err.message : 'Failed to delete test subscriber',
+                variant: 'destructive',
+            });
         }
     };
 
@@ -173,6 +259,61 @@ export default function SubscribersPage() {
         <div className="p-6">
             <h1 className="text-2xl font-bold mb-6">Manage Subscribers</h1>
 
+            {/* Test Subscribers Section */}
+            <div className="mb-8 bg-white p-6 rounded-lg shadow">
+                <h2 className="text-xl font-semibold mb-4">Test Subscribers</h2>
+                <div className="flex gap-4 mb-4">
+                    <Input
+                        value={testEmail}
+                        onChange={(e) => setTestEmail(e.target.value)}
+                        placeholder="Enter test email address"
+                        className="flex-1"
+                    />
+                    <Button 
+                        onClick={handleAddTestSubscriber}
+                        disabled={!testEmail.trim()}
+                    >
+                        Add Test Subscriber
+                    </Button>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full">
+                        <thead>
+                            <tr>
+                                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    Email
+                                </th>
+                                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    Added Date
+                                </th>
+                                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
+                            </tr>
+                        </thead>
+                        <tbody className="bg-white">
+                            {testSubscribers.map((subscriber) => (
+                                <tr key={subscriber._id}>
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                        {subscriber.email}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                        {new Date(subscriber.createdAt).toLocaleDateString()}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-200">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleDeleteTestSubscriber(subscriber.email)}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             {/* Bulk Add Section */}
             <div className="mb-8 bg-white p-6 rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-4">Add Subscribers</h2>
@@ -194,62 +335,68 @@ export default function SubscribersPage() {
                 </Button>
             </div>
 
-            {/* Subscribers List */}
+            {/* Regular Subscribers List */}
             <div className="bg-white p-6 rounded-lg shadow">
                 <h2 className="text-xl font-semibold mb-4">Current Subscribers</h2>
                 <div className="overflow-x-auto">
-                    <table className="w-full">
+                    <table className="min-w-full">
                         <thead>
-                            <tr className="border-b">
-                                <th className="text-left py-2 px-4">Email</th>
-                                <th className="text-left py-2 px-4">Status</th>
-                                <th className="text-left py-2 px-4">Subscribed On</th>
-                                <th className="text-left py-2 px-4">Actions</th>
+                            <tr>
+                                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    Email
+                                </th>
+                                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    Status
+                                </th>
+                                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider">
+                                    Subscribed Date
+                                </th>
+                                <th className="px-6 py-3 border-b border-gray-200 bg-gray-50"></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="bg-white">
                             {subscribers.map((subscriber) => (
-                                <tr key={subscriber._id} className="border-b">
-                                    <td className="py-2 px-4">{subscriber.email}</td>
-                                    <td className="py-2 px-4">
-                                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                            subscriber.subscribed 
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-red-100 text-red-800'
-                                        }`}>
-                                            {subscriber.subscribed ? 'Active' : 'Unsubscribed'}
+                                <tr key={subscriber._id}>
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                        {subscriber.email}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
+                                        <span
+                                            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                                subscriber.subscribed
+                                                    ? 'bg-green-100 text-green-800'
+                                                    : 'bg-red-100 text-red-800'
+                                            }`}
+                                        >
+                                            {subscriber.subscribed ? 'Active' : 'Inactive'}
                                         </span>
                                     </td>
-                                    <td className="py-2 px-4">
+                                    <td className="px-6 py-4 whitespace-no-wrap border-b border-gray-200">
                                         {new Date(subscriber.subscribedAt).toLocaleDateString()}
                                     </td>
-                                    <td className="py-2 px-4">
-                                        <div className="flex items-center gap-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => handleToggleStatus(subscriber)}
-                                                title={subscriber.subscribed ? 'Deactivate' : 'Activate'}
-                                            >
-                                                {subscriber.subscribed ? (
-                                                    <ToggleRight className="h-5 w-5 text-green-600" />
-                                                ) : (
-                                                    <ToggleLeft className="h-5 w-5 text-gray-400" />
-                                                )}
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => {
-                                                    setSelectedSubscriber(subscriber);
-                                                    setDeleteDialogOpen(true);
-                                                }}
-                                                className="text-red-600 hover:text-red-700"
-                                                title="Delete"
-                                            >
-                                                <Trash2 className="h-5 w-5" />
-                                            </Button>
-                                        </div>
+                                    <td className="px-6 py-4 whitespace-no-wrap text-right border-b border-gray-200">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => handleToggleStatus(subscriber)}
+                                            className="mr-2"
+                                        >
+                                            {subscriber.subscribed ? (
+                                                <ToggleRight className="h-4 w-4" />
+                                            ) : (
+                                                <ToggleLeft className="h-4 w-4" />
+                                            )}
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => {
+                                                setSelectedSubscriber(subscriber);
+                                                setDeleteDialogOpen(true);
+                                            }}
+                                        >
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
@@ -258,24 +405,17 @@ export default function SubscribersPage() {
                 </div>
             </div>
 
-            {/* Delete Confirmation Dialog */}
             <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                            This will permanently delete the subscriber{' '}
-                            <span className="font-semibold">{selectedSubscriber?.email}</span>.
-                            This action cannot be undone.
+                            This will permanently delete the subscriber. This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel onClick={() => setSelectedSubscriber(null)}>
-                            Cancel
-                        </AlertDialogCancel>
-                        <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-                            Delete
-                        </AlertDialogAction>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
