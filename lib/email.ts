@@ -1,16 +1,55 @@
 import { Resend } from 'resend';
 import ActiveSubscriber from '@/models/ActiveSubscriber';
 
-// Initialize Resend
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Helper function to get Resend instance
+function getResendClient() {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+        throw new Error('RESEND_API_KEY is not configured in environment variables');
+    }
+    return new Resend(apiKey);
+}
+
+// Helper function to validate email configuration
+function validateEmailConfig() {
+    const errors = [];
+    if (!process.env.RESEND_API_KEY) {
+        errors.push('RESEND_API_KEY is missing');
+    }
+    if (!process.env.EMAIL_FROM) {
+        errors.push('EMAIL_FROM is missing');
+    } else {
+        // Basic email format validation
+        const emailRegex = /^[^@]+@[^@]+\.[^@]+$/;
+        const matches = process.env.EMAIL_FROM.match(/<([^>]+)>/) || [null, process.env.EMAIL_FROM];
+        const emailPart = matches[1];
+        if (!emailRegex.test(emailPart)) {
+            errors.push('EMAIL_FROM format is invalid. Should be "Name <email@domain.com>" or "email@domain.com"');
+        }
+    }
+    return errors;
+}
 
 export async function sendWelcomeEmail(email: string) {
     try {
+        // Validate configuration
+        const configErrors = validateEmailConfig();
+        if (configErrors.length > 0) {
+            throw new Error(`Email configuration errors: ${configErrors.join(', ')}`);
+        }
+
+        console.log('Initializing welcome email send with config:', {
+            from: process.env.EMAIL_FROM,
+            apiKeyExists: !!process.env.RESEND_API_KEY,
+            to: email
+        });
+
+        const resend = getResendClient();
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://firsthand.akhilhanda.com';
         const unsubscribeUrl = `${siteUrl}/unsubscribe?email=${encodeURIComponent(email)}`;
 
         const { data, error } = await resend.emails.send({
-            from: process.env.EMAIL_FROM || 'Akhil Handa <newsletter@akhilhanda.com>',
+            from: process.env.EMAIL_FROM,
             to: email,
             subject: 'Welcome to Our Newsletter!',
             html: `
@@ -35,14 +74,27 @@ export async function sendWelcomeEmail(email: string) {
         });
 
         if (error) {
+            console.error('Resend API error:', error);
             throw error;
         }
 
-        console.log(`Welcome email sent to ${email}: ${data?.id}`);
+        console.log(`Welcome email sent successfully to ${email}:`, {
+            messageId: data?.id,
+            from: process.env.EMAIL_FROM,
+            to: email
+        });
+        
         return { success: true };
 
     } catch (error) {
-        console.error('Failed to send welcome email:', error);
+        console.error('Failed to send welcome email:', {
+            error,
+            config: {
+                from: process.env.EMAIL_FROM,
+                apiKeyExists: !!process.env.RESEND_API_KEY,
+                to: email
+            }
+        });
         throw error;
     }
 }
@@ -56,16 +108,21 @@ export async function sendNewArticleNotification(
     try {
         console.log('Starting email notification process...');
         
-        // Check email configuration
-        if (!process.env.RESEND_API_KEY) {
-            throw new Error('Email configuration is missing. Please set RESEND_API_KEY.');
+        // Validate configuration
+        const configErrors = validateEmailConfig();
+        if (configErrors.length > 0) {
+            throw new Error(`Email configuration errors: ${configErrors.join(', ')}`);
         }
+
+        // Initialize Resend client
+        const resend = getResendClient();
 
         // Get site URL with fallback
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.akhilhanda.com';
         
         console.log('Email configuration:', {
-            resendApiKey: 'Set',
+            from: process.env.EMAIL_FROM,
+            apiKeyExists: !!process.env.RESEND_API_KEY,
             siteUrl: siteUrl
         });
 
@@ -87,6 +144,7 @@ export async function sendNewArticleNotification(
         
         console.log(`Sending notification to ${subscribers.length} subscribers`);
         let successCount = 0;
+        let errors = [];
         
         // Send individual emails to each subscriber
         for (const subscriber of subscribers) {
@@ -103,7 +161,7 @@ export async function sendNewArticleNotification(
                 // Send email
                 console.log('Attempting to send email to:', subscriber.email);
                 const { data, error } = await resend.emails.send({
-                    from: process.env.EMAIL_FROM || 'Akhil Handa <newsletter@akhilhanda.com>',
+                    from: process.env.EMAIL_FROM,
                     to: subscriber.email,
                     subject: `New Article: ${articleTitle}`,
                     html: `
@@ -119,21 +177,38 @@ export async function sendNewArticleNotification(
                 });
 
                 if (error) {
-                    throw error;
+                    console.error(`Error sending to ${subscriber.email}:`, error);
+                    errors.push({ email: subscriber.email, error });
+                    continue;
                 }
 
-                console.log(`Email sent successfully to ${subscriber.email}: ${data?.id}`);
+                console.log(`Email sent successfully to ${subscriber.email}:`, {
+                    messageId: data?.id,
+                    from: process.env.EMAIL_FROM,
+                    to: subscriber.email
+                });
                 successCount++;
             } catch (emailError) {
                 console.error(`Failed to send email to ${subscriber.email}:`, emailError);
-                // Continue with next subscriber even if one fails
+                errors.push({ email: subscriber.email, error: emailError });
             }
         }
         
-        return { success: true, count: successCount, totalSubscribers: subscribers.length };
+        return { 
+            success: true, 
+            count: successCount, 
+            totalSubscribers: subscribers.length,
+            errors: errors.length > 0 ? errors : undefined
+        };
 
     } catch (error) {
-        console.error('Failed to send email notification. Full error:', error);
+        console.error('Failed to send email notification. Full error:', {
+            error,
+            config: {
+                from: process.env.EMAIL_FROM,
+                apiKeyExists: !!process.env.RESEND_API_KEY
+            }
+        });
         throw error;
     }
 } 
