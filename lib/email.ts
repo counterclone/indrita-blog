@@ -1,22 +1,16 @@
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import ActiveSubscriber from '@/models/ActiveSubscriber';
 
-// Create reusable transporter
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendWelcomeEmail(email: string) {
     try {
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://firsthand.akhilhanda.com';
         const unsubscribeUrl = `${siteUrl}/unsubscribe?email=${encodeURIComponent(email)}`;
 
-        const mailOptions = {
-            from: process.env.EMAIL_USER,
+        const { data, error } = await resend.emails.send({
+            from: process.env.EMAIL_FROM || 'Akhil Handa <newsletter@akhilhanda.com>',
             to: email,
             subject: 'Welcome to Our Newsletter!',
             html: `
@@ -38,10 +32,13 @@ export async function sendWelcomeEmail(email: string) {
                     </p>
                 </div>
             `
-        };
+        });
 
-        const info = await transporter.sendMail(mailOptions);
-        console.log(`Welcome email sent to ${email}: ${info.messageId}`);
+        if (error) {
+            throw error;
+        }
+
+        console.log(`Welcome email sent to ${email}: ${data?.id}`);
         return { success: true };
 
     } catch (error) {
@@ -60,16 +57,15 @@ export async function sendNewArticleNotification(
         console.log('Starting email notification process...');
         
         // Check email configuration
-        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-            throw new Error('Email configuration is missing. Please set EMAIL_USER and EMAIL_PASSWORD.');
+        if (!process.env.RESEND_API_KEY) {
+            throw new Error('Email configuration is missing. Please set RESEND_API_KEY.');
         }
 
         // Get site URL with fallback
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.akhilhanda.com';
         
         console.log('Email configuration:', {
-            emailUser: 'Set',
-            emailPass: 'Set',
+            resendApiKey: 'Set',
             siteUrl: siteUrl
         });
 
@@ -103,31 +99,30 @@ export async function sendNewArticleNotification(
             const hardcodedArticleUrl = `https://www.akhilhanda.com/article-content/${articleUrl.split('/').pop()}`;
             console.log('Article URL:', hardcodedArticleUrl);
             
-            // Email content
-            const mailOptions = {
-                from: process.env.EMAIL_USER,
-                to: subscriber.email,
-                subject: `New Article: ${articleTitle}`,
-                html: `
-                    <h2>${articleTitle}</h2>
-                    <p>${articleExcerpt}</p>
-                    <p>Read the full article: <a href="${hardcodedArticleUrl}">${hardcodedArticleUrl}</a></p>
-                    <hr>
-                    <p style="font-size: 12px; color: #666;">
-                        You're receiving this because you subscribed to article updates. 
-                        <a href="${unsubscribeUrl}">Unsubscribe</a>
-                    </p>
-                `
-            };
-
             try {
                 // Send email
-                console.log('Attempting to send email with options:', {
-                    to: mailOptions.to,
-                    subject: mailOptions.subject
+                console.log('Attempting to send email to:', subscriber.email);
+                const { data, error } = await resend.emails.send({
+                    from: process.env.EMAIL_FROM || 'Akhil Handa <newsletter@akhilhanda.com>',
+                    to: subscriber.email,
+                    subject: `New Article: ${articleTitle}`,
+                    html: `
+                        <h2>${articleTitle}</h2>
+                        <p>${articleExcerpt}</p>
+                        <p>Read the full article: <a href="${hardcodedArticleUrl}">${hardcodedArticleUrl}</a></p>
+                        <hr>
+                        <p style="font-size: 12px; color: #666;">
+                            You're receiving this because you subscribed to article updates. 
+                            <a href="${unsubscribeUrl}">Unsubscribe</a>
+                        </p>
+                    `
                 });
-                const info = await transporter.sendMail(mailOptions);
-                console.log(`Email sent successfully to ${subscriber.email}: ${info.messageId}`);
+
+                if (error) {
+                    throw error;
+                }
+
+                console.log(`Email sent successfully to ${subscriber.email}: ${data?.id}`);
                 successCount++;
             } catch (emailError) {
                 console.error(`Failed to send email to ${subscriber.email}:`, emailError);
