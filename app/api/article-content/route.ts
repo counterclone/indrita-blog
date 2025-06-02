@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
-import ArticleContent from '@/models/ArticleContent';
+import Article from '@/models/Article';
 
 export async function POST(request: Request) {
     try {
@@ -16,21 +16,21 @@ export async function POST(request: Request) {
         const data = await request.json();
 
         // Validate required fields
-        if (!data.articleId || !data.slug || !data.htmlContent) {
+        if (!data.title || !data.slug || !data.htmlContent) {
             return NextResponse.json(
-                { error: 'Article ID, slug, and HTML content are required' },
+                { error: 'Title, slug, and HTML content are required' },
                 { status: 400 }
             );
         }
 
         try {
-            const articleContent = await ArticleContent.create({
+            const article = await Article.create({
                 ...data,
                 createdAt: new Date(),
                 updatedAt: new Date()
             });
             
-            return NextResponse.json(articleContent);
+            return NextResponse.json(article);
         } catch (dbError: any) {
             // Check for duplicate key error (commonly caused by duplicate slug)
             if (dbError.code === 11000 && dbError.keyPattern?.slug) {
@@ -44,10 +44,10 @@ export async function POST(request: Request) {
             throw dbError;
         }
     } catch (error: any) {
-        console.error('Error creating article content:', error);
+        console.error('Error creating article:', error);
         return NextResponse.json(
             { 
-                error: 'Failed to create article content', 
+                error: 'Failed to create article', 
                 details: error.message,
                 code: error.code || 'unknown'
             },

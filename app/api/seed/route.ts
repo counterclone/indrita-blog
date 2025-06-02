@@ -1,13 +1,19 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
-import ArticleContent from '@/models/ArticleContent';
+import Article from '@/models/Article';
 
 export async function GET() {
     try {
         await connectDB();
 
-        const articleContent = {
-            articleId: "6813b5bda18d1189c97a5217",
+        const article = {
+            title: "Endurance Capital Interview",
+            excerpt: "Understanding how Endurance Capital is addressing the scaling gap in India's entrepreneurial landscape",
+            image: "/images/endurance-capital.jpg",
+            date: new Date(),
+            author: "Indrita Majumdar",
+            category: ["Finance", "Startups"],
+            readTime: "5 min",
             slug: "endurance-capital-interview",
             htmlContent: `<article class='article-content'>
                 <section class='introduction'>
@@ -45,14 +51,14 @@ export async function GET() {
             updatedAt: new Date()
         };
 
-        const result = await ArticleContent.create(articleContent);
-        console.log('Article content inserted successfully:', result);
+        const result = await Article.create(article);
+        console.log('Article seeded successfully:', result);
 
-        return NextResponse.json({ message: 'Article content seeded successfully', result });
+        return NextResponse.json({ message: 'Article seeded successfully', result });
     } catch (error: any) {
-        console.error('Error seeding article content:', error);
+        console.error('Error seeding article:', error);
         return NextResponse.json(
-            { error: 'Failed to seed article content', details: error.message },
+            { error: 'Failed to seed article', details: error.message },
             { status: 500 }
         );
     }

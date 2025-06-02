@@ -4,7 +4,6 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
-import ArticleContent from '@/models/ArticleContent';
 import '@/styles/article.css';
 
 interface ArticlePageProps {
@@ -20,127 +19,93 @@ interface ArticleData {
   image: string;
   date: string;
   author: string;
-  category: string;
+  category: string[];
   readTime: string;
   slug: string;
-  htmlContent?: string;
+  htmlContent: string;
 }
 
-async function getArticleWithContent(id: string): Promise<ArticleData | null> {
+async function getArticle(id: string): Promise<ArticleData | null> {
   try {
     await connectDB();
     
     // Normalize the id by removing the prefix if it exists
     const normalizedId = id.replace('/article-content/', '');
     
-    // First get the article metadata
+    // Try to find by slug first
     const article = await Article.findOne({ slug: normalizedId });
     
     if (!article) {
-      console.log('Article not found for id:', normalizedId);
+      console.log('Article not found for slug:', normalizedId);
       return null;
     }
 
-    console.log('Found article:', article);
-    console.log('Article ID:', article._id);
-
-    // Log all article content documents to debug
-    const allArticleContents = await ArticleContent.find({});
-    console.log('All article contents in database:', allArticleContents);
-
-    // Try to find article content by both slug and articleId
-    const articleContent = await ArticleContent.findOne({
-      $or: [
-        { slug: normalizedId },
-        { articleId: article._id.toString() }
-      ]
-    });
-    
-    console.log('Query conditions:', {
-      slug: normalizedId,
-      articleId: article._id.toString()
-    });
-    console.log('Article content query result:', articleContent);
-
-    // Combine the data
-    const articleData = {
-      ...article.toObject(),
-      htmlContent: articleContent?.htmlContent || ''
-    };
-
-    return articleData;
+    return article;
   } catch (error: any) {
     console.error('Error fetching article:', error);
     return null;
   }
 }
 
-export default async function ArticleContentPage({ params }: ArticlePageProps) {
-  try {
-    // Await the params before using them
-    const { id } = await params;  // Make sure to await params
-    
-    // Remove any prefix from the id if it exists
-    const cleanId = id.replace('/article-content/', '');
-    const article = await getArticleWithContent(cleanId);
+export default async function ArticlePage({ params }: ArticlePageProps) {
+  const article = await getArticle(params.id);
 
-    if (!article) {
-      notFound();
-    }
+  if (!article) {
+    notFound();
+  }
 
-    return (
-      <article className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <Link
-            href="/articles"
-            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-8"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Articles
-          </Link>
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <Link 
+          href="/articles" 
+          className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Articles
+        </Link>
 
-          <header className="mb-8">
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-              <span className="font-medium text-blue-600">{article.category}</span>
-              <span>•</span>
-              <span>{article.readTime}</span>
-            </div>
-            
-            <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
-            
-            <div className="flex items-center justify-between text-sm text-gray-500">
-              <span>By {article.author}</span>
-              <time dateTime={new Date(article.date).toISOString()}>
-                {new Date(article.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </time>
-            </div>
-          </header>
+        <article>
+          <div className="relative h-96 mb-8">
+            <Image
+              src={article.image}
+              alt={article.title}
+              fill
+              className="object-cover rounded-lg"
+            />
+          </div>
 
-          {article.image && (
-            <div className="relative aspect-[16/9] w-full mb-8 rounded-lg overflow-hidden">
-              <Image
-                src={article.image}
-                alt={article.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          )}
+          <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+            <span>{article.author}</span>
+            <span>•</span>
+            <span>{new Date(article.date).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })}</span>
+            <span>•</span>
+            <span>{article.readTime}</span>
+          </div>
+
+          <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+          
+          <div className="flex gap-2 mb-8">
+            {article.category.map((cat) => (
+              <span
+                key={cat}
+                className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+              >
+                {cat}
+              </span>
+            ))}
+          </div>
 
           <div 
-            className="article-content"
-            dangerouslySetInnerHTML={{ __html: article.htmlContent || '' }}
+            className="prose prose-lg max-w-none"
+            dangerouslySetInnerHTML={{ __html: article.htmlContent }}
           />
-        </div>
-      </article>
-    );
-  } catch (error) {
-    console.error('Error in ArticleContentPage:', error);
-    throw error;
-  }
+        </article>
+      </div>
+    </div>
+  );
 } 

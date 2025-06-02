@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
-import ArticleContent from '@/models/ArticleContent';
 import Article from '@/models/Article';
 
 interface CustomSession {
@@ -19,7 +18,7 @@ async function ensureArticleContent(articleId: string) {
     console.log(`Ensuring content exists for article ${articleId}`);
     
     // Check if content already exists
-    let content = await ArticleContent.findOne({ articleId });
+    let content = await Article.findOne({ slug: articleId });
     
     // If content exists, return it
     if (content) {
@@ -47,7 +46,7 @@ async function ensureArticleContent(articleId: string) {
     }
     
     // Ensure slug is unique by appending timestamp if needed
-    const slugExists = await ArticleContent.findOne({ slug });
+    const slugExists = await Article.findOne({ slug });
     if (slugExists) {
         slug = `${slug}-${Date.now()}`;
         console.log(`Generated unique slug to avoid conflicts: ${slug}`);
@@ -55,8 +54,7 @@ async function ensureArticleContent(articleId: string) {
     
     // Create empty content
     try {
-        content = await ArticleContent.create({
-            articleId: articleId,
+        content = await Article.create({
             slug: slug,
             htmlContent: '',
             createdAt: new Date(),
@@ -78,39 +76,31 @@ export async function GET(
         console.log('Fetching article content for ID:', params.id);
         await connectDB();
         
-        // First try to find by articleId
-        let content = await ArticleContent.findOne({ articleId: params.id });
-        console.log('Content lookup by articleId result:', content ? 'found' : 'not found');
+        // Try to find by slug first
+        let article = await Article.findOne({ slug: params.id });
+        console.log('Article lookup by slug result:', article ? 'found' : 'not found');
         
         // If not found, try to find using _id
-        if (!content) {
-            console.log('Content not found by articleId, trying with _id');
-            content = await ArticleContent.findOne({ _id: params.id });
-            console.log('Content lookup by _id result:', content ? 'found' : 'not found');
+        if (!article) {
+            console.log('Article not found by slug, trying with _id');
+            article = await Article.findById(params.id);
+            console.log('Article lookup by _id result:', article ? 'found' : 'not found');
         }
         
-        // If still not found, try to ensure content exists
-        if (!content) {
-            console.log('Content not found by either method, attempting to create it');
-            content = await ensureArticleContent(params.id);
-            
-            if (!content) {
-                console.error('Failed to create content for article ID:', params.id);
-                return NextResponse.json(
-                    { error: 'Article content not found and could not be created', id: params.id },
-                    { status: 404 }
-                );
-            }
-            
-            console.log('Successfully created new content for article ID:', params.id);
+        if (!article) {
+            console.error('Article not found for ID:', params.id);
+            return NextResponse.json(
+                { error: 'Article not found', id: params.id },
+                { status: 404 }
+            );
         }
         
-        console.log('Returning article content:', content);
-        return NextResponse.json(content);
+        console.log('Returning article:', article);
+        return NextResponse.json(article);
     } catch (error: any) {
-        console.error('Error fetching article content:', error);
+        console.error('Error fetching article:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch article content', details: error.message },
+            { error: 'Failed to fetch article', details: error.message },
             { status: 500 }
         );
     }
@@ -130,55 +120,39 @@ export async function PUT(
         await connectDB();
         const data = await request.json();
         
-        console.log('Updating article content for ID:', params.id);
+        console.log('Updating article for ID:', params.id);
         console.log('Update data:', data);
 
-        // First try to find by articleId
-        let content = await ArticleContent.findOneAndUpdate(
-            { articleId: params.id },
+        // Try to find and update by slug first
+        let article = await Article.findOneAndUpdate(
+            { slug: params.id },
             { ...data, updatedAt: new Date() },
             { new: true }
         );
         
         // If not found, try to update using _id
-        if (!content) {
-            console.log('Content not found by articleId, trying with _id');
-            content = await ArticleContent.findOneAndUpdate(
-                { _id: params.id },
+        if (!article) {
+            console.log('Article not found by slug, trying with _id');
+            article = await Article.findByIdAndUpdate(
+                params.id,
                 { ...data, updatedAt: new Date() },
                 { new: true }
             );
         }
 
-        // If still not found, create new content
-        if (!content) {
-            console.log('Content not found for update, creating new content');
-            
-            // Ensure we have required fields
-            if (!data.articleId || !data.slug || !data.htmlContent) {
-                return NextResponse.json(
-                    { error: 'Article ID, slug, and HTML content are required for new content' },
-                    { status: 400 }
-                );
-            }
-            
-            // Create new content
-            content = await ArticleContent.create({
-                ...data,
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
-            
-            console.log('Created new article content:', content);
-            return NextResponse.json(content);
+        if (!article) {
+            return NextResponse.json(
+                { error: 'Article not found' },
+                { status: 404 }
+            );
         }
-
-        console.log('Updated article content:', content);
-        return NextResponse.json(content);
+        
+        console.log('Updated article:', article);
+        return NextResponse.json(article);
     } catch (error: any) {
-        console.error('Error updating article content:', error);
+        console.error('Error updating article:', error);
         return NextResponse.json(
-            { error: 'Failed to update article content', details: error.message },
+            { error: 'Failed to update article', details: error.message },
             { status: 500 }
         );
     }
@@ -196,7 +170,7 @@ export async function DELETE(
         }
 
         await connectDB();
-        const content = await ArticleContent.findOneAndDelete({ articleId: params.id });
+        const content = await Article.findOneAndDelete({ slug: params.id });
 
         if (!content) {
             return NextResponse.json(

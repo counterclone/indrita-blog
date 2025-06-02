@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
-import ArticleContent from '@/models/ArticleContent';
 import { sendNewArticleNotification } from '@/lib/email';
 
 interface CustomSession {
@@ -17,30 +16,11 @@ interface CustomSession {
 
 export async function GET() {
     try {
-        console.log('Attempting to connect to MongoDB...');
         await connectDB();
-        console.log('MongoDB connected successfully');
-
-        console.log('Fetching articles...');
-        const articles = await Article.find().sort({ date: -1 }).lean();
-        console.log('Articles fetched:', articles.length);
-
-        if (!articles || articles.length === 0) {
-            console.log('No articles found in database');
-            return NextResponse.json([], {
-                headers: {
-                    'Cache-Control': 'no-store',
-                }
-            });
-        }
-
-        return NextResponse.json(articles, {
-            headers: {
-                'Cache-Control': 'no-store',
-            }
-        });
+        const articles = await Article.find({}).sort({ date: -1 });
+        return NextResponse.json(articles);
     } catch (error: any) {
-        console.error('Detailed error in GET /api/articles:', error);
+        console.error('Error fetching articles:', error);
         return NextResponse.json(
             { error: 'Failed to fetch articles', details: error.message },
             { status: 500 }
@@ -58,52 +38,20 @@ export async function POST(request: Request) {
 
         await connectDB();
         const data = await request.json();
-        
-        console.log('Received article data:', data);
-
-        // Validate required fields
-        if (!data.title || !data.excerpt || !data.image) {
-            return NextResponse.json(
-                { error: 'Title, excerpt, and image are required' },
-                { status: 400 }
-            );
-        }
-
-        // Ensure category is an array even if it's empty
-        if (!data.category) {
-            data.category = [];
-        } else if (!Array.isArray(data.category)) {
-            // If category somehow isn't an array, convert it
-            if (typeof data.category === 'string') {
-                data.category = data.category ? [data.category] : [];
-            } else {
-                data.category = [];
-            }
-        }
-
-        console.log('Processed category:', data.category);
 
         // Create the article
         const article = await Article.create({
             ...data,
-            date: data.date || new Date(),
-            slug: data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+            createdAt: new Date(),
+            updatedAt: new Date()
         });
-        console.log('Created new article:', article);
 
-        // Also create an empty article content document
+        // Send notification about new article
         try {
-            const articleContent = await ArticleContent.create({
-                articleId: article._id.toString(),
-                slug: article.slug,
-                htmlContent: '',
-                createdAt: new Date(),
-                updatedAt: new Date()
-            });
-            console.log('Created empty article content:', articleContent);
-        } catch (contentError) {
-            console.error('Error creating article content:', contentError);
-            // Don't fail the whole operation if content creation fails
+            await sendNewArticleNotification(article);
+        } catch (emailError) {
+            console.error('Error sending article notification:', emailError);
+            // Don't fail the operation if email fails
         }
 
         return NextResponse.json(article);
