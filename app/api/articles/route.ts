@@ -16,11 +16,34 @@ interface CustomSession {
 
 export async function GET() {
     try {
+        console.log('Attempting to connect to MongoDB...');
         await connectDB();
-        const articles = await Article.find({}).sort({ date: -1 });
-        return NextResponse.json(articles);
+        console.log('MongoDB connected successfully');
+
+        console.log('Fetching articles...');
+        // Only fetch fields needed for article cards/lists, exclude htmlContent
+        const articles = await Article.find()
+            .select('title excerpt image date author category readTime slug _id createdAt updatedAt')
+            .sort({ date: -1 })
+            .lean();
+        console.log('Articles fetched:', articles.length);
+
+        if (!articles || articles.length === 0) {
+            console.log('No articles found in database');
+            return NextResponse.json([], {
+                headers: {
+                    'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
+                }
+            });
+        }
+
+        return NextResponse.json(articles, {
+            headers: {
+                'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
+            }
+        });
     } catch (error: any) {
-        console.error('Error fetching articles:', error);
+        console.error('Detailed error in GET /api/articles:', error);
         return NextResponse.json(
             { error: 'Failed to fetch articles', details: error.message },
             { status: 500 }

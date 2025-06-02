@@ -30,20 +30,21 @@ export async function GET(
             article = await Article.findOne({ slug: params.id });
         }
         
-        // If still not found, log available articles for debugging
+        // If still not found, return 404
         if (!article) {
-            console.log('Article still not found, listing all available articles for debugging');
-            const allArticles = await Article.find({}, '_id title slug');
-            console.log('Available articles:', allArticles);
-            
+            console.log('Article not found for ID/slug:', params.id);
             return NextResponse.json(
                 { error: 'Article not found', id: params.id },
                 { status: 404 }
             );
         }
         
-        console.log('Found article:', article);
-        return NextResponse.json(article);
+        console.log('Found article:', article.title);
+        return NextResponse.json(article, {
+            headers: {
+                'Cache-Control': 'public, max-age=600, stale-while-revalidate=300',
+            }
+        });
     } catch (error: any) {
         console.error('Error fetching article:', error);
         return NextResponse.json(
