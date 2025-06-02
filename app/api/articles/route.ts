@@ -71,7 +71,12 @@ export async function POST(request: Request) {
 
         // Send notification about new article
         try {
-            await sendNewArticleNotification(article);
+            const articleUrl = `https://www.akhilhanda.com/article-content/${article.slug}`;
+            await sendNewArticleNotification(
+                article.title,
+                article.excerpt,
+                articleUrl
+            );
         } catch (emailError) {
             console.error('Error sending article notification:', emailError);
             // Don't fail the operation if email fails
