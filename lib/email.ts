@@ -49,7 +49,7 @@ export async function sendWelcomeEmail(email: string) {
         const unsubscribeUrl = `${siteUrl}/unsubscribe?email=${encodeURIComponent(email)}`;
 
         const { data, error } = await resend.emails.send({
-            from: process.env.EMAIL_FROM,
+            from: process.env.EMAIL_FROM!,
             to: email,
             subject: 'Welcome to Our Newsletter!',
             html: `
@@ -161,7 +161,7 @@ export async function sendNewArticleNotification(
                 // Send email
                 console.log('Attempting to send email to:', subscriber.email);
                 const { data, error } = await resend.emails.send({
-                    from: process.env.EMAIL_FROM,
+                    from: process.env.EMAIL_FROM!,
                     to: subscriber.email,
                     subject: `New Article: ${articleTitle}`,
                     html: `
