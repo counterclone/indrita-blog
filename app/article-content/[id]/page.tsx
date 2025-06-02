@@ -4,9 +4,17 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
-import { SocialShare } from '@/components/social-share';
-import { FloatingSocialShare } from '@/components/floating-social-share';
 import '@/styles/article.css';
+import dynamic from 'next/dynamic';
+
+// Lazy load social share components for better performance
+const SocialShare = dynamic(() => import('@/components/social-share').then(mod => ({ default: mod.SocialShare })), {
+  loading: () => <div className="h-12 animate-pulse bg-gray-100 rounded"></div>
+});
+
+const FloatingSocialShare = dynamic(() => import('@/components/floating-social-share').then(mod => ({ default: mod.FloatingSocialShare })), {
+  loading: () => null
+});
 
 interface ArticlePageProps {
   params: {
@@ -132,7 +140,7 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
                 </time>
               </div>
 
-              {/* Social Share Component */}
+              {/* Social Share Component - Lazy Loaded */}
               <div className="border-t border-b border-gray-100 py-4 mb-6">
                 <SocialShare 
                   title={article.title} 
@@ -150,6 +158,7 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
                   fill
                   className="object-cover"
                   priority
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 1200px"
                 />
               </div>
             )}
@@ -159,7 +168,7 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
               dangerouslySetInnerHTML={{ __html: article.htmlContent || '' }}
             />
 
-            {/* Bottom Social Share */}
+            {/* Bottom Social Share - Lazy Loaded */}
             <div className="border-t border-gray-100 pt-8 mt-12">
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3 className="text-lg font-semibold mb-4">Found this article helpful?</h3>
