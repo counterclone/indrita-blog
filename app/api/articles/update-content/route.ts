@@ -36,7 +36,7 @@ export async function PUT(request: Request) {
         }
 
         return NextResponse.json(article);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error updating article content:', error);
         return NextResponse.json(
             { error: 'Failed to update article content', details: error.message },

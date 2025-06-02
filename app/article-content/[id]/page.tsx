@@ -34,7 +34,7 @@ async function getArticle(id: string): Promise<ArticleData | null> {
     // Normalize the id by removing the prefix if it exists
     const normalizedId = id.replace('/article-content/', '');
     
-    // Try to find by slug first
+    // Single query to get article with content from unified model
     const article = await Article.findOne({ slug: normalizedId });
     
     if (!article) {
@@ -42,38 +42,43 @@ async function getArticle(id: string): Promise<ArticleData | null> {
       return null;
     }
 
+    console.log('Found article:', article.title);
+    
+    // Convert to plain object and return with proper typing
+    return {
+      _id: article._id.toString(),
+      title: article.title,
+      excerpt: article.excerpt,
+      image: article.image,
+      date: article.date,
+      author: article.author,
+      category: article.category,
+      readTime: article.readTime,
+      slug: article.slug,
+      htmlContent: article.htmlContent || ''
+    };
+    
   } catch (error: any) {
     console.error('Error fetching article:', error);
     return null;
   }
 }
 
-export default async function ArticlePage({ params }: ArticlePageProps) {
-  const article = await getArticle(params.id);
+export default async function ArticleContentPage({ params }: ArticlePageProps) {
+  try {
+    const { id } =  params;
+    
+    // Remove any prefix from the id if it exists
+    const cleanId = id.replace('/article-content/', '');
+    const article = await getArticle(cleanId);
 
-  if (!article) {
-    notFound();
-  }
-
-  return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <Link 
-          href="/articles" 
-          className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-8"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Articles
-        </Link>
+    if (!article) {
+      notFound();
+    }
 
     // Construct the full URL for sharing
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.akhilhanda.com';
     const articleUrl = `${baseUrl}/article-content/${cleanId}`;
-
-    // Format category for display
-    const categoryDisplay = Array.isArray(article.category) 
-      ? article.category.join(", ") 
-      : article.category;
 
     return (
       <>
