@@ -169,6 +169,19 @@ export default function ArticlesPage() {
                                             <Mail className="h-4 w-4" />
                                         )}
                                     </Button>
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => handleSendTestEmail(article._id)}
+                                        disabled={sendingTestEmail === article._id}
+                                        title="Send test email"
+                                    >
+                                        {sendingTestEmail === article._id ? (
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+                                        ) : (
+                                            <TestTube className="h-4 w-4" />
+                                        )}
+                                    </Button>
                                 </div>
                             </div>
                         </li>
