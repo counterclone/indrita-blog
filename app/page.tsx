@@ -1,6 +1,3 @@
-"use client";
-
-import { useEffect, useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
@@ -12,8 +9,10 @@ import { StreamOfThought } from "@/components/stream-of-thought"
 import { LinkedInArticles } from "@/components/linkedin-articles"
 import { HeroSection } from "@/components/hero-section"
 import { SubscribeDialog } from '@/components/subscribe-dialog'
+import connectDB from '@/lib/mongodb'
+import Article from '@/models/Article'
 
-interface Article {
+interface ArticleData {
   _id: string;
   title: string;
   excerpt: string;
@@ -22,35 +21,41 @@ interface Article {
   author: string;
   category: string | string[];
   slug: string;
+  readTime?: string;
 }
 
-export default function Home() {
-  const [recentArticles, setRecentArticles] = useState<Article[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [featuredIndex, setFeaturedIndex] = useState(0); //defaults to most recent article at index 0
+async function getArticles(): Promise<ArticleData[]> {
+  try {
+    await connectDB();
+    
+    // Fetch articles directly from database
+    const articles = await Article.find()
+      .select('title excerpt image date author category readTime slug _id')
+      .sort({ date: -1 })
+      .lean();
+    
+    // Convert MongoDB documents to plain objects and format dates
+    return articles.map((article: any) => ({
+      _id: article._id.toString(),
+      title: article.title,
+      excerpt: article.excerpt,
+      image: article.image,
+      date: article.date.toISOString(),
+      author: article.author,
+      category: article.category,
+      slug: article.slug,
+      readTime: article.readTime
+    }));
+  } catch (error) {
+    console.error('Error fetching articles:', error);
+    return [];
+  }
+}
 
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await fetch('/api/articles');
-        if (!response.ok) {
-          throw new Error('Failed to fetch articles');
-        }
-        const data = await response.json();
-        setRecentArticles(data);
-
-     
-      } catch (error) {
-        console.error('Error fetching articles:', error);
-        setError('Failed to load articles');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchArticles();
-  }, []);
+export default async function Home() {
+  // Fetch articles on the server
+  const recentArticles = await getArticles();
+  const featuredIndex = 0; // defaults to most recent article at index 0
 
   // Get the featured article based on featuredIndex
   const featuredArticle = recentArticles[featuredIndex];
@@ -64,9 +69,7 @@ export default function Home() {
       <HeroSection />
 
       {/* Stream of Thought */}
-
-    {/* <section className="py-12 md:py-16 bg-gray-50">
-  
+      {/* <section className="py-12 md:py-16 bg-gray-50">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-6">Stream of Thought</h2>
           <p className="text-gray-600 mb-8 max-w-3xl">
@@ -75,21 +78,13 @@ export default function Home() {
           </p>
           <StreamOfThought />
         </div>
-
       </section> */}
-
 
       {/* Featured Article */}
       <section className="py-12 md:py-16 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-8">Featured Article</h2>
-          {loading ? (
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : error ? (
-            <div className="text-red-600">{error}</div>
-          ) : featuredArticle && (
+          {featuredArticle ? (
             <FeaturedArticle
               title={featuredArticle.title}
               excerpt={featuredArticle.excerpt}
@@ -104,6 +99,8 @@ export default function Home() {
               slug={featuredArticle.slug}
               _id={featuredArticle._id}
             />
+          ) : (
+            <div className="text-center text-gray-500">No featured article available</div>
           )}
         </div>
       </section>
@@ -112,17 +109,9 @@ export default function Home() {
       <section className="py-12 md:py-16 bg-gray-50">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-8">Recent Articles</h2>
-          {loading ? (
-            <div className="flex justify-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            </div>
-          ) : error ? (
-            <div className="text-red-600">{error}</div>
-          ) : (
+          {filteredRecentArticles.length > 0 ? (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-
               {filteredRecentArticles.map((article) => (
-
                 <ArticleCard
                   key={article._id}
                   title={article.title}
@@ -140,6 +129,8 @@ export default function Home() {
                 />
               ))}
             </div>
+          ) : (
+            <div className="text-center text-gray-500">No recent articles available</div>
           )}
           <div className="mt-8 text-center">
             <Link href="/articles" className="inline-flex items-center text-blue-600 hover:text-blue-800 font-medium">

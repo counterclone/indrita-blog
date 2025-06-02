@@ -66,7 +66,8 @@ async function getArticle(id: string): Promise<ArticleData | null> {
 
 export default async function ArticleContentPage({ params }: ArticlePageProps) {
   try {
-    const { id } =  params;
+    // Await the params before using them (required in Next.js 15)
+    const { id } = await params;
     
     // Remove any prefix from the id if it exists
     const cleanId = id.replace('/article-content/', '');
