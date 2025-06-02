@@ -28,6 +28,7 @@ export default function Home() {
   const [recentArticles, setRecentArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [featuredIndex, setFeaturedIndex] = useState(0); //defaults to most recent article at index 0
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -38,6 +39,8 @@ export default function Home() {
         }
         const data = await response.json();
         setRecentArticles(data);
+
+     
       } catch (error) {
         console.error('Error fetching articles:', error);
         setError('Failed to load articles');
@@ -48,6 +51,12 @@ export default function Home() {
 
     fetchArticles();
   }, []);
+
+  // Get the featured article based on featuredIndex
+  const featuredArticle = recentArticles[featuredIndex];
+  
+  // Filter out the featured article from recent articles
+  const filteredRecentArticles = recentArticles.filter((_, index) => index !== featuredIndex);
   
   return (
     <div className="flex flex-col">
@@ -55,8 +64,9 @@ export default function Home() {
       <HeroSection />
 
       {/* Stream of Thought */}
-      {/* Commenting out Stream of Thought section
-      <section className="py-12 md:py-16 bg-gray-50">
+
+<!--       <section className="py-12 md:py-16 bg-gray-50">
+  
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-6">Stream of Thought</h2>
           <p className="text-gray-600 mb-8 max-w-3xl">
@@ -65,8 +75,9 @@ export default function Home() {
           </p>
           <StreamOfThought />
         </div>
-      </section>
-      */}
+
+      </section>}
+ -->
 
       {/* Featured Article */}
       <section className="py-12 md:py-16 bg-white">
@@ -78,20 +89,20 @@ export default function Home() {
             </div>
           ) : error ? (
             <div className="text-red-600">{error}</div>
-          ) : recentArticles[0] && (
+          ) : featuredArticle && (
             <FeaturedArticle
-              title={recentArticles[0].title}
-              excerpt={recentArticles[0].excerpt}
-              image={recentArticles[0].image}
-              date={new Date(recentArticles[0].date).toLocaleDateString('en-US', {
+              title={featuredArticle.title}
+              excerpt={featuredArticle.excerpt}
+              image={featuredArticle.image}
+              date={new Date(featuredArticle.date).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'short',
                 day: 'numeric'
               }).toUpperCase()}
-              author={recentArticles[0].author}
-              category={recentArticles[0].category}
-              slug={recentArticles[0].slug}
-              _id={recentArticles[0]._id}
+              author={featuredArticle.author}
+              category={featuredArticle.category}
+              slug={featuredArticle.slug}
+              _id={featuredArticle._id}
             />
           )}
         </div>
@@ -109,7 +120,9 @@ export default function Home() {
             <div className="text-red-600">{error}</div>
           ) : (
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {recentArticles.slice(0, 6).map((article) => (
+
+              {filteredRecentArticles.map((article) => (
+
                 <ArticleCard
                   key={article._id}
                   title={article.title}
@@ -203,9 +216,9 @@ export default function Home() {
             <div className="md:w-2/3">
               <h2 className="text-2xl font-bold mb-4">About Me</h2>
               <p className="text-gray-600 mb-4">
-                I'm Akhil Handa, a global leader in AI-powered digital banking with two decades of experience shaping
+                I'm a global leader in AI-powered digital banking with two decades of experience shaping
                 the future of financial services. As the President & CDO of a global top 10 bank (by customers), I led
-                digital transformation initiatives, overseeing a bank with over 300bn USD total business, presence in 25
+                digital transformation initiatives, overseeing a bank with over USD 300 billion total business, presence in 25
                 international markets, and USD 1 trillion in annual digital payments.
               </p>
               <p className="text-gray-600 mb-6">

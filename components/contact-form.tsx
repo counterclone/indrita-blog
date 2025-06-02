@@ -46,7 +46,7 @@ export default function ContactForm() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send message')
     } finally {
-      setIsSubmitting(false)
+    setIsSubmitting(false)
     }
   }
 

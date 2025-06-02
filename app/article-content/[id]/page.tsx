@@ -4,6 +4,8 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
+import { SocialShare } from '@/components/social-share';
+import { FloatingSocialShare } from '@/components/floating-social-share';
 import '@/styles/article.css';
 
 interface ArticlePageProps {
@@ -19,7 +21,7 @@ interface ArticleData {
   image: string;
   date: string;
   author: string;
-  category: string[];
+  category: string | string[]; //to take care of the array of categories
   readTime: string;
   slug: string;
   htmlContent: string;
@@ -40,7 +42,6 @@ async function getArticle(id: string): Promise<ArticleData | null> {
       return null;
     }
 
-    return article;
   } catch (error: any) {
     console.error('Error fetching article:', error);
     return null;
@@ -65,47 +66,144 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
           Back to Articles
         </Link>
 
-        <article>
-          <div className="relative h-96 mb-8">
-            <Image
-              src={article.image}
-              alt={article.title}
-              fill
-              className="object-cover rounded-lg"
+    // Construct the full URL for sharing
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.akhilhanda.com';
+    const articleUrl = `${baseUrl}/article-content/${cleanId}`;
+
+    // Format category for display
+    const categoryDisplay = Array.isArray(article.category) 
+      ? article.category.join(", ") 
+      : article.category;
+
+    return (
+      <>
+        <FloatingSocialShare 
+          title={article.title} 
+          url={articleUrl}
+          excerpt={article.excerpt}
+        />
+        
+        <article className="container mx-auto px-4 py-8">
+          <div className="max-w-4xl mx-auto">
+            <Link
+              href="/articles"
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-8"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Articles
+            </Link>
+
+            <header className="mb-8">
+              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                {Array.isArray(article.category) ? (
+                  <div className="flex items-center gap-2">
+                    {article.category.map((cat, index) => (
+                      <span key={cat}>
+                        <span className="font-medium text-blue-600">{cat}</span>
+                        {index < article.category.length - 1 && (
+                          <span className="mx-1 text-gray-400">•</span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="font-medium text-blue-600">{article.category}</span>
+                )}
+                <span>•</span>
+                <span>{article.readTime}</span>
+              </div>
+              
+              <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+              
+              <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
+                <span>By {article.author}</span>
+                <time dateTime={new Date(article.date).toISOString()}>
+                  {new Date(article.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </time>
+              </div>
+
+              {/* Social Share Component */}
+              <div className="border-t border-b border-gray-100 py-4 mb-6">
+                <SocialShare 
+                  title={article.title} 
+                  url={articleUrl}
+                  excerpt={article.excerpt}
+                />
+              </div>
+            </header>
+
+            {article.image && (
+              <div className="relative aspect-[16/9] w-full mb-8 rounded-lg overflow-hidden">
+                <Image
+                  src={article.image}
+                  alt={article.title}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+              </div>
+            )}
+
+            <div 
+              className="article-content"
+              dangerouslySetInnerHTML={{ __html: article.htmlContent || '' }}
             />
-          </div>
 
-          <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-            <span>{article.author}</span>
-            <span>•</span>
-            <span>{new Date(article.date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric'
-            })}</span>
-            <span>•</span>
-            <span>{article.readTime}</span>
-          </div>
+            {/* Bottom Social Share */}
+            <div className="border-t border-gray-100 pt-8 mt-12">
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-lg font-semibold mb-4">Found this article helpful?</h3>
+                <p className="text-gray-600 mb-4">
+                  Share it with your network and help spread insights on digital banking innovation.
+                </p>
+                <SocialShare 
+                  title={article.title} 
+                  url={articleUrl}
+                  excerpt={article.excerpt}
+                />
+              </div>
+            </div>
 
-          <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
-          
-          <div className="flex gap-2 mb-8">
-            {article.category.map((cat) => (
-              <span
-                key={cat}
-                className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-              >
-                {cat}
-              </span>
-            ))}
+            {/* Related Articles or Author Bio could go here */}
+            <div className="mt-12 pt-8 border-t border-gray-100">
+              <div className="bg-blue-50 rounded-lg p-6">
+                <div className="flex items-center gap-4">
+                  <Image 
+                    src="/akhil-handa-avatar.jpg" 
+                    alt="Akhil Handa" 
+                    width={64} 
+                    height={64} 
+                    className="rounded-full"
+                  />
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Akhil Handa</h4>
+                    <p className="text-sm text-gray-600 mb-2">Digital Banking Strategist</p>
+                    <p className="text-sm text-gray-600">
+                      Global leader in AI-powered digital banking and internet scale platforms, 
+                      shaping the future of financial services.
+                    </p>
+                    <div className="mt-3">
+                      <Link 
+                        href="/about" 
+                        className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+                      >
+                        Learn more about Akhil →
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-
-          <div 
-            className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: article.htmlContent }}
-          />
         </article>
-      </div>
-    </div>
-  );
+      </>
+    );
+  } catch (error) {
+    console.error('Error in ArticleContentPage:', error);
+    throw error;
+  }
 } 
