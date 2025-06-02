@@ -12,8 +12,11 @@ interface Article {
     excerpt: string;
     date: string;
     author: string;
-    category: string;
+    category: string[];
     slug: string;
+    htmlContent: string;
+    readTime: string;
+    image: string;
 }
 
 export default function ArticlesPage() {
@@ -130,7 +133,7 @@ export default function ArticlesPage() {
                                         {article.title}
                                     </h3>
                                     <div className="mt-1 flex items-center text-sm text-gray-500">
-                                        <span>{article.category}</span>
+                                        <span>{Array.isArray(article.category) ? article.category.join(", ") : article.category}</span>
                                         <span className="mx-2">•</span>
                                         <span>{new Date(article.date).toLocaleDateString()}</span>
                                         <span className="mx-2">•</span>
@@ -140,7 +143,7 @@ export default function ArticlesPage() {
                                         {article.excerpt}
                                     </p>
                                 </div>
-                                <div className="flex items-center gap-2 ml-4">
+                                <div className="flex gap-2">
                                     <Link href={`/admin/articles/edit/${article._id}`}>
                                         <Button variant="outline" size="sm">
                                             <Pencil className="h-4 w-4" />
@@ -164,19 +167,6 @@ export default function ArticlesPage() {
                                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
                                         ) : (
                                             <Mail className="h-4 w-4" />
-                                        )}
-                                    </Button>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={() => handleSendTestEmail(article._id)}
-                                        disabled={sendingTestEmail === article._id}
-                                        title="Send test email to test subscribers"
-                                    >
-                                        {sendingTestEmail === article._id ? (
-                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                                        ) : (
-                                            <TestTube className="h-4 w-4" />
                                         )}
                                     </Button>
                                 </div>

@@ -49,14 +49,13 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
         try {
             console.log('Fetching article data for ID:', params.id);
             
-            // Fetch article data
-            const articleResponse = await fetch(`/api/articles/${params.id}`);
-            if (!articleResponse.ok) {
-                const errorData = await articleResponse.json();
+            const response = await fetch(`/api/articles/${params.id}`);
+            if (!response.ok) {
+                const errorData = await response.json();
                 console.error('Failed to fetch article:', errorData);
                 throw new Error(errorData.error || 'Failed to fetch article');
             }
-            const article = await articleResponse.json();
+            const article = await response.json();
             console.log('Article data fetched:', article);
 
             // Convert category to array if it's a string
@@ -70,50 +69,15 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
                 }
             }
 
-            // Fetch article content
-            try {
-                const contentResponse = await fetch(`/api/article-content/${params.id}`);
-                if (!contentResponse.ok) {
-                    const errorData = await contentResponse.json();
-                    console.error('Failed to fetch article content:', errorData);
-                    // Don't throw here, just set a default empty content
-                    setFormData({
-                        title: article.title || '',
-                        excerpt: article.excerpt || '',
-                        image: article.image || '',
-                        author: article.author || '',
-                        category: categoryArray,
-                        readTime: article.readTime || '',
-                        htmlContent: '' // Empty content as fallback
-                    });
-                    setError('Article content not found. Starting with empty content that will be created on save.');
-                } else {
-                    const content = await contentResponse.json();
-                    console.log('Article content fetched:', content);
-                    setFormData({
-                        title: article.title || '',
-                        excerpt: article.excerpt || '',
-                        image: article.image || '',
-                        author: article.author || '',
-                        category: categoryArray,
-                        readTime: article.readTime || '',
-                        htmlContent: content.htmlContent || ''
-                    });
-                }
-            } catch (contentErr) {
-                console.error('Error fetching content:', contentErr);
-                // Still allow editing the article even if content fetch fails
-                setFormData({
-                    title: article.title || '',
-                    excerpt: article.excerpt || '',
-                    image: article.image || '',
-                    author: article.author || '',
-                    category: categoryArray,
-                    readTime: article.readTime || '',
-                    htmlContent: '' // Empty content as fallback
-                });
-                setError('Error loading article content. Starting with empty content that will be created on save.');
-            }
+            setFormData({
+                title: article.title || '',
+                excerpt: article.excerpt || '',
+                image: article.image || '',
+                author: article.author || '',
+                category: categoryArray,
+                readTime: article.readTime || '',
+                htmlContent: article.htmlContent || ''
+            });
         } catch (err) {
             console.error('Error in fetchArticleData:', err);
             setError(err instanceof Error ? err.message : 'An error occurred');
@@ -161,46 +125,21 @@ export default function EditArticlePage({ params }: { params: { id: string } }) 
             console.log('Category type:', typeof formData.category, 'Value:', formData.category);
             
             // Update article data
-            const articleResponse = await fetch(`/api/articles/${params.id}`, {
+            const response = await fetch(`/api/articles/${params.id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    title: formData.title,
-                    excerpt: formData.excerpt,
-                    image: formData.image,
-                    author: formData.author,
-                    category: formData.category,
-                    readTime: formData.readTime,
+                    ...formData,
                     slug: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
                 }),
             });
 
-            if (!articleResponse.ok) {
-                const data = await articleResponse.json();
+            if (!response.ok) {
+                const data = await response.json();
                 console.error('API error response:', data);
                 throw new Error(data.error || 'Failed to update article');
-            }
-
-            const article = await articleResponse.json();
-
-            // Update article content
-            const contentResponse = await fetch(`/api/article-content/${params.id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    articleId: params.id,
-                    slug: article.slug,
-                    htmlContent: formData.htmlContent
-                }),
-            });
-
-            if (!contentResponse.ok) {
-                const data = await contentResponse.json();
-                throw new Error(data.error || 'Failed to update article content');
             }
 
             router.push('/admin/articles');

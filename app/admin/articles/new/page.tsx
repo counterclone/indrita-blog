@@ -16,7 +16,6 @@ export default function NewArticlePage() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [createdArticleId, setCreatedArticleId] = useState<string | null>(null);
 
   const categories = [
     "AI in Banking",
@@ -29,73 +28,34 @@ export default function NewArticlePage() {
     e.preventDefault();
     setIsSubmitting(true);
     setError('');
-    setCreatedArticleId(null);
 
     try {
       // Log what we're submitting
       console.log('Submitting form data:', formData);
       console.log('Category type:', typeof formData.category, 'Value:', formData.category);
       
-      // First create the article
-      const articleResponse = await fetch('/api/articles', {
+      // Create the article
+      const response = await fetch('/api/articles', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          title: formData.title,
-          excerpt: formData.excerpt,
-          image: formData.image,
-          author: formData.author,
-          category: formData.category,
-          readTime: formData.readTime,
+          ...formData,
           date: new Date(),
           slug: formData.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
         }),
       });
 
-      if (!articleResponse.ok) {
-        const errorData = await articleResponse.json();
+      if (!response.ok) {
+        const errorData = await response.json();
         console.error('API error response:', errorData);
         throw new Error(errorData.error || 'Failed to create article');
       }
 
-      const article = await articleResponse.json();
-      // Keep track that we successfully created the article
-      setCreatedArticleId(article._id);
-
-      // Then create the article content
-      const contentResponse = await fetch('/api/article-content', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          articleId: article._id,
-          slug: article.slug,
-          htmlContent: formData.htmlContent
-        }),
-      });
-
-      if (!contentResponse.ok) {
-        const errorData = await contentResponse.json();
-        // Even if content creation fails, article might have been created
-        throw new Error(`Article was created, but content could not be saved: ${errorData.error || 'Unknown error'}`);
-      }
-
       router.push('/admin/articles');
-    } catch (err: any) {
-      if (createdArticleId) {
-        // If we have a created article ID, let the user know the article was created
-        // but there was an issue with the content
-        setError(`Note: The article was created and notification sent, but there was an error: ${err.message}`);
-        // Give them a few seconds to see the message before redirecting
-        setTimeout(() => {
-          router.push('/admin/articles');
-        }, 3000);
-      } else {
-        setError(err.message);
-      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setIsSubmitting(false);
     }
