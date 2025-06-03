@@ -30,6 +30,7 @@ interface QuickTake {
   chartData?: {
     title: string;
     description: string;
+    embedHtml: string;
   };
   image?: string;
   author?: string;
@@ -231,7 +232,11 @@ function QuickTakeCard({ take }: { take: QuickTake }) {
             {take.type === "chart" && take.chartData && (
               <div className="mb-4">
                 <h3 className="font-semibold text-lg mb-1">{take.chartData.title}</h3>
-                <p className="text-slate-600">{take.chartData.description}</p>
+                <p className="text-slate-600 mb-4">{take.chartData.description}</p>
+                <div 
+                  className="w-full aspect-video rounded-lg overflow-hidden bg-slate-50"
+                  dangerouslySetInnerHTML={{ __html: take.chartData.embedHtml }}
+                />
               </div>
             )}
 

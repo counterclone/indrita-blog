@@ -42,6 +42,7 @@ interface QuickTake {
   chartData?: {
     title: string
     description: string
+    embedHtml: string
   }
   image?: string
   author?: string
@@ -66,6 +67,7 @@ export default function AdminQuickTakesPage() {
     chartData: {
       title: "",
       description: "",
+      embedHtml: ""
     },
     image: "",
     author: "",
@@ -102,6 +104,7 @@ export default function AdminQuickTakesPage() {
             ? {
                 title: formData.chartData.title,
                 description: formData.chartData.description,
+                embedHtml: formData.chartData.embedHtml,
               }
             : undefined,
       }
@@ -152,7 +155,7 @@ export default function AdminQuickTakesPage() {
     setFormData({
       type: take.type,
       content: take.content,
-      chartData: take.chartData || { title: "", description: "" },
+      chartData: take.chartData || { title: "", description: "", embedHtml: "" },
       image: take.image || "",
       author: take.author || "",
       tags: take.tags.join(", "),
@@ -167,7 +170,7 @@ export default function AdminQuickTakesPage() {
     setFormData({
       type: "text",
       content: "",
-      chartData: { title: "", description: "" },
+      chartData: { title: "", description: "", embedHtml: "" },
       image: "",
       author: "",
       tags: "",
@@ -284,6 +287,27 @@ export default function AdminQuickTakesPage() {
                         })
                       }
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="chartEmbed">Chart Embed HTML</Label>
+                    <Textarea
+                      id="chartEmbed"
+                      value={formData.chartData.embedHtml}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          chartData: {
+                            ...formData.chartData,
+                            embedHtml: e.target.value,
+                          },
+                        })
+                      }
+                      rows={6}
+                      placeholder="<iframe src='...' />"
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Paste the embed HTML code from your chart provider (e.g., Tableau, Power BI, or any other visualization tool)
+                    </p>
                   </div>
                 </div>
               )}

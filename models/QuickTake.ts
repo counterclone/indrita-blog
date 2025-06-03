@@ -12,7 +12,8 @@ const quickTakeSchema = new mongoose.Schema({
   },
   chartData: {
     title: String,
-    description: String
+    description: String,
+    embedHtml: String // HTML content for chart embedding
   },
   image: String,
   author: String,
