@@ -218,15 +218,20 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
           <CardContent className="p-6 pt-4">
             {/* Content */}
             <div className="mb-6">
-              {take.type === "image" && take.image && (
-                <div className="mb-4 rounded-lg overflow-hidden">
-                  <Image
-                    src={take.image}
-                    alt={take.content}
-                    width={500}
-                    height={300}
-                    className="w-full h-auto"
-                  />
+              {take.type === "image" && (
+                <div className="space-y-4">
+                  <p className="text-slate-900 leading-relaxed text-[15px]">{take.content}</p>
+                  {take.image && (
+                    <div className="rounded-lg overflow-hidden">
+                      <Image
+                        src={take.image}
+                        alt={take.content}
+                        width={500}
+                        height={300}
+                        className="w-full h-auto"
+                      />
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -321,6 +326,11 @@ export default function QuickTakesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [email, setEmail] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [message, setMessage] = useState("")
+  const [page, setPage] = useState(1)
+  const [hasMore, setHasMore] = useState(true)
+  const ITEMS_PER_PAGE = 4
 
   useEffect(() => {
     const fetchQuickTakes = async () => {
@@ -331,6 +341,7 @@ export default function QuickTakesPage() {
         }
         const data = await response.json()
         setQuickTakes(data)
+        setHasMore(data.length > ITEMS_PER_PAGE)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
@@ -342,12 +353,38 @@ export default function QuickTakesPage() {
   }, [])
 
   const handleLoadMore = () => {
-    // TODO: Implement pagination
+    setPage(prev => prev + 1)
+    if (quickTakes.length <= page * ITEMS_PER_PAGE) {
+      setHasMore(false)
+    }
   }
 
   const handleSubscribe = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: Implement newsletter subscription
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+
+      setMessage(data.message || "Thank you for subscribing!");
+      setEmail("")
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : 'Failed to subscribe');
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (isLoading) {
@@ -401,19 +438,21 @@ export default function QuickTakesPage() {
       </div>
 
       <div className="space-y-8">
-        {quickTakes.map((take, index) => (
+        {quickTakes.slice(0, page * ITEMS_PER_PAGE).map((take, index) => (
           <QuickTakeCard key={take._id} take={take} index={index} />
         ))}
       </div>
 
-      <div className="text-center mt-12">
-        <Button
-          onClick={handleLoadMore}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full shadow-sm hover:shadow-md transition-all duration-300 font-medium"
-        >
-          Load More Takes
-        </Button>
-      </div>
+      {hasMore && (
+        <div className="text-center mt-12">
+          <Button
+            onClick={handleLoadMore}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full shadow-sm hover:shadow-md transition-all duration-300 font-medium"
+          >
+            Load More Takes
+          </Button>
+        </div>
+      )}
 
       <div className="mt-16 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
         <div className="text-center">
@@ -428,14 +467,17 @@ export default function QuickTakesPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+              disabled={isSubmitting}
             />
             <Button
               type="submit"
               className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all"
+              disabled={isSubmitting}
             >
-              Subscribe
+              {isSubmitting ? "Subscribing..." : "Subscribe"}
             </Button>
           </form>
+          {message && <p className={`text-sm mt-2 ${message.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>{message}</p>}
         </div>
       </div>
     </main>
