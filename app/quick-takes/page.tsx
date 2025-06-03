@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   ArrowLeft,
   Calendar,
@@ -21,79 +21,28 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import Image from "next/image"
+import { formatDistanceToNow } from 'date-fns'
 
-// Mock data for quick takes with different content types
-const quickTakes = [
-  {
-    id: 1,
-    type: "text",
-    content:
-      "The shift towards embedded finance is accelerating faster than most traditional banks anticipated. We're seeing fintech companies becoming the new infrastructure layer.",
-    timestamp: "2 hours ago",
-    date: "Dec 20, 2024",
-    tags: ["fintech", "embedded-finance"],
-    likes: 12,
-    comments: 3,
-    trending: true,
-    isLiked: false,
-  },
-  {
-    id: 2,
-    type: "chart",
-    content: "Digital banking adoption rates across different demographics. The 45+ age group is finally catching up!",
-    chartData: {
-      title: "Digital Banking Adoption by Age Group",
-      description: "Q4 2024 vs Q4 2023",
-    },
-    timestamp: "4 hours ago",
-    date: "Dec 20, 2024",
-    tags: ["data", "adoption", "demographics"],
-    likes: 28,
-    comments: 7,
-    isLiked: false,
-  },
-  {
-    id: 3,
-    type: "image",
-    content:
-      "Spotted this brilliant UX pattern at a Singapore bank. The way they've simplified multi-currency transfers is *chef's kiss*",
-    image: "/placeholder.svg?height=300&width=500&text=Bank+UX+Screenshot",
-    timestamp: "6 hours ago",
-    date: "Dec 19, 2024",
-    tags: ["ux", "singapore", "transfers"],
-    likes: 15,
-    comments: 5,
-    isLiked: false,
-  },
-  {
-    id: 4,
-    type: "text",
-    content:
-      "Real-time payments adoption is creating a domino effect across the entire financial ecosystem. The implications for cash flow management and working capital are profound.",
-    timestamp: "1 day ago",
-    date: "Dec 19, 2024",
-    tags: ["real-time-payments", "cash-flow"],
-    likes: 22,
-    comments: 8,
-    trending: true,
-    isLiked: false,
-  },
-  {
-    id: 5,
-    type: "quote",
-    content: "The best digital banking experiences don't feel like banking at all.",
-    author: "Overheard at FinTech Week",
-    timestamp: "2 days ago",
-    date: "Dec 18, 2024",
-    tags: ["ux", "philosophy"],
-    likes: 45,
-    comments: 12,
-    isLiked: false,
-  },
-]
+interface QuickTake {
+  _id: string;
+  type: 'text' | 'chart' | 'image' | 'quote';
+  content: string;
+  chartData?: {
+    title: string;
+    description: string;
+  };
+  image?: string;
+  author?: string;
+  tags: string[];
+  likes: number;
+  comments: number;
+  trending: boolean;
+  createdAt: string;
+  isPublished: boolean;
+}
 
-function ShareButtons({ take }: { take: (typeof quickTakes)[0] }) {
-  const shareUrl = `https://www.akhilhanda.com/quick-takes/${take.id}`
+function ShareButtons({ take }: { take: QuickTake }) {
+  const shareUrl = `https://www.akhilhanda.com/quick-takes/${take._id}`
   
   // Create smart share messages based on content type
   const getShareMessage = (platform: 'twitter' | 'whatsapp') => {
@@ -211,13 +160,29 @@ function ContentTypeIcon({ type }: { type: string }) {
   }
 }
 
-function QuickTakeCard({ take }: { take: (typeof quickTakes)[0] }) {
-  const [isLiked, setIsLiked] = useState(take.isLiked)
+function QuickTakeCard({ take }: { take: QuickTake }) {
+  const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(take.likes)
 
-  const handleLike = () => {
-    setIsLiked(!isLiked)
-    setLikeCount(prev => isLiked ? prev - 1 : prev + 1)
+  const handleLike = async () => {
+    try {
+      const response = await fetch(`/api/quick-takes/${take._id}/like`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: isLiked ? 'unlike' : 'like',
+        }),
+      });
+
+      if (response.ok) {
+        setIsLiked(!isLiked);
+        setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+      }
+    } catch (error) {
+      console.error('Error updating like:', error);
+    }
   }
 
   return (
@@ -248,103 +213,69 @@ function QuickTakeCard({ take }: { take: (typeof quickTakes)[0] }) {
           )}
         </div>
 
-        <CardContent className="p-6 pt-4">
-          {/* Content based on type */}
-          <div className="mb-6">
-            {take.type === "text" && (
-              <p className="text-slate-900 leading-relaxed text-[15px] font-normal">{take.content}</p>
-            )}
-
-            {take.type === "quote" && (
-              <div className="relative">
-                <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
-                  <div className="text-3xl text-blue-600 font-serif mb-2">"</div>
-                  <blockquote className="text-slate-900 leading-relaxed text-lg font-medium mb-4">
-                    {take.content}
-                  </blockquote>
-                  {take.author && <cite className="text-slate-600 text-sm font-medium not-italic">— {take.author}</cite>}
-                </div>
+        <CardContent className="p-6">
+          {/* Content */}
+          <div className="mb-4">
+            {take.type === "image" && take.image && (
+              <div className="mb-4 rounded-lg overflow-hidden">
+                <Image
+                  src={take.image}
+                  alt={take.content}
+                  width={500}
+                  height={300}
+                  className="w-full h-auto"
+                />
               </div>
             )}
 
-            {take.type === "image" && (
-              <div className="space-y-4">
-                <p className="text-slate-900 leading-relaxed text-[15px]">{take.content}</p>
-                <div className="rounded-xl overflow-hidden bg-slate-50 border border-slate-200">
-                  <Image
-                    src={take.image! || "/placeholder.svg"}
-                    alt="Quick take image"
-                    width={500}
-                    height={300}
-                    className="w-full h-auto"
-                  />
-                </div>
+            {take.type === "chart" && take.chartData && (
+              <div className="mb-4">
+                <h3 className="font-semibold text-lg mb-1">{take.chartData.title}</h3>
+                <p className="text-slate-600">{take.chartData.description}</p>
               </div>
             )}
 
-            {take.type === "chart" && (
-              <div className="space-y-4">
-                <p className="text-slate-900 leading-relaxed text-[15px]">{take.content}</p>
-                <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
-                  <div className="flex items-center gap-2 mb-3">
-                    <BarChart3 className="w-5 h-5 text-blue-600" />
-                    <h4 className="font-semibold text-slate-900">{take.chartData?.title}</h4>
-                  </div>
-                  <p className="text-slate-600 text-sm mb-4">{take.chartData?.description}</p>
-                  <div className="h-40 bg-white rounded-lg border border-slate-200 flex items-center justify-center">
-                    <div className="text-center">
-                      <BarChart3 className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                      <span className="text-slate-500 text-sm">Interactive Chart</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+            <p className={`text-slate-800 ${take.type === "quote" ? "text-xl font-serif italic" : ""}`}>
+              {take.content}
+            </p>
+
+            {take.type === "quote" && take.author && (
+              <p className="mt-2 text-slate-600">— {take.author}</p>
             )}
           </div>
 
           {/* Tags */}
-          {take.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-6">
-              {take.tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="text-xs bg-blue-50 text-blue-700 hover:bg-blue-100 border-0 rounded-full px-3 py-1 font-medium"
-                >
-                  #{tag}
-                </Badge>
-              ))}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 mb-4">
+            {take.tags.map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="bg-slate-100 text-slate-600 hover:bg-slate-200"
+              >
+                {tag}
+              </Badge>
+            ))}
+          </div>
 
-          {/* Meta Information */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-            <div className="flex items-center gap-4 text-sm text-slate-500">
-              <div className="flex items-center gap-1.5">
-                <Calendar className="w-4 h-4" />
-                <span className="font-medium">{take.date}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Clock className="w-4 h-4" />
-                <span>{take.timestamp}</span>
-              </div>
-            </div>
-
-            {/* Engagement Actions */}
+          {/* Footer with metadata and actions */}
+          <div className="flex items-center justify-between text-sm text-slate-500">
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 onClick={handleLike}
-                className={`flex items-center gap-1.5 transition-colors text-sm ${
-                  isLiked 
-                    ? 'text-red-500' 
-                    : 'text-slate-500 hover:text-red-500'
+                className={`flex items-center gap-1 transition-colors duration-200 ${
+                  isLiked ? "text-red-500" : "hover:text-red-500"
                 }`}
               >
-                <Heart className={`w-4 h-4 transition-all duration-200 ${isLiked ? 'fill-current' : ''}`} />
-                <span className="font-medium">{likeCount}</span>
+                <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
+                <span>{likeCount}</span>
               </button>
-              <ShareButtons take={take} />
+              <div className="flex items-center gap-1">
+                <Clock className="w-4 h-4" />
+                <span>{formatDistanceToNow(new Date(take.createdAt))} ago</span>
+              </div>
             </div>
+
+            <ShareButtons take={take} />
           </div>
         </CardContent>
       </div>
@@ -353,73 +284,73 @@ function QuickTakeCard({ take }: { take: (typeof quickTakes)[0] }) {
 }
 
 export default function QuickTakesPage() {
-  return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Main Content */}
-      <main className="max-w-3xl mx-auto px-6 py-12">
-        {/* Back Navigation */}
-        <Link
-          href="/"
-          className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 mb-8 group"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-0.5 transition-transform" />
-          Back to Home
-        </Link>
+  const [quickTakes, setQuickTakes] = useState<QuickTake[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-        {/* Page Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
-            <Zap className="w-4 h-4" />
-            Quick Takes
-          </div>
-          <h1 className="text-5xl font-bold text-slate-900 mb-6 leading-tight">
-            Real-time Digital Platforms Insights
-          </h1>
-          <p className="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
-            Rapid-fire observations, data points, and insights from the frontlines of digital banking transformation.
-            <br />
-            <span className="text-blue-600 font-medium">Fresh takes as they happen.</span>
-          </p>
-        </div>
+  useEffect(() => {
+    const fetchQuickTakes = async () => {
+      try {
+        const response = await fetch('/api/quick-takes')
+        if (!response.ok) {
+          throw new Error('Failed to fetch quick takes')
+        }
+        const data = await response.json()
+        setQuickTakes(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
+      } finally {
+        setIsLoading(false)
+      }
+    }
 
-        {/* Quick Takes Feed */}
-        <div className="space-y-8">
-          {quickTakes.map((take, index) => (
-            <div
-              key={take.id}
-              className="animate-in slide-in-from-bottom-4 duration-500"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <QuickTakeCard take={take} />
-            </div>
+    fetchQuickTakes()
+  }, [])
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="animate-pulse space-y-4">
+          {[1, 2, 3].map((n) => (
+            <div key={n} className="bg-gray-200 h-48 rounded-2xl"></div>
           ))}
         </div>
+      </div>
+    )
+  }
 
-        {/* Load More */}
-        <div className="text-center mt-12">
-          <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full shadow-sm hover:shadow-md transition-all duration-300 font-medium">
-            Load More Takes
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center text-red-500">
+          <p>Error: {error}</p>
+          <Button
+            onClick={() => window.location.reload()}
+            className="mt-4"
+          >
+            Try Again
           </Button>
         </div>
+      </div>
+    )
+  }
 
-        {/* Newsletter Subscription */}
-        <div className="mt-16 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
-          <div className="text-center">
-            <h3 className="text-2xl font-bold text-slate-900 mb-3">Never Miss a Take</h3>
-            <p className="text-slate-600 mb-8 text-lg">Get the latest insights delivered straight to your inbox</p>
-            <div className="flex gap-3 max-w-md mx-auto">
-              <input
-                type="email"
-                placeholder="Your email address"
-                className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-              />
-              <Button className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all">
-                Subscribe
-              </Button>
-            </div>
-          </div>
-        </div>
-      </main>
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <div className="mb-8">
+        <Link href="/" className="inline-flex items-center text-slate-600 hover:text-slate-800">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Home
+        </Link>
+        <h1 className="text-4xl font-bold mt-4 mb-2">Quick Takes</h1>
+        <p className="text-slate-600">Short-form insights and observations on digital banking and fintech.</p>
+      </div>
+
+      <div className="space-y-6">
+        {quickTakes.map((take) => (
+          <QuickTakeCard key={take._id} take={take} />
+        ))}
+      </div>
     </div>
   )
 }
