@@ -161,7 +161,7 @@ function ContentTypeIcon({ type }: { type: string }) {
   }
 }
 
-function QuickTakeCard({ take }: { take: QuickTake }) {
+function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(take.likes)
 
@@ -187,104 +187,132 @@ function QuickTakeCard({ take }: { take: QuickTake }) {
   }
 
   return (
-    <Card className="group bg-white shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 rounded-2xl overflow-hidden relative">
-      {/* Gradient border effect */}
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-slate-600 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{ padding: "1px" }}
-      >
-        <div className="bg-white rounded-2xl h-full w-full"></div>
-      </div>
-
-      <div className="relative">
-        {/* Header with type indicator and trending badge */}
-        <div className="flex items-center justify-between p-6 pb-0">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full text-sm text-slate-600">
-              <ContentTypeIcon type={take.type} />
-              <span className="capitalize font-medium">{take.type}</span>
-            </div>
-          </div>
-
-          {take.trending && (
-            <Badge className="bg-blue-600 text-white border-0 rounded-full px-3 py-1">
-              <TrendingUp className="w-3 h-3 mr-1" />
-              Trending
-            </Badge>
-          )}
+    <div className="animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${index * 100}ms` }}>
+      <Card className="group bg-white shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 rounded-2xl overflow-hidden relative">
+        {/* Gradient border effect */}
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-slate-600 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          style={{ padding: "1px" }}
+        >
+          <div className="bg-white rounded-2xl h-full w-full"></div>
         </div>
 
-        <CardContent className="p-6">
-          {/* Content */}
-          <div className="mb-4">
-            {take.type === "image" && take.image && (
-              <div className="mb-4 rounded-lg overflow-hidden">
-                <Image
-                  src={take.image}
-                  alt={take.content}
-                  width={500}
-                  height={300}
-                  className="w-full h-auto"
-                />
-              </div>
-            )}
-
-            {take.type === "chart" && take.chartData && (
-              <div className="mb-4">
-                <h3 className="font-semibold text-lg mb-1">{take.chartData.title}</h3>
-                <p className="text-slate-600 mb-4">{take.chartData.description}</p>
-                <div 
-                  className="w-full aspect-video rounded-lg overflow-hidden bg-slate-50"
-                  dangerouslySetInnerHTML={{ __html: take.chartData.embedHtml }}
-                />
-              </div>
-            )}
-
-            <p className={`text-slate-800 ${take.type === "quote" ? "text-xl font-serif italic" : ""}`}>
-              {take.content}
-            </p>
-
-            {take.type === "quote" && take.author && (
-              <p className="mt-2 text-slate-600">— {take.author}</p>
-            )}
-          </div>
-
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2 mb-4">
-            {take.tags.map((tag) => (
-              <Badge
-                key={tag}
-                variant="secondary"
-                className="bg-slate-100 text-slate-600 hover:bg-slate-200"
-              >
-                {tag}
-              </Badge>
-            ))}
-          </div>
-
-          {/* Footer with metadata and actions */}
-          <div className="flex items-center justify-between text-sm text-slate-500">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={handleLike}
-                className={`flex items-center gap-1 transition-colors duration-200 ${
-                  isLiked ? "text-red-500" : "hover:text-red-500"
-                }`}
-              >
-                <Heart className={`w-4 h-4 ${isLiked ? "fill-current" : ""}`} />
-                <span>{likeCount}</span>
-              </button>
-              <div className="flex items-center gap-1">
-                <Clock className="w-4 h-4" />
-                <span>{formatDistanceToNow(new Date(take.createdAt))} ago</span>
+        <div className="relative">
+          {/* Header with type indicator and trending badge */}
+          <div className="flex items-center justify-between p-6 pb-0">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full text-sm text-slate-600">
+                <ContentTypeIcon type={take.type} />
+                <span className="capitalize font-medium">{take.type}</span>
               </div>
             </div>
 
-            <ShareButtons take={take} />
+            {take.trending && (
+              <Badge className="bg-blue-600 text-white border-0 rounded-full px-3 py-1">
+                <TrendingUp className="w-3 h-3 mr-1" />
+                Trending
+              </Badge>
+            )}
           </div>
-        </CardContent>
-      </div>
-    </Card>
+
+          <CardContent className="p-6 pt-4">
+            {/* Content */}
+            <div className="mb-6">
+              {take.type === "image" && take.image && (
+                <div className="mb-4 rounded-lg overflow-hidden">
+                  <Image
+                    src={take.image}
+                    alt={take.content}
+                    width={500}
+                    height={300}
+                    className="w-full h-auto"
+                  />
+                </div>
+              )}
+
+              {take.type === "chart" && take.chartData && (
+                <div className="space-y-4">
+                  <p className="text-slate-900 leading-relaxed text-[15px]">{take.content}</p>
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
+                    <div className="flex items-center gap-2 mb-3">
+                      <BarChart3 className="w-5 h-5 text-blue-600" />
+                      <h4 className="font-semibold text-slate-900">{take.chartData.title}</h4>
+                    </div>
+                    <p className="text-slate-600 text-sm mb-4">{take.chartData.description}</p>
+                    <div 
+                      className="w-full aspect-video rounded-lg overflow-hidden bg-slate-50"
+                      dangerouslySetInnerHTML={{ __html: take.chartData.embedHtml }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {take.type === "quote" && (
+                <div className="relative">
+                  <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
+                    <div className="text-3xl text-blue-600 font-serif mb-2">"</div>
+                    <blockquote className="text-slate-900 leading-relaxed text-lg font-medium mb-4">
+                      {take.content}
+                    </blockquote>
+                    {take.author && (
+                      <cite className="text-slate-600 text-sm font-medium not-italic">
+                        — {take.author}
+                      </cite>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {take.type === "text" && (
+                <p className="text-slate-900 leading-relaxed text-[15px] font-normal">
+                  {take.content}
+                </p>
+              )}
+            </div>
+
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2 mb-6">
+              {take.tags.map((tag) => (
+                <Badge
+                  key={tag}
+                  variant="secondary"
+                  className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-0 rounded-full px-3 py-1 font-medium"
+                >
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+
+            {/* Footer with metadata and actions */}
+            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-4 text-sm text-slate-500">
+                <div className="flex items-center gap-1.5">
+                  <Calendar className="w-4 h-4" />
+                  <span className="font-medium">Dec 20, 2024</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4" />
+                  <span>{formatDistanceToNow(new Date(take.createdAt))} ago</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={handleLike}
+                  className={`flex items-center gap-1.5 transition-colors text-sm ${
+                    isLiked ? "text-red-500" : "text-slate-500 hover:text-red-500"
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 transition-all duration-200 ${isLiked ? "fill-current" : ""}`} />
+                  <span className="font-medium">{likeCount}</span>
+                </button>
+                <ShareButtons take={take} />
+              </div>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+    </div>
   )
 }
 
@@ -292,6 +320,7 @@ export default function QuickTakesPage() {
   const [quickTakes, setQuickTakes] = useState<QuickTake[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [email, setEmail] = useState("")
 
   useEffect(() => {
     const fetchQuickTakes = async () => {
@@ -312,21 +341,30 @@ export default function QuickTakesPage() {
     fetchQuickTakes()
   }, [])
 
+  const handleLoadMore = () => {
+    // TODO: Implement pagination
+  }
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault()
+    // TODO: Implement newsletter subscription
+  }
+
   if (isLoading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="animate-pulse space-y-4">
+      <main className="max-w-3xl mx-auto px-6 py-12">
+        <div className="animate-pulse space-y-8">
           {[1, 2, 3].map((n) => (
             <div key={n} className="bg-gray-200 h-48 rounded-2xl"></div>
           ))}
         </div>
-      </div>
+      </main>
     )
   }
 
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <main className="max-w-3xl mx-auto px-6 py-12">
         <div className="text-center text-red-500">
           <p>Error: {error}</p>
           <Button
@@ -336,26 +374,70 @@ export default function QuickTakesPage() {
             Try Again
           </Button>
         </div>
-      </div>
+      </main>
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <Link href="/" className="inline-flex items-center text-slate-600 hover:text-slate-800">
-          <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Home
-        </Link>
-        <h1 className="text-4xl font-bold mt-4 mb-2">Quick Takes</h1>
-        <p className="text-slate-600">Short-form insights and observations on digital banking and fintech.</p>
+    <main className="max-w-3xl mx-auto px-6 py-12">
+      <Link href="/" className="inline-flex items-center text-sm text-slate-600 hover:text-slate-900 mb-8 group">
+        <ArrowLeft className="w-4 h-4 mr-2 group-hover:-translate-x-0.5 transition-transform" />
+        Back to Home
+      </Link>
+
+      <div className="text-center mb-12">
+        <div className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium mb-6">
+          <Zap className="w-4 h-4" />
+          Quick Takes
+        </div>
+        <h1 className="text-5xl font-bold text-slate-900 mb-6 leading-tight">
+          Real-time Digital Platforms Insights
+        </h1>
+        <p className="text-slate-600 text-lg leading-relaxed max-w-2xl mx-auto">
+          Rapid-fire observations, data points, and insights from the frontlines of digital banking transformation.
+          <br />
+          <span className="text-blue-600 font-medium">Fresh takes as they happen.</span>
+        </p>
       </div>
 
-      <div className="space-y-6">
-        {quickTakes.map((take) => (
-          <QuickTakeCard key={take._id} take={take} />
+      <div className="space-y-8">
+        {quickTakes.map((take, index) => (
+          <QuickTakeCard key={take._id} take={take} index={index} />
         ))}
       </div>
-    </div>
+
+      <div className="text-center mt-12">
+        <Button
+          onClick={handleLoadMore}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-full shadow-sm hover:shadow-md transition-all duration-300 font-medium"
+        >
+          Load More Takes
+        </Button>
+      </div>
+
+      <div className="mt-16 bg-white rounded-2xl p-8 border border-slate-200 shadow-sm">
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-slate-900 mb-3">Never Miss a Take</h3>
+          <p className="text-slate-600 mb-8 text-lg">
+            Get the latest insights delivered straight to your inbox
+          </p>
+          <form onSubmit={handleSubscribe} className="flex gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              placeholder="Your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+            />
+            <Button
+              type="submit"
+              className="bg-blue-600 text-white hover:bg-blue-700 px-6 py-3 rounded-xl font-medium shadow-sm hover:shadow-md transition-all"
+            >
+              Subscribe
+            </Button>
+          </form>
+        </div>
+      </div>
+    </main>
   )
 }
