@@ -16,6 +16,31 @@ const FloatingSocialShare = dynamic(() => import('@/components/floating-social-s
   loading: () => null
 });
 
+// Enable ISR (Incremental Static Regeneration) - revalidate every hour
+export const revalidate = 3600;
+
+// Generate static params for popular articles (improves initial load)
+export async function generateStaticParams() {
+  try {
+    await connectDB();
+    
+    // Pre-generate the 10 most recent articles for instant loading
+    const articles = await Article.find()
+      .select('slug')
+      .sort({ date: -1 })
+      .limit(10)
+      .lean()
+      .exec();
+    
+    return articles.map((article: any) => ({
+      id: article.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
+
 interface ArticlePageProps {
   params: {
     id: string;
