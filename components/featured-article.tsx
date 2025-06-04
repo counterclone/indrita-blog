@@ -23,7 +23,14 @@ export function FeaturedArticle({ title, excerpt, image, date, author, category,
   return (
     <div className="grid md:grid-cols-2 gap-8 items-center">
       <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg">
-        <Image src={image || "/placeholder.svg"} alt={title} fill className="object-cover" />
+        <Link href={`/article-content/${slug}`}>
+          <Image 
+            src={image || "/placeholder.svg"} 
+            alt={title} 
+            fill 
+            className="object-cover hover:scale-105 transition-transform duration-300 cursor-pointer" 
+          />
+        </Link>
       </div>
       <div>
         <div className="mb-2 flex items-center gap-2">
@@ -31,7 +38,13 @@ export function FeaturedArticle({ title, excerpt, image, date, author, category,
           <span className="text-xs text-gray-500">•</span>
           <span className="text-xs text-gray-500">{date}</span>
         </div>
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">{title}</h2>
+        
+        <Link href={`/article-content/${slug}`}>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4 hover:text-blue-600 transition-colors duration-200 cursor-pointer">
+            {title}
+          </h2>
+        </Link>
+        
         <p className="text-gray-600 mb-6">{excerpt}</p>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

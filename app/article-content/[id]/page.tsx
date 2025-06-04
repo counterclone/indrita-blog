@@ -16,6 +16,11 @@ const FloatingSocialShare = dynamic(() => import('@/components/floating-social-s
   loading: () => null
 });
 
+// Lazy load article navigation component (loads last)
+const ArticleNavigation = dynamic(() => import('@/components/article-navigation'), {
+  loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded"></div>
+});
+
 // Enable ISR (Incremental Static Regeneration) - revalidate every hour
 export const revalidate = 3600;
 
@@ -60,6 +65,17 @@ interface ArticleData {
   htmlContent: string;
 }
 
+interface AdjacentArticle {
+  title: string;
+  slug: string;
+  _id: string;
+}
+
+interface AdjacentArticles {
+  previousArticle: AdjacentArticle | null;
+  nextArticle: AdjacentArticle | null;
+}
+
 async function getArticle(id: string): Promise<ArticleData | null> {
   try {
     await connectDB();
@@ -98,6 +114,52 @@ async function getArticle(id: string): Promise<ArticleData | null> {
   } catch (error: any) {
     console.error('Error fetching article:', error);
     return null;
+  }
+}
+
+async function getAdjacentArticles(currentArticleDate: string): Promise<AdjacentArticles> {
+  try {
+    await connectDB();
+    
+    const currentDate = new Date(currentArticleDate);
+    
+    // Get previous article (older)
+    const previousArticle = await Article.findOne({
+      date: { $lt: currentDate }
+    })
+      .select('title slug _id')
+      .sort({ date: -1 })
+      .lean()
+      .exec();
+    
+    // Get next article (newer)
+    const nextArticle = await Article.findOne({
+      date: { $gt: currentDate }
+    })
+      .select('title slug _id')
+      .sort({ date: 1 })
+      .lean()
+      .exec();
+    
+    return {
+      previousArticle: previousArticle ? {
+        title: (previousArticle as any).title,
+        slug: (previousArticle as any).slug,
+        _id: (previousArticle as any)._id.toString()
+      } : null,
+      nextArticle: nextArticle ? {
+        title: (nextArticle as any).title,
+        slug: (nextArticle as any).slug,
+        _id: (nextArticle as any)._id.toString()
+      } : null
+    };
+    
+  } catch (error: any) {
+    console.error('Error fetching adjacent articles:', error);
+    return {
+      previousArticle: null,
+      nextArticle: null
+    };
   }
 }
 
@@ -242,6 +304,9 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
                 </div>
               </div>
             </div>
+
+            {/* Article Navigation - Lazy Loaded */}
+            <ArticleNavigation currentArticleDate={article.date} />
           </div>
         </article>
       </>
