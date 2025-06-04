@@ -42,28 +42,32 @@ async function getArticle(id: string): Promise<ArticleData | null> {
     // Normalize the id by removing the prefix if it exists
     const normalizedId = id.replace('/article-content/', '');
     
-    // Single query to get article with content from unified model
-    const article = await Article.findOne({ slug: normalizedId });
+    // Optimized query with lean() for better performance
+    // Note: Ensure there's an index on 'slug' field in MongoDB
+    const article = await Article.findOne({ slug: normalizedId })
+      .lean() // Returns plain JavaScript object instead of Mongoose document
+      .exec(); // Explicitly execute the query
     
     if (!article) {
       console.log('Article not found for slug:', normalizedId);
       return null;
     }
 
-    console.log('Found article:', article.title);
+    console.log('Found article:', (article as any).title);
     
     // Convert to plain object and return with proper typing
+    const articleData = article as any;
     return {
-      _id: article._id.toString(),
-      title: article.title,
-      excerpt: article.excerpt,
-      image: article.image,
-      date: article.date,
-      author: article.author,
-      category: article.category,
-      readTime: article.readTime,
-      slug: article.slug,
-      htmlContent: article.htmlContent || ''
+      _id: articleData._id.toString(),
+      title: articleData.title,
+      excerpt: articleData.excerpt,
+      image: articleData.image,
+      date: articleData.date,
+      author: articleData.author,
+      category: articleData.category,
+      readTime: articleData.readTime,
+      slug: articleData.slug,
+      htmlContent: articleData.htmlContent || ''
     };
     
   } catch (error: any) {
