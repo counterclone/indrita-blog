@@ -243,22 +243,27 @@ export default async function Home() {
           <h2 className="text-2xl font-bold mb-8">Recent Articles</h2>
           {filteredRecentArticles.length > 0 ? (
             <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {filteredRecentArticles.map((article) => (
-                <ArticleCard
-                  key={article._id}
-                  title={article.title}
-                  excerpt={article.excerpt}
-                  image={article.image}
-                  date={new Date(article.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  }).toUpperCase()}
-                  author={article.author}
-                  category={article.category}
-                  slug={article.slug}
-                  _id={article._id}
-                />
+              {filteredRecentArticles.map((article, index) => (
+                <div key={article._id} className="relative">
+                  <ArticleCard
+                    title={article.title}
+                    excerpt={article.excerpt}
+                    image={article.image}
+                    date={new Date(article.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    }).toUpperCase()}
+                    author={article.author}
+                    category={article.category}
+                    slug={article.slug}
+                    _id={article._id}
+                  />
+                  {/* Light divider for mobile - only show if not the last item */}
+                  {index < filteredRecentArticles.length - 1 && (
+                    <div className="md:hidden mt-6 border-b border-gray-200"></div>
+                  )}
+                </div>
               ))}
             </div>
           ) : (
