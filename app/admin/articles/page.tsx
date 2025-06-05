@@ -52,10 +52,14 @@ export default function ArticlesPage() {
                 method: 'DELETE',
             });
 
-            if (!response.ok) throw new Error('Failed to delete article');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Failed to delete article');
+            }
             
             setArticles(articles.filter(article => article._id !== id));
         } catch (err) {
+            console.error('Error deleting article:', err);
             setError(err instanceof Error ? err.message : 'Failed to delete article');
         }
     };

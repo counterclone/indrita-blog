@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
+import mongoose from 'mongoose';
 
 interface CustomSession {
     user: {
@@ -20,16 +21,16 @@ export async function GET(
     try {
         console.log('Fetching article with ID:', params.id);
         await connectDB();
-        
+
         // First try to find by _id
         let article = await Article.findById(params.id);
-        
+
         // If not found, try to find by slug
         if (!article) {
             console.log('Article not found by ID, trying with slug');
             article = await Article.findOne({ slug: params.id });
         }
-        
+
         // If still not found, return 404
         if (!article) {
             console.log('Article not found for ID/slug:', params.id);
@@ -38,7 +39,7 @@ export async function GET(
                 { status: 404 }
             );
         }
-        
+
         console.log('Found article:', article.title);
         return NextResponse.json(article, {
             headers: {
@@ -67,7 +68,7 @@ export async function PUT(
 
         await connectDB();
         const data = await request.json();
-        
+
         console.log('Updating article with ID:', params.id);
         console.log('Update data:', data);
 
@@ -82,7 +83,7 @@ export async function PUT(
                 data.category = [];
             }
         }
-        
+
         console.log('Processed category:', data.category);
 
         const article = await Article.findByIdAndUpdate(
@@ -116,30 +117,53 @@ export async function DELETE(
 ) {
     try {
         const session = await getServerSession(authOptions) as CustomSession;
+        console.log('Delete request received for article:', params.id);
+        console.log('Session:', session);
 
         if (!session?.user?.role || session.user.role !== 'admin') {
+            console.log('Unauthorized delete attempt:', {
+                hasSession: !!session,
+                userRole: session?.user?.role
+            });
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         await connectDB();
-        
-        console.log('Deleting article with ID:', params.id);
+        console.log('MongoDB connected successfully');
+
+        if (!mongoose.Types.ObjectId.isValid(params.id)) {
+            console.log('Invalid article ID format:', params.id);
+            return NextResponse.json(
+                { error: 'Invalid article ID format' },
+                { status: 400 }
+            );
+        }
+
+        console.log('Attempting to delete article:', params.id);
         const article = await Article.findByIdAndDelete(params.id);
 
         if (!article) {
-            console.log('Article not found for deletion');
+            console.log('Article not found for deletion:', params.id);
             return NextResponse.json(
                 { error: 'Article not found' },
                 { status: 404 }
             );
         }
 
-        console.log('Article deleted successfully');
+        console.log('Article deleted successfully:', params.id);
         return NextResponse.json({ message: 'Article deleted successfully' });
     } catch (error: any) {
-        console.error('Error deleting article:', error);
+        console.error('Error deleting article:', {
+            articleId: params.id,
+            error: error.message,
+            stack: error.stack
+        });
         return NextResponse.json(
-            { error: 'Failed to delete article', details: error.message },
+            {
+                error: 'Failed to delete article',
+                details: error.message,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            },
             { status: 500 }
         );
     }
