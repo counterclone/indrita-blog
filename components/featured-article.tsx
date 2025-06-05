@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { trackFeaturedArticleClick } from "@/lib/analytics"
 
 interface FeaturedArticleProps {
   title: string
@@ -42,14 +43,14 @@ export function FeaturedArticle({ title, excerpt, image, date, author, category,
       
       <div className="space-y-4">
         {/* Tags consistent with other articles */}
-        <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-sm mb-2">
           <span className="text-xs font-medium text-blue-600">{categoryDisplay}</span>
           <span className="text-xs text-gray-500">•</span>
           <span className="text-xs text-gray-500">{date}</span>
         </div>
         
         <Link href={`/article-content/${slug}`}>
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200 cursor-pointer leading-tight">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 hover:text-blue-600 transition-colors duration-200 cursor-pointer leading-tight" onClick={() => trackFeaturedArticleClick(_id, title)}>
             {title}
           </h2>
         </Link>
@@ -61,7 +62,7 @@ export function FeaturedArticle({ title, excerpt, image, date, author, category,
           <span className="text-sm text-gray-500">By {author}</span>
           
           <Link href={`/article-content/${slug}`}>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200">
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200" onClick={() => trackFeaturedArticleClick(_id, title)}>
               Read Insight
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
