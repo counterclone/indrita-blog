@@ -80,27 +80,52 @@ export default async function Home() {
         </div>
       </section> */}
 
-      {/* Featured Article */}
-      <section className="py-12 md:py-16 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-2xl font-bold mb-8">Featured Article</h2>
+      {/* Featured Insight - Premium Design */}
+      <section className="py-16 md:py-20 relative overflow-hidden">
+        {/* Subtle Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"></div>
+        
+        {/* Subtle Decorative Elements */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-blue-100/20 to-transparent rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-purple-100/15 to-transparent rounded-full blur-3xl translate-x-48 translate-y-48"></div>
+        
+        <div className="container mx-auto px-4 md:px-6 relative">
+          {/* Section Header with Premium Styling */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/70 backdrop-blur-sm rounded-full border border-blue-100 mb-4">
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+              <span className="text-sm font-medium text-gray-700">Premium Content</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
+              Featured Insight
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Deep dive into the latest trends shaping the digital banking landscape
+            </p>
+          </div>
+
+          {/* Featured Article Card with Subtle Design */}
           {featuredArticle ? (
-            <FeaturedArticle
-              title={featuredArticle.title}
-              excerpt={featuredArticle.excerpt}
-              image={featuredArticle.image}
-              date={new Date(featuredArticle.date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              }).toUpperCase()}
-              author={featuredArticle.author}
-              category={featuredArticle.category}
-              slug={featuredArticle.slug}
-              _id={featuredArticle._id}
-            />
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-white/30 p-8 md:p-10 hover:bg-white/95 transition-all duration-300">
+              <FeaturedArticle
+                title={featuredArticle.title}
+                excerpt={featuredArticle.excerpt}
+                image={featuredArticle.image}
+                date={new Date(featuredArticle.date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                }).toUpperCase()}
+                author={featuredArticle.author}
+                category={featuredArticle.category}
+                slug={featuredArticle.slug}
+                _id={featuredArticle._id}
+              />
+            </div>
           ) : (
-            <div className="text-center text-gray-500">No featured article available</div>
+            <div className="text-center text-gray-500 bg-white/90 backdrop-blur-sm rounded-xl border border-white/30 p-12">
+              No featured article available
+            </div>
           )}
         </div>
       </section>
