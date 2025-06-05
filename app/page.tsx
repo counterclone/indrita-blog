@@ -242,7 +242,7 @@ export default async function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-8">Recent Articles</h2>
           {filteredRecentArticles.length > 0 ? (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
               {filteredRecentArticles.map((article) => (
                 <ArticleCard
                   key={article._id}
@@ -337,27 +337,26 @@ export default async function Home() {
               <Image src="/akhil-handa-profile.jpg" alt="Akhil Handa - Former President & Chief Digital Officer Bank of Baroda" width={300} height={300} className="rounded-lg" />
             </div>
             <div className="md:w-2/3">
-              <h2 className="text-2xl font-bold mb-4">About Akhil Handa - Digital Banking Pioneer</h2>
+              <h2 className="text-2xl font-bold mb-4">About Me</h2>
               <p className="text-gray-600 mb-4">
-                I'm <strong>Akhil Handa</strong>, a global leader in AI-powered digital banking with two decades of experience shaping
-                the future of financial services. As the <strong>President & Chief Digital Officer</strong> of Bank of Baroda (a global top 10 bank by customers), I led
-                digital transformation initiatives, overseeing a bank with over <strong>USD 300 billion total business</strong>, presence in 25
-                international markets, and <strong>USD 1 trillion in annual digital payments</strong>.
+                I'm Akhil Handa, and I've spent the last two decades working in digital banking and financial services. 
+                Most recently, I served as President & Chief Digital Officer at Bank of Baroda, where I led digital 
+                transformation initiatives across 25 international markets, helping serve over 200 million customers.
               </p>
               <p className="text-gray-600 mb-6">
-                A key contributor to <strong>national digital finance policy</strong>, I use <strong>FirstHand</strong> to chronicle the evolution of
-                digital platforms in banking and adjacent markets. My expertise spans <strong>AI in banking</strong>, <strong>fintech innovation</strong>, 
-                <strong>digital transformation</strong>, and <strong>mobile banking solutions</strong>.
+                I use FirstHand to share what I've learned about the evolution of digital platforms in banking. 
+                Having worked at institutions like JPMorgan and contributed to digital finance policy, I try to offer 
+                practical insights on where the industry is headed.
               </p>
               <Link href="/about">
                 <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
-                  More about Akhil Handa's Journey
+                  More about me
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
               <Link href="/contact" className="ml-4">
                 <Button className="bg-blue-600 text-white hover:bg-blue-700">
-                  Connect with Akhil Handa
+                  Let's Connect
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
