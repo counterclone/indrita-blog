@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
-import { sendNewArticleNotification } from '@/lib/email';
 
 interface CustomSession {
     user: {
@@ -68,19 +67,6 @@ export async function POST(request: Request) {
             createdAt: new Date(),
             updatedAt: new Date()
         });
-
-        // Send notification about new article
-        try {
-            const articleUrl = `https://www.akhilhanda.com/article-content/${article.slug}`;
-            await sendNewArticleNotification(
-                article.title,
-                article.excerpt,
-                articleUrl
-            );
-        } catch (emailError) {
-            console.error('Error sending article notification:', emailError);
-            // Don't fail the operation if email fails
-        }
 
         return NextResponse.json(article);
     } catch (error: any) {
