@@ -18,11 +18,12 @@ export default function AdminLayout({
         return pathname?.startsWith(path) ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white';
     };
 
-    const navLinks = [
+    const navigation = [
         { href: '/admin/articles', label: 'Articles' },
         { href: '/admin/thoughts', label: 'Thoughts' },
         { href: '/admin/gallery', label: 'Gallery' },
         { href: '/admin/subscribers', label: 'Subscribers' },
+        { href: '/admin/quick-takes', label: 'Quick Takes' },
     ];
 
     return (
@@ -36,7 +37,7 @@ export default function AdminLayout({
                             </div>
                             <div className="hidden md:block">
                                 <div className="ml-10 flex items-baseline space-x-4">
-                                    {navLinks.map((link) => (
+                                    {navigation.map((link) => (
                                         <Link
                                             key={link.href}
                                             href={link.href}
@@ -75,7 +76,7 @@ export default function AdminLayout({
                 {isMobileMenuOpen && (
                     <div className="md:hidden">
                         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                            {navLinks.map((link) => (
+                            {navigation.map((link) => (
                                 <Link
                                     key={link.href}
                                     href={link.href}
