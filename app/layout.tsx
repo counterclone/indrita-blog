@@ -8,15 +8,52 @@ import { Providers } from "@/components/providers"
 import { Toaster } from "@/components/ui/toaster"
 import { TwitterScript } from "@/components/twitter-script"
 import GoogleAnalytics from '@/components/google-analytics'
+import { PersonStructuredData, OrganizationStructuredData, WebsiteStructuredData } from '@/components/structured-data'
 
 const inter = Inter({ subsets: ["latin"] })
 
 // Updated metadata for SEO optimization
 export const metadata = {
-  title: "FirstHand by Akhil Handa | Digital Banking Evolution",
+  title: "Akhil Handa | Digital Banking Leader & Former Chief Digital Officer | FirstHand",
   description:
-    "Akhil Handa's personal chronicle of digital banking evolution, fintech innovations, and emerging trends in financial services.",
-  keywords: "Akhil Handa, digital banking, fintech, banking innovation, financial technology, FirstHand",
+    "Akhil Handa, former President & Chief Digital Officer at Bank of Baroda, shares firsthand insights on digital banking evolution, fintech innovations, and AI in financial services. Led transformation for 200M+ customers.",
+  keywords: [
+    "Akhil Handa",
+    "Akhil Handa digital banking", 
+    "Akhil Handa Bank of Baroda",
+    "Akhil Handa CDO",
+    "Chief Digital Officer banking",
+    "digital banking transformation",
+    "fintech innovation",
+    "AI banking leader",
+    "FirstHand Akhil Handa",
+    "banking digitization expert",
+    "mobile banking pioneer",
+    "digital payments expert",
+    "IIT Delhi banking",
+    "Bank of Baroda digital transformation"
+  ].join(", "),
+  authors: [{ name: "Akhil Handa" }],
+  creator: "Akhil Handa",
+  publisher: "FirstHand by Akhil Handa",
+  applicationName: "FirstHand by Akhil Handa",
+  referrer: 'origin-when-cross-origin',
+  colorScheme: 'light',
+  themeColor: '#3b82f6',
+  viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      noimageindex: false,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       { url: "/favicon.png" },
@@ -32,34 +69,40 @@ export const metadata = {
     ],
   },
   openGraph: {
-    title: "FirstHand by Akhil Handa | Digital Banking Evolution",
+    type: "website",
+    locale: "en_US",
+    title: "Akhil Handa | Digital Banking Leader & Former Chief Digital Officer",
     description:
-      "Akhil Handa's personal chronicle of digital banking evolution, fintech innovations, and emerging trends in financial services.",
+      "Former President & Chief Digital Officer at Bank of Baroda. Expert insights on digital banking evolution, fintech innovations, and AI in financial services.",
     url: "https://firsthand.akhilhanda.com",
     siteName: "FirstHand by Akhil Handa",
     images: [
       {
-        url: "https://firsthand.akhilhanda.com/og-image.jpg",
+        url: "https://firsthand.akhilhanda.com/akhil-handa-profile.jpg",
         width: 1200,
         height: 630,
-        alt: "FirstHand by Akhil Handa",
+        alt: "Akhil Handa - Digital Banking Leader and Former Chief Digital Officer",
+        type: "image/jpeg",
       },
     ],
-    locale: "en_US",
-    type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "FirstHand by Akhil Handa | Digital Banking Evolution",
+    title: "Akhil Handa | Digital Banking Leader & Former CDO",
     description:
-      "Akhil Handa's personal chronicle of digital banking evolution, fintech innovations, and emerging trends in financial services.",
+      "Former President & CDO at Bank of Baroda. Expert insights on digital banking evolution, fintech innovations, and AI in financial services.",
     creator: "@akhilhanda",
-    images: ["https://firsthand.akhilhanda.com/og-image.jpg"],
+    site: "@akhilhanda",
+    images: ["https://firsthand.akhilhanda.com/akhil-handa-profile.jpg"],
   },
   alternates: {
     canonical: "https://firsthand.akhilhanda.com",
   },
-  generator: 'v0.dev'
+  verification: {
+    google: "your-google-verification-code",
+    yandex: "your-yandex-verification-code",
+    yahoo: "your-yahoo-verification-code",
+  },
 }
 
 export default function RootLayout({
@@ -76,6 +119,9 @@ export default function RootLayout({
         {process.env.NEXT_PUBLIC_GA_ID && (
           <GoogleAnalytics GA_ID={process.env.NEXT_PUBLIC_GA_ID} />
         )}
+        <PersonStructuredData />
+        <OrganizationStructuredData />
+        <WebsiteStructuredData />
       </head>
       <body className={`${inter.className} bg-white text-gray-900`} suppressHydrationWarning>
         <Providers>

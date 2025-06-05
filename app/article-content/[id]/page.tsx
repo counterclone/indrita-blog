@@ -6,6 +6,8 @@ import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
 import '@/styles/article.css';
 import dynamic from 'next/dynamic';
+import { ArticleStructuredData } from '@/components/structured-data';
+import type { Metadata } from 'next';
 
 // Lazy load social share components for better performance
 const SocialShare = dynamic(() => import('@/components/social-share').then(mod => ({ default: mod.SocialShare })), {
@@ -182,6 +184,17 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
 
     return (
       <>
+        <ArticleStructuredData
+          title={article.title}
+          description={article.excerpt}
+          image={article.image}
+          datePublished={article.date}
+          dateModified={article.date}
+          slug={cleanId}
+          author={article.author}
+          category={Array.isArray(article.category) ? article.category : [article.category]}
+        />
+        
         <FloatingSocialShare 
           title={article.title} 
           url={articleUrl}
@@ -314,5 +327,95 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
   } catch (error) {
     console.error('Error in ArticleContentPage:', error);
     throw error;
+  }
+}
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  try {
+    const { id } = await params;
+    const cleanId = id.replace('/article-content/', '');
+    const article = await getArticle(cleanId);
+
+    if (!article) {
+      return {
+        title: 'Article Not Found | FirstHand by Akhil Handa',
+        description: 'The requested article could not be found.',
+      };
+    }
+
+    const categoryDisplay = Array.isArray(article.category) 
+      ? article.category.join(", ") 
+      : article.category;
+
+    return {
+      title: `${article.title} | Akhil Handa | FirstHand`,
+      description: `${article.excerpt} - Insights by Akhil Handa, former President & Chief Digital Officer at Bank of Baroda.`,
+      keywords: [
+        article.title,
+        "Akhil Handa",
+        "digital banking",
+        "fintech innovation", 
+        "financial technology",
+        categoryDisplay,
+        "banking transformation",
+        "AI in banking",
+        "FirstHand",
+        "Bank of Baroda",
+        "Chief Digital Officer"
+      ].filter(Boolean).join(", "),
+      authors: [{ name: article.author || "Akhil Handa" }],
+      creator: article.author || "Akhil Handa",
+      publisher: "FirstHand by Akhil Handa",
+      openGraph: {
+        title: `${article.title} | Akhil Handa`,
+        description: article.excerpt,
+        url: `https://firsthand.akhilhanda.com/article-content/${cleanId}`,
+        siteName: "FirstHand by Akhil Handa",
+        images: [
+          {
+            url: `https://firsthand.akhilhanda.com${article.image}`,
+            width: 1200,
+            height: 630,
+            alt: article.title,
+            type: "image/jpeg",
+          },
+        ],
+        locale: "en_US",
+        type: "article",
+        publishedTime: article.date,
+        authors: [article.author || "Akhil Handa"],
+        section: categoryDisplay,
+        tags: Array.isArray(article.category) ? article.category : [article.category],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${article.title} | Akhil Handa`,
+        description: article.excerpt,
+        creator: "@akhilhanda",
+        site: "@akhilhanda",
+        images: [`https://firsthand.akhilhanda.com${article.image}`],
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
+      alternates: {
+        canonical: `https://firsthand.akhilhanda.com/article-content/${cleanId}`,
+      },
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Article | FirstHand by Akhil Handa',
+      description: 'Digital banking insights and fintech innovation by Akhil Handa',
+    };
   }
 } 
