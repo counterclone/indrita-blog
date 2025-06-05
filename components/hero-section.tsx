@@ -5,6 +5,7 @@ import Image from "next/image"
 import { ArrowRight, Globe, TrendingUp, Lock, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { trackHeroAboutClick, trackNewsletterSignup } from "@/lib/analytics"
 
 // Futuristic terminal component with global banking focus
 const FuturisticTerminal = () => {
@@ -82,6 +83,9 @@ export function HeroSection() {
         throw new Error(data.error || 'Failed to subscribe');
       }
 
+      // Track successful newsletter signup
+      trackNewsletterSignup('hero_section');
+
       setMessage(data.message || "Thank you for subscribing!");
       setEmail("")
     } catch (err) {
@@ -97,18 +101,28 @@ export function HeroSection() {
         <div className="grid md:grid-cols-2 gap-8 items-center">
           <div className="max-w-xl">
             <div className="flex items-center gap-2 mb-6">
-              <Link href="/about" className="flex items-center gap-2 mb-6 cursor-pointer">
-                <Image src="/akhil-handa-avatar.jpg" alt="Akhil Handa" width={48} height={48} className="rounded-full" />
+              <Link href="/about" className="group flex items-center gap-3 mb-6 cursor-pointer hover:bg-blue-50/50 rounded-lg p-2 -ml-2 transition-all duration-200" onClick={() => trackHeroAboutClick()}>
+                <Image src="/akhil-handa-avatar.jpg" alt="Akhil Handa" width={48} height={48} className="rounded-full ring-2 ring-blue-100 group-hover:ring-blue-200 transition-all duration-200" />
                 <div>
-                  <h2 className="text-sm font-medium">Akhil Handa</h2>
-                  <p className="text-xs text-gray-500">Digital Banking Strategist</p>
+                  <h2 className="text-sm font-medium group-hover:text-blue-700 transition-colors">Akhil Handa</h2>
+                  <p className="text-xs text-gray-500 group-hover:text-blue-600 transition-colors">Global Banking Leader</p>
                 </div>
+                <ArrowRight className="w-4 h-4 text-gray-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all duration-200 opacity-0 group-hover:opacity-100" />
               </Link>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">FirstHand</h1>
             <p className="text-xl text-gray-600 mb-8">
-              My attempt to chronicle the evolution of digital platforms in banking and adjacent markets.
+              My attempt to chronicle the evolution of digital platforms in banking and adjacent markets—from the inside of a $300B global bank.
             </p>
+
+            <div className="mb-6 p-3 bg-blue-50/50 rounded-lg border-l-4 border-blue-200">
+              <p className="text-sm text-gray-600">
+                <span className="font-medium text-blue-700">Former President & CDO</span> • Led digital transformation serving 200M+ customers • 
+                <Link href="/about" className="text-blue-600 hover:text-blue-800 underline hover:no-underline transition-all duration-200" onClick={() => trackHeroAboutClick()}>
+                  Read my full story →
+                </Link>
+              </p>
+            </div>
 
             <div className="flex flex-col gap-4">
               <div className="flex flex-col sm:flex-row gap-2">

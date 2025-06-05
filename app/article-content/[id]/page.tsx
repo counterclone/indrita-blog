@@ -6,6 +6,8 @@ import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
 import '@/styles/article.css';
 import dynamic from 'next/dynamic';
+import { ArticleStructuredData } from '@/components/structured-data';
+import type { Metadata } from 'next';
 
 // Lazy load social share components for better performance
 const SocialShare = dynamic(() => import('@/components/social-share').then(mod => ({ default: mod.SocialShare })), {
@@ -15,6 +17,36 @@ const SocialShare = dynamic(() => import('@/components/social-share').then(mod =
 const FloatingSocialShare = dynamic(() => import('@/components/floating-social-share').then(mod => ({ default: mod.FloatingSocialShare })), {
   loading: () => null
 });
+
+// Lazy load article navigation component (loads last)
+const ArticleNavigation = dynamic(() => import('@/components/article-navigation'), {
+  loading: () => <div className="h-24 animate-pulse bg-gray-100 rounded"></div>
+});
+
+// Enable ISR (Incremental Static Regeneration) - revalidate every hour
+export const revalidate = 3600;
+
+// Generate static params for popular articles (improves initial load)
+export async function generateStaticParams() {
+  try {
+    await connectDB();
+    
+    // Pre-generate the 10 most recent articles for instant loading
+    const articles = await Article.find()
+      .select('slug')
+      .sort({ date: -1 })
+      .limit(10)
+      .lean()
+      .exec();
+    
+    return articles.map((article: any) => ({
+      id: article.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
 
 interface ArticlePageProps {
   params: {
@@ -35,6 +67,17 @@ interface ArticleData {
   htmlContent: string;
 }
 
+interface AdjacentArticle {
+  title: string;
+  slug: string;
+  _id: string;
+}
+
+interface AdjacentArticles {
+  previousArticle: AdjacentArticle | null;
+  nextArticle: AdjacentArticle | null;
+}
+
 async function getArticle(id: string): Promise<ArticleData | null> {
   try {
     await connectDB();
@@ -42,33 +85,83 @@ async function getArticle(id: string): Promise<ArticleData | null> {
     // Normalize the id by removing the prefix if it exists
     const normalizedId = id.replace('/article-content/', '');
     
-    // Single query to get article with content from unified model
-    const article = await Article.findOne({ slug: normalizedId });
+    // Optimized query with lean() for better performance
+    // Note: Ensure there's an index on 'slug' field in MongoDB
+    const article = await Article.findOne({ slug: normalizedId })
+      .lean() // Returns plain JavaScript object instead of Mongoose document
+      .exec(); // Explicitly execute the query
     
     if (!article) {
       console.log('Article not found for slug:', normalizedId);
       return null;
     }
 
-    console.log('Found article:', article.title);
+    console.log('Found article:', (article as any).title);
     
     // Convert to plain object and return with proper typing
+    const articleData = article as any;
     return {
-      _id: article._id.toString(),
-      title: article.title,
-      excerpt: article.excerpt,
-      image: article.image,
-      date: article.date,
-      author: article.author,
-      category: article.category,
-      readTime: article.readTime,
-      slug: article.slug,
-      htmlContent: article.htmlContent || ''
+      _id: articleData._id.toString(),
+      title: articleData.title,
+      excerpt: articleData.excerpt,
+      image: articleData.image,
+      date: articleData.date,
+      author: articleData.author,
+      category: articleData.category,
+      readTime: articleData.readTime,
+      slug: articleData.slug,
+      htmlContent: articleData.htmlContent || ''
     };
     
   } catch (error: any) {
     console.error('Error fetching article:', error);
     return null;
+  }
+}
+
+async function getAdjacentArticles(currentArticleDate: string): Promise<AdjacentArticles> {
+  try {
+    await connectDB();
+    
+    const currentDate = new Date(currentArticleDate);
+    
+    // Get previous article (older)
+    const previousArticle = await Article.findOne({
+      date: { $lt: currentDate }
+    })
+      .select('title slug _id')
+      .sort({ date: -1 })
+      .lean()
+      .exec();
+    
+    // Get next article (newer)
+    const nextArticle = await Article.findOne({
+      date: { $gt: currentDate }
+    })
+      .select('title slug _id')
+      .sort({ date: 1 })
+      .lean()
+      .exec();
+    
+    return {
+      previousArticle: previousArticle ? {
+        title: (previousArticle as any).title,
+        slug: (previousArticle as any).slug,
+        _id: (previousArticle as any)._id.toString()
+      } : null,
+      nextArticle: nextArticle ? {
+        title: (nextArticle as any).title,
+        slug: (nextArticle as any).slug,
+        _id: (nextArticle as any)._id.toString()
+      } : null
+    };
+    
+  } catch (error: any) {
+    console.error('Error fetching adjacent articles:', error);
+    return {
+      previousArticle: null,
+      nextArticle: null
+    };
   }
 }
 
@@ -91,6 +184,17 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
 
     return (
       <>
+        <ArticleStructuredData
+          title={article.title}
+          description={article.excerpt}
+          image={article.image}
+          datePublished={article.date}
+          dateModified={article.date}
+          slug={cleanId}
+          author={article.author}
+          category={Array.isArray(article.category) ? article.category : [article.category]}
+        />
+        
         <FloatingSocialShare 
           title={article.title} 
           url={articleUrl}
@@ -213,6 +317,9 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
                 </div>
               </div>
             </div>
+
+            {/* Article Navigation - Lazy Loaded */}
+            <ArticleNavigation currentArticleDate={article.date} />
           </div>
         </article>
       </>
@@ -220,5 +327,95 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
   } catch (error) {
     console.error('Error in ArticleContentPage:', error);
     throw error;
+  }
+}
+
+// Generate metadata for SEO
+export async function generateMetadata({ params }: ArticlePageProps): Promise<Metadata> {
+  try {
+    const { id } = await params;
+    const cleanId = id.replace('/article-content/', '');
+    const article = await getArticle(cleanId);
+
+    if (!article) {
+      return {
+        title: 'Article Not Found | FirstHand by Akhil Handa',
+        description: 'The requested article could not be found.',
+      };
+    }
+
+    const categoryDisplay = Array.isArray(article.category) 
+      ? article.category.join(", ") 
+      : article.category;
+
+    return {
+      title: `${article.title} | Akhil Handa | FirstHand`,
+      description: `${article.excerpt} - Insights by Akhil Handa, former President & Chief Digital Officer at Bank of Baroda.`,
+      keywords: [
+        article.title,
+        "Akhil Handa",
+        "digital banking",
+        "fintech innovation", 
+        "financial technology",
+        categoryDisplay,
+        "banking transformation",
+        "AI in banking",
+        "FirstHand",
+        "Bank of Baroda",
+        "Chief Digital Officer"
+      ].filter(Boolean).join(", "),
+      authors: [{ name: article.author || "Akhil Handa" }],
+      creator: article.author || "Akhil Handa",
+      publisher: "FirstHand by Akhil Handa",
+      openGraph: {
+        title: `${article.title} | Akhil Handa`,
+        description: article.excerpt,
+        url: `https://firsthand.akhilhanda.com/article-content/${cleanId}`,
+        siteName: "FirstHand by Akhil Handa",
+        images: [
+          {
+            url: `https://firsthand.akhilhanda.com${article.image}`,
+            width: 1200,
+            height: 630,
+            alt: article.title,
+            type: "image/jpeg",
+          },
+        ],
+        locale: "en_US",
+        type: "article",
+        publishedTime: article.date,
+        authors: [article.author || "Akhil Handa"],
+        section: categoryDisplay,
+        tags: Array.isArray(article.category) ? article.category : [article.category],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${article.title} | Akhil Handa`,
+        description: article.excerpt,
+        creator: "@akhilhanda",
+        site: "@akhilhanda",
+        images: [`https://firsthand.akhilhanda.com${article.image}`],
+      },
+      robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+          index: true,
+          follow: true,
+          'max-video-preview': -1,
+          'max-image-preview': 'large',
+          'max-snippet': -1,
+        },
+      },
+      alternates: {
+        canonical: `https://firsthand.akhilhanda.com/article-content/${cleanId}`,
+      },
+    };
+  } catch (error) {
+    console.error('Error generating metadata:', error);
+    return {
+      title: 'Article | FirstHand by Akhil Handa',
+      description: 'Digital banking insights and fintech innovation by Akhil Handa',
+    };
   }
 } 

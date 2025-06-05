@@ -24,7 +24,7 @@ export function SiteHeader() {
         scrolled ? "bg-white/90 backdrop-blur-md shadow-sm" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex h-24 items-center justify-between px-0">
+      <div className="container mx-auto flex h-24 items-center justify-between px-4 md:px-0">
         <Link href="/" className="flex items-center gap-4 py-2">
           <LogoModern size={48} />
           <span className="text-3xl font-bold tracking-tight text-gray-900">FirstHand</span>
@@ -68,8 +68,13 @@ export function SiteHeader() {
               <Linkedin className="h-5 w-5 text-gray-500 hover:text-blue-700" />
             </Link>
           </div>
-          <button className="md:hidden" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <XIcon className="h-6 w-6 text-gray-900" /> : <Menu className="h-6 w-6 text-gray-900" />}
+          <button 
+            className="md:hidden flex items-center gap-2 p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors duration-200 shadow-sm"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Toggle navigation menu"
+          >
+            {isMenuOpen ? <XIcon className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            <span className="text-sm font-medium">Menu</span>
           </button>
         </div>
       </div>

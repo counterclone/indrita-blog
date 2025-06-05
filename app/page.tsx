@@ -11,6 +11,7 @@ import { HeroSection } from "@/components/hero-section"
 import { SubscribeDialog } from '@/components/subscribe-dialog'
 import connectDB from '@/lib/mongodb'
 import Article from '@/models/Article'
+import type { Metadata } from 'next'
 
 interface ArticleData {
   _id: string;
@@ -52,6 +53,112 @@ async function getArticles(): Promise<ArticleData[]> {
   }
 }
 
+// Enhanced SEO metadata for ranking #1 for "Akhil Handa"
+export const metadata: Metadata = {
+  title: "Akhil Handa | Digital Banking Leader & Former Chief Digital Officer | FirstHand",
+  description: "Akhil Handa, former President & Chief Digital Officer at Bank of Baroda, shares firsthand insights on digital banking, fintech innovation, and AI in financial services. Led digital transformation for 200M+ customers and $1 trillion in annual payments.",
+  keywords: [
+    // Primary brand keywords
+    "Akhil Handa",
+    "Akhil Handa digital banking",
+    "Akhil Handa Bank of Baroda",
+    "Akhil Handa CDO",
+    "Akhil Handa fintech",
+    
+    // Professional title keywords
+    "Chief Digital Officer banking",
+    "President Bank of Baroda",
+    "Digital Banking Leader India",
+    "Banking transformation expert",
+    "Fintech innovation leader",
+    
+    // Industry expertise keywords
+    "digital banking transformation",
+    "AI in banking",
+    "fintech innovation",
+    "financial technology",
+    "digital payments India",
+    "banking digitization",
+    "mobile banking strategy",
+    "open banking APIs",
+    "digital lending platforms",
+    "conversational banking",
+    
+    // Company and institutional keywords
+    "Bank of Baroda digital",
+    "bob World app",
+    "JPMorgan digital banking",
+    "Indian banking digital transformation",
+    "fintech partnerships India",
+    "IIT Delhi banking",
+    
+    // Awards and recognition
+    "Visionary Leader Financial Express",
+    "Best Chief Digital Officer India",
+    "Top AI Leader banking",
+    "Best Fintech Innovator",
+    
+    // Content and thought leadership
+    "FirstHand Akhil Handa",
+    "banking evolution blog",
+    "fintech insights",
+    "digital banking trends",
+    "financial services innovation"
+  ].join(", "),
+  authors: [{ name: "Akhil Handa" }],
+  creator: "Akhil Handa",
+  publisher: "FirstHand by Akhil Handa",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    title: "Akhil Handa | Digital Banking Leader & Former Chief Digital Officer",
+    description: "Former President & CDO at Bank of Baroda, led digital transformation for 200M+ customers. Insights on fintech, AI in banking, and financial innovation.",
+    url: "https://firsthand.akhilhanda.com",
+    siteName: "FirstHand by Akhil Handa",
+    images: [
+      {
+        url: "https://firsthand.akhilhanda.com/akhil-handa-profile.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Akhil Handa - Digital Banking Leader and Former Chief Digital Officer",
+        type: "image/jpeg",
+      },
+    ],
+    locale: "en_US",
+    type: "profile",
+    username: "akhilhanda",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Akhil Handa | Digital Banking Leader & Former CDO",
+    description: "Former President & CDO at Bank of Baroda, led digital transformation for 200M+ customers. Insights on fintech and AI in banking.",
+    creator: "@akhilhanda",
+    site: "@akhilhanda",
+    images: ["https://firsthand.akhilhanda.com/akhil-handa-profile.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: "https://firsthand.akhilhanda.com",
+  },
+  other: {
+    "google-site-verification": "your-google-verification-code",
+    "msvalidate.01": "your-bing-verification-code",
+  },
+}
+
 export default async function Home() {
   // Fetch articles on the server
   const recentArticles = await getArticles();
@@ -80,27 +187,52 @@ export default async function Home() {
         </div>
       </section> */}
 
-      {/* Featured Article */}
-      <section className="py-12 md:py-16 bg-white">
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-2xl font-bold mb-8">Featured Article</h2>
+      {/* Featured Insight - Premium Design */}
+      <section className="py-16 md:py-20 relative overflow-hidden">
+        {/* Subtle Gradient Background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50"></div>
+        
+        {/* Subtle Decorative Elements */}
+        <div className="absolute top-0 left-0 w-64 h-64 bg-gradient-to-br from-blue-100/20 to-transparent rounded-full blur-3xl -translate-x-32 -translate-y-32"></div>
+        <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-to-tl from-purple-100/15 to-transparent rounded-full blur-3xl translate-x-48 translate-y-48"></div>
+        
+        <div className="container mx-auto px-4 md:px-6 relative">
+          {/* Section Header with Premium Styling */}
+          <div className="text-center mb-12">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/70 backdrop-blur-sm rounded-full border border-blue-100 mb-4">
+              <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full"></div>
+              <span className="text-sm font-medium text-gray-700">Premium Content</span>
+            </div>
+            <h2 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
+              Featured Insight
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              Deep dive into the latest trends shaping the digital banking landscape
+            </p>
+          </div>
+
+          {/* Featured Article Card with Subtle Design */}
           {featuredArticle ? (
-            <FeaturedArticle
-              title={featuredArticle.title}
-              excerpt={featuredArticle.excerpt}
-              image={featuredArticle.image}
-              date={new Date(featuredArticle.date).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'short',
-                day: 'numeric'
-              }).toUpperCase()}
-              author={featuredArticle.author}
-              category={featuredArticle.category}
-              slug={featuredArticle.slug}
-              _id={featuredArticle._id}
-            />
+            <div className="bg-white/90 backdrop-blur-sm rounded-xl border border-white/30 p-8 md:p-10 hover:bg-white/95 transition-all duration-300">
+              <FeaturedArticle
+                title={featuredArticle.title}
+                excerpt={featuredArticle.excerpt}
+                image={featuredArticle.image}
+                date={new Date(featuredArticle.date).toLocaleDateString('en-US', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric'
+                }).toUpperCase()}
+                author={featuredArticle.author}
+                category={featuredArticle.category}
+                slug={featuredArticle.slug}
+                _id={featuredArticle._id}
+              />
+            </div>
           ) : (
-            <div className="text-center text-gray-500">No featured article available</div>
+            <div className="text-center text-gray-500 bg-white/90 backdrop-blur-sm rounded-xl border border-white/30 p-12">
+              No featured article available
+            </div>
           )}
         </div>
       </section>
@@ -110,23 +242,28 @@ export default async function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-2xl font-bold mb-8">Recent Articles</h2>
           {filteredRecentArticles.length > 0 ? (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {filteredRecentArticles.map((article) => (
-                <ArticleCard
-                  key={article._id}
-                  title={article.title}
-                  excerpt={article.excerpt}
-                  image={article.image}
-                  date={new Date(article.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
-                  }).toUpperCase()}
-                  author={article.author}
-                  category={article.category}
-                  slug={article.slug}
-                  _id={article._id}
-                />
+            <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {filteredRecentArticles.map((article, index) => (
+                <div key={article._id} className="relative">
+                  <ArticleCard
+                    title={article.title}
+                    excerpt={article.excerpt}
+                    image={article.image}
+                    date={new Date(article.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    }).toUpperCase()}
+                    author={article.author}
+                    category={article.category}
+                    slug={article.slug}
+                    _id={article._id}
+                  />
+                  {/* Light divider for mobile - only show if not the last item */}
+                  {index < filteredRecentArticles.length - 1 && (
+                    <div className="md:hidden mt-6 border-b border-gray-200"></div>
+                  )}
+                </div>
               ))}
             </div>
           ) : (
@@ -202,19 +339,19 @@ export default async function Home() {
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="md:w-1/3">
-              <Image src="/akhil-handa-profile.jpg" alt="Akhil Handa" width={300} height={300} className="rounded-lg" />
+              <Image src="/akhil-handa-profile.jpg" alt="Akhil Handa - Former President & Chief Digital Officer Bank of Baroda" width={300} height={300} className="rounded-lg" />
             </div>
             <div className="md:w-2/3">
               <h2 className="text-2xl font-bold mb-4">About Me</h2>
               <p className="text-gray-600 mb-4">
-                I'm a global leader in AI-powered digital banking with two decades of experience shaping
-                the future of financial services. As the President & CDO of a global top 10 bank (by customers), I led
-                digital transformation initiatives, overseeing a bank with over USD 300 billion total business, presence in 25
-                international markets, and USD 1 trillion in annual digital payments.
+                I'm Akhil Handa, and I've spent the last two decades working in digital banking and financial services. 
+                Most recently, I served as President & Chief Digital Officer at Bank of Baroda, where I led digital 
+                transformation initiatives across 25 international markets, helping serve over 200 million customers.
               </p>
               <p className="text-gray-600 mb-6">
-                A key contributor to national digital finance policy, I use FirstHand to chronicle the evolution of
-                digital platforms in banking and adjacent markets.
+                I use FirstHand to share what I've learned about the evolution of digital platforms in banking. 
+                Having worked at institutions like JPMorgan and contributed to digital finance policy, I try to offer 
+                practical insights on where the industry is headed.
               </p>
               <Link href="/about">
                 <Button variant="outline" className="border-blue-600 text-blue-600 hover:bg-blue-50">
