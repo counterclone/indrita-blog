@@ -213,47 +213,54 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
           excerpt={article.excerpt}
         />
         
-        <article className="container mx-auto px-4 py-8">
+        <article className="container mx-auto px-4 sm:px-6 py-8">
           <div className="max-w-4xl mx-auto">
             <Link
               href="/articles"
-              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-8"
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 sm:mb-8"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Articles
             </Link>
 
             <header className="mb-8">
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                {Array.isArray(article.category) ? (
-                  <div className="flex items-center gap-2">
-                    {article.category.map((cat, index) => (
-                      <span key={cat}>
-                        <span className="font-medium text-blue-600">{cat}</span>
-                        {index < article.category.length - 1 && (
-                          <span className="mx-1 text-gray-400">•</span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="font-medium text-blue-600">{article.category}</span>
-                )}
-                <span>•</span>
-                <span>{article.readTime}</span>
+              {/* Categories and Meta Info */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-sm text-gray-500 mb-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {Array.isArray(article.category) ? (
+                    <>
+                      {article.category.map((cat, index) => (
+                        <span key={cat} className="inline-flex items-center">
+                          <span className="font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full text-xs sm:text-sm">
+                            {cat}
+                          </span>
+                        </span>
+                      ))}
+                    </>
+                  ) : (
+                    <span className="font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full text-xs sm:text-sm">
+                      {article.category}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-xs sm:text-sm">
+                  <span className="hidden sm:inline">•</span>
+                  <span>{article.readTime}</span>
+                  <span>•</span>
+                  <time dateTime={new Date(article.date).toISOString()} className="text-gray-400">
+                    {new Date(article.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </time>
+                </div>
               </div>
               
-              <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight">{article.title}</h1>
               
-              <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
+              <div className="flex items-center text-sm text-gray-500 mb-6">
                 <span>By {article.author}</span>
-                <time dateTime={new Date(article.date).toISOString()}>
-                  {new Date(article.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </time>
               </div>
 
               {/* Social Share Component - Lazy Loaded */}
