@@ -18,34 +18,34 @@ export async function GET(request: Request) {
     
     const currentDate = new Date(dateParam);
     
-    // Get previous article (older)
-    const previousArticle = await Article.findOne({
-      date: { $lt: currentDate }
-    })
-      .select('title slug _id')
+    // Get all articles first to understand the ordering
+    const allArticles = await Article.find()
+      .select('title slug _id date')
       .sort({ date: -1 })
       .lean()
       .exec();
     
-    // Get next article (newer)  
-    const nextArticle = await Article.findOne({
-      date: { $gt: currentDate }
-    })
-      .select('title slug _id')
-      .sort({ date: 1 })
-      .lean()
-      .exec();
+    // Find current article index
+    const currentIndex = allArticles.findIndex(article => 
+      Math.abs(new Date(article.date).getTime() - currentDate.getTime()) < 1000 // within 1 second
+    );
+    
+    // Get previous article (newer in chronological order, but appears before in our desc sorted list)
+    const previousArticle = currentIndex > 0 ? allArticles[currentIndex - 1] : null;
+    
+    // Get next article (older in chronological order, but appears after in our desc sorted list)  
+    const nextArticle = currentIndex < allArticles.length - 1 ? allArticles[currentIndex + 1] : null;
     
     const response = {
       previousArticle: previousArticle ? {
-        title: (previousArticle as any).title,
-        slug: (previousArticle as any).slug,
-        _id: (previousArticle as any)._id.toString()
+        title: previousArticle.title as string,
+        slug: previousArticle.slug as string,
+        _id: (previousArticle._id as any).toString()
       } : null,
       nextArticle: nextArticle ? {
-        title: (nextArticle as any).title,
-        slug: (nextArticle as any).slug,
-        _id: (nextArticle as any)._id.toString()
+        title: nextArticle.title as string,
+        slug: nextArticle.slug as string,
+        _id: (nextArticle._id as any).toString()
       } : null
     };
     

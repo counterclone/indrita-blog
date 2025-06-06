@@ -4,6 +4,7 @@ import { authOptions } from '../auth/[...nextauth]/route';
 import connectDB from '@/lib/mongodb';
 import Article from '@/models/Article';
 import { sendNewArticleNotification } from '@/lib/email';
+import { revalidatePath } from 'next/cache';
 
 interface CustomSession {
     user: {
@@ -80,6 +81,16 @@ export async function POST(request: Request) {
         } catch (emailError) {
             console.error('Error sending article notification:', emailError);
             // Don't fail the operation if email fails
+        }
+
+        // Revalidate the homepage to show new article
+        try {
+            console.log('[API] Articles: Revalidating homepage after new article');
+            revalidatePath('/');
+            revalidatePath('/articles');
+        } catch (revalidateError) {
+            console.error('Error revalidating paths:', revalidateError);
+            // Don't fail the operation if revalidation fails
         }
 
         return NextResponse.json(article);

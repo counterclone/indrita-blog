@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { PlusCircle, Pencil, Trash2, Mail, TestTube } from 'lucide-react';
+import { RevalidateButton } from '@/components/revalidate-button';
 
 interface Article {
     _id: string;
@@ -115,12 +116,15 @@ export default function ArticlesPage() {
         <div className="p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Articles</h1>
-                <Link href="/admin/articles/new">
-                    <Button>
-                        <PlusCircle className="h-4 w-4 mr-2" />
-                        Create New Article
-                    </Button>
-                </Link>
+                <div className="flex items-center gap-3">
+                    <RevalidateButton path="/" />
+                    <Link href="/admin/articles/new">
+                        <Button>
+                            <PlusCircle className="h-4 w-4 mr-2" />
+                            Create New Article
+                        </Button>
+                    </Link>
+                </div>
             </div>
 
             <div className="bg-white shadow overflow-hidden sm:rounded-lg">
