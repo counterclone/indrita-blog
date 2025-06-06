@@ -173,7 +173,9 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
     title: string;
     description: string;
     url: string;
+    image?: string;
   } | null>(null)
+  const [isLoadingPreview, setIsLoadingPreview] = useState(false)
 
   const handleLike = async () => {
     try {
@@ -193,6 +195,27 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
       }
     } catch (error) {
       console.error('Error updating like:', error);
+    }
+  }
+
+  const loadArticlePreview = async (link: { title: string; url: string; description: string }) => {
+    try {
+      setIsLoadingPreview(true)
+      const response = await fetch(`/api/articles/by-url?url=${encodeURIComponent(link.url)}`)
+      if (response.ok) {
+        const data = await response.json()
+        setPreviewLink({
+          ...link,
+          image: data.image
+        })
+      } else {
+        setPreviewLink(link)
+      }
+    } catch (error) {
+      console.error('Error loading article preview:', error)
+      setPreviewLink(link)
+    } finally {
+      setIsLoadingPreview(false)
     }
   }
 
@@ -241,7 +264,9 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
                           <Link 
                             href={link.url}
                             className="block p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors duration-200"
-                            onMouseEnter={() => setPreviewLink(link)}
+                            onMouseEnter={() => {
+                              loadArticlePreview(link)
+                            }}
                             onMouseLeave={() => setPreviewLink(null)}
                           >
                             <h5 className="font-medium text-blue-600 mb-1">{link.title}</h5>
@@ -249,9 +274,33 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
                           </Link>
                           {/* Preview popup */}
                           {previewLink?.url === link.url && (
-                            <div className="absolute left-full ml-4 top-0 w-80 bg-white rounded-lg shadow-xl border border-slate-200 p-4 z-10">
-                              <h5 className="font-semibold text-slate-900 mb-2">{link.title}</h5>
-                              <p className="text-sm text-slate-600">{link.description}</p>
+                            <div className="absolute left-full ml-4 top-0 w-80 bg-white rounded-lg shadow-xl border border-slate-200 overflow-hidden z-10">
+                              {isLoadingPreview ? (
+                                <div className="animate-pulse">
+                                  <div className="h-40 bg-slate-200"></div>
+                                  <div className="p-4">
+                                    <div className="h-4 bg-slate-200 rounded w-3/4 mb-2"></div>
+                                    <div className="h-4 bg-slate-200 rounded w-1/2"></div>
+                                  </div>
+                                </div>
+                              ) : (
+                                <>
+                                  {previewLink.image && (
+                                    <div className="relative h-40 w-full">
+                                      <Image
+                                        src={previewLink.image}
+                                        alt={previewLink.title}
+                                        fill
+                                        className="object-cover"
+                                      />
+                                    </div>
+                                  )}
+                                  <div className="p-4">
+                                    <h5 className="font-semibold text-slate-900 mb-2">{previewLink.title}</h5>
+                                    <p className="text-sm text-slate-600 line-clamp-2">{previewLink.description}</p>
+                                  </div>
+                                </>
+                              )}
                             </div>
                           )}
                         </div>
