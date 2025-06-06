@@ -105,7 +105,7 @@ async function getArticle(id: string): Promise<ArticleData | null> {
       title: articleData.title,
       excerpt: articleData.excerpt,
       image: articleData.image,
-      date: articleData.date,
+      date: new Date(articleData.date).toISOString(), // Ensure date is in ISO format
       author: articleData.author,
       category: articleData.category,
       readTime: articleData.readTime,
@@ -181,6 +181,9 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
     // Construct the full URL for sharing
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.akhilhanda.com';
     const articleUrl = `${baseUrl}/article-content/${cleanId}`;
+
+    // Ensure the date is in ISO format
+    const articleDate = new Date(article.date).toISOString();
 
     return (
       <>
@@ -319,7 +322,7 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
             </div>
 
             {/* Article Navigation - Lazy Loaded */}
-            <ArticleNavigation currentArticleDate={article.date} />
+            <ArticleNavigation currentArticleDate={articleDate} />
           </div>
         </article>
       </>

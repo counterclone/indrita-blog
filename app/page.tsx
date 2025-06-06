@@ -29,10 +29,11 @@ async function getArticles(): Promise<ArticleData[]> {
   try {
     await connectDB();
     
-    // Fetch articles directly from database
+    // Fetch articles directly from database, limit to 7 (6 recent + 1 featured)
     const articles = await Article.find()
       .select('title excerpt image date author category readTime slug _id')
       .sort({ date: -1 })
+      .limit(6)
       .lean();
     
     // Convert MongoDB documents to plain objects and format dates
