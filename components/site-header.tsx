@@ -114,13 +114,6 @@ export function SiteHeader() {
               Gallery
             </Link>
             <Link
-              href="/quick-takes"
-              className="text-sm font-medium p-2 rounded-md hover:bg-gray-50"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Quick Takes
-            </Link>
-            <Link
               href="/about"
               className="text-sm font-medium p-2 rounded-md hover:bg-gray-50"
               onClick={() => setIsMenuOpen(false)}

@@ -56,11 +56,6 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/quick-takes" className="text-sm text-gray-500 hover:text-blue-600">
-                  Quick Takes
-                </Link>
-              </li>
-              <li>
                 <Link href="/about" className="text-sm text-gray-500 hover:text-blue-600">
                   About Me
                 </Link>

@@ -35,12 +35,7 @@ const quickTakeSchema = new mongoose.Schema({
   isPublished: {
     type: Boolean,
     default: true
-  },
-  links: [{
-    title: String,
-    url: String,
-    description: String
-  }]
+  }
 }, {
   timestamps: true
 });

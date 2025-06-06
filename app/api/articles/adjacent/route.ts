@@ -49,14 +49,14 @@ export async function GET(request: Request) {
 
     const response = {
       previousArticle: previousArticle ? {
-        title: previousArticle.title as string,
-        slug: previousArticle.slug as string,
-        _id: (previousArticle._id as any).toString()
+        title: (previousArticle as any).title,
+        slug: (previousArticle as any).slug,
+        _id: (previousArticle as any)._id.toString()
       } : null,
       nextArticle: nextArticle ? {
-        title: nextArticle.title as string,
-        slug: nextArticle.slug as string,
-        _id: (nextArticle._id as any).toString()
+        title: (nextArticle as any).title,
+        slug: (nextArticle as any).slug,
+        _id: (nextArticle as any)._id.toString()
       } : null
     };
 
