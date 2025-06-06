@@ -1,0 +1,61 @@
+[33m2fed9da[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m HEAD@{0}: commit (amend): removed tabs page from home + 1,2 and 3 preserved
+[33m2db5a58[m[33m ([m[1;31morigin/features[m[33m)[m HEAD@{1}: commit: removed tabs page from home + 1,2 and 3 preserved
+[33m23aeb5a[m[33m ([m[1;31morigin/remote-direct[m[33m, [m[1;32mtest[m[33m, [m[1;32mremote-direct[m[33m)[m HEAD@{2}: checkout: moving from test to main
+[33m23aeb5a[m[33m ([m[1;31morigin/remote-direct[m[33m, [m[1;32mtest[m[33m, [m[1;32mremote-direct[m[33m)[m HEAD@{3}: checkout: moving from remote-direct to test
+[33m23aeb5a[m[33m ([m[1;31morigin/remote-direct[m[33m, [m[1;32mtest[m[33m, [m[1;32mremote-direct[m[33m)[m HEAD@{4}: checkout: moving from remote-direct to remote-direct
+[33m23aeb5a[m[33m ([m[1;31morigin/remote-direct[m[33m, [m[1;32mtest[m[33m, [m[1;32mremote-direct[m[33m)[m HEAD@{5}: checkout: moving from remote-direct to remote-direct
+[33m23aeb5a[m[33m ([m[1;31morigin/remote-direct[m[33m, [m[1;32mtest[m[33m, [m[1;32mremote-direct[m[33m)[m HEAD@{6}: checkout: moving from remote-direct to remote-direct
+[33m23aeb5a[m[33m ([m[1;31morigin/remote-direct[m[33m, [m[1;32mtest[m[33m, [m[1;32mremote-direct[m[33m)[m HEAD@{7}: checkout: moving from main to remote-direct
+[33m23aeb5a[m[33m ([m[1;31morigin/remote-direct[m[33m, [m[1;32mtest[m[33m, [m[1;32mremote-direct[m[33m)[m HEAD@{8}: commit (merge): Merge branch 'main' of https://github.com/archerjay/blogsite
+[33m98677ef[m HEAD@{9}: commit (amend): removed existing errors while keeping optimisation + added full preview on text type quick-takes
+[33m31f6dfc[m HEAD@{10}: commit: removed existing errors while keeping functionality + added full preview on text type quick-takes
+[33m9407ff1[m HEAD@{11}: commit: preview functionality revised
+[33m9e0c401[m HEAD@{12}: commit: added links to text type quick-takes with preview
+[33m7422bf5[m HEAD@{13}: commit: fixed next article button in /article-content page
+[33m8772beb[m HEAD@{14}: commit: next article button fix
+[33m372a767[m HEAD@{15}: pull: Merge made by the 'ort' strategy.
+[33mbdb760f[m HEAD@{16}: commit: removed auto email functionality
+[33mf944f58[m HEAD@{17}: commit (amend): from main github repo and fixed edit and delete functionalities 1
+[33m9e23319[m HEAD@{18}: commit: from main
+[33mba4f0a9[m HEAD@{19}: commit (amend): your new commit message here
+[33m6c2f5a5[m HEAD@{20}: commit: working buttons
+[33mfdfbd04[m HEAD@{21}: commit: test frontend
+[33m54072f2[m HEAD@{22}: commit: original quick takes page
+[33m33808df[m HEAD@{23}: commit: added original frontend + interactive charts
+[33mfa54a53[m HEAD@{24}: commit: quick-takes admin + dynamic
+[33m155ddb3[m HEAD@{25}: commit: quick-takes backend
+[33mde48a9a[m HEAD@{26}: pull: Fast-forward
+[33m0af7ebb[m HEAD@{27}: pull --force: Fast-forward
+[33m38e66b3[m HEAD@{28}: commit: added test email button
+[33m6332c75[m HEAD@{29}: commit: frontend channges for db changes
+[33m4ecb79c[m HEAD@{30}: commit: solved api endpoints
+[33m892245d[m HEAD@{31}: commit: db articles merged
+[33mbbcedc3[m HEAD@{32}: commit: features-5
+[33m56bb38f[m HEAD@{33}: commit: resend
+[33m0095fe9[m HEAD@{34}: commit: home change
+[33m6e24082[m HEAD@{35}: commit: test suscribers
+[33m44fae60[m HEAD@{36}: commit: suscriber model
+[33m674c184[m HEAD@{37}: commit: remove auto email
+[33mc2b666e[m HEAD@{38}: reset: moving to origin/main
+[33m6a2358e[m HEAD@{39}: commit (merge): google analytics
+[33ma803f95[m HEAD@{40}: commit: header
+[33mffcaf4b[m HEAD@{41}: commit: z2
+[33m07a3b43[m HEAD@{42}: commit: email works?
+[33m8f9106c[m HEAD@{43}: commit: hardcodede email2 removed error
+[33m193f6a4[m HEAD@{44}: commit: hardcodede email
+[33m1a90a9a[m HEAD@{45}: commit: merge and production
+[33m6308c9b[m HEAD@{46}: commit (merge): production env
+[33m63633ee[m HEAD@{47}: commit: Update login page and global styles
+[33m415a29a[m HEAD@{48}: pull --force: Merge made by the 'ort' strategy.
+[33m64d32dd[m[33m ([m[1;31morigin/feature-branch[m[33m)[m HEAD@{49}: commit: email changes
+[33m257f843[m HEAD@{50}: checkout: moving from main to main
+[33m257f843[m HEAD@{51}: pull origin main: Fast-forward
+[33mb8e5e33[m HEAD@{52}: checkout: moving from features to main
+[33m1b13077[m[33m ([m[1;32mfeatures[m[33m)[m HEAD@{53}: commit: dates removed from gallery, batch size decreased to 3 and suscribe added to about page
+[33m9b90acb[m[33m ([m[1;32mbug-fixing[m[33m)[m HEAD@{54}: checkout: moving from bug-fixing to features
+[33m9b90acb[m[33m ([m[1;32mbug-fixing[m[33m)[m HEAD@{55}: commit (merge): Merge branch 'main' of https://github.com/archerjay/blogsite into bug-fixing
+[33m2f46eeb[m[33m ([m[1;31morigin/bug-fixing[m[33m)[m HEAD@{56}: commit: changes from feedback document
+[33mb8e5e33[m HEAD@{57}: checkout: moving from main to bug-fixing
+[33mb8e5e33[m HEAD@{58}: pull origin main: Fast-forward
+[33mad0da96[m HEAD@{59}: reset: moving to HEAD
+[33mad0da96[m HEAD@{60}: clone: from https://github.com/archerjay/blogsite.git
