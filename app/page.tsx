@@ -33,7 +33,7 @@ async function getArticles(): Promise<ArticleData[]> {
     const articles = await Article.find()
       .select('title excerpt image date author category readTime slug _id')
       .sort({ date: -1 })
-      .limit(6)
+      .limit(7)
       .lean();
     
     // Convert MongoDB documents to plain objects and format dates
