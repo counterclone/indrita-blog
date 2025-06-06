@@ -40,6 +40,11 @@ interface QuickTake {
   trending: boolean;
   createdAt: string;
   isPublished: boolean;
+  links?: Array<{
+    title: string;
+    url: string;
+    description: string;
+  }>;
 }
 
 function ShareButtons({ take }: { take: QuickTake }) {
@@ -164,6 +169,11 @@ function ContentTypeIcon({ type }: { type: string }) {
 function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(take.likes)
+  const [previewLink, setPreviewLink] = useState<{
+    title: string;
+    description: string;
+    url: string;
+  } | null>(null)
 
   const handleLike = async () => {
     try {
@@ -188,7 +198,7 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
 
   return (
     <div className="animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${index * 100}ms` }}>
-      <Card className="group bg-white shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 rounded-2xl overflow-hidden relative">
+      <Card className="relative group">
         {/* Gradient border effect */}
         <div
           className="absolute inset-0 bg-gradient-to-r from-slate-600 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -197,9 +207,9 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
           <div className="bg-white rounded-2xl h-full w-full"></div>
         </div>
 
-        <div className="relative">
+        <CardContent className="relative p-6">
           {/* Header with type indicator and trending badge */}
-          <div className="flex items-center justify-between p-6 pb-0">
+          <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2 px-3 py-1 bg-slate-50 rounded-full text-sm text-slate-600">
                 <ContentTypeIcon type={take.type} />
@@ -215,107 +225,132 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
             )}
           </div>
 
-          <CardContent className="p-6 pt-4">
-            {/* Content */}
-            <div className="mb-6">
-              {take.type === "image" && (
-                <div className="space-y-4">
-                  <p className="text-slate-900 leading-relaxed text-[15px]">{take.content}</p>
-                  {take.image && (
-                    <div className="rounded-lg overflow-hidden">
-                      <Image
-                        src={take.image}
-                        alt={take.content}
-                        width={500}
-                        height={300}
-                        className="w-full h-auto"
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {take.type === "chart" && take.chartData && (
-                <div className="space-y-4">
-                  <p className="text-slate-900 leading-relaxed text-[15px]">{take.content}</p>
-                  <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
-                    <div className="flex items-center gap-2 mb-3">
-                      <BarChart3 className="w-5 h-5 text-blue-600" />
-                      <h4 className="font-semibold text-slate-900">{take.chartData.title}</h4>
-                    </div>
-                    <p className="text-slate-600 text-sm mb-4">{take.chartData.description}</p>
-                    <div 
-                      className="w-full aspect-video rounded-lg overflow-hidden bg-slate-50"
-                      dangerouslySetInnerHTML={{ __html: take.chartData.embedHtml }}
-                    />
-                  </div>
-                </div>
-              )}
-
-              {take.type === "quote" && (
-                <div className="relative">
-                  <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
-                    <div className="text-3xl text-blue-600 font-serif mb-2">"</div>
-                    <blockquote className="text-slate-900 leading-relaxed text-lg font-medium mb-4">
-                      {take.content}
-                    </blockquote>
-                    {take.author && (
-                      <cite className="text-slate-600 text-sm font-medium not-italic">
-                        — {take.author}
-                      </cite>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {take.type === "text" && (
+          {/* Content */}
+          <div className="mb-6">
+            {take.type === "text" && (
+              <div className="space-y-6">
                 <p className="text-slate-900 leading-relaxed text-[15px] font-normal">
                   {take.content}
                 </p>
-              )}
-            </div>
+                {take.links && take.links.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-medium text-slate-700">Related Links</h4>
+                    <div className="grid gap-3">
+                      {take.links.map((link, i) => (
+                        <div key={i} className="relative">
+                          <Link 
+                            href={link.url}
+                            className="block p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors duration-200"
+                            onMouseEnter={() => setPreviewLink(link)}
+                            onMouseLeave={() => setPreviewLink(null)}
+                          >
+                            <h5 className="font-medium text-blue-600 mb-1">{link.title}</h5>
+                            <p className="text-sm text-slate-600 line-clamp-2">{link.description}</p>
+                          </Link>
+                          {/* Preview popup */}
+                          {previewLink?.url === link.url && (
+                            <div className="absolute left-full ml-4 top-0 w-80 bg-white rounded-lg shadow-xl border border-slate-200 p-4 z-10">
+                              <h5 className="font-semibold text-slate-900 mb-2">{link.title}</h5>
+                              <p className="text-sm text-slate-600">{link.description}</p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-6">
-              {take.tags.map((tag) => (
-                <Badge
-                  key={tag}
-                  variant="secondary"
-                  className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-0 rounded-full px-3 py-1 font-medium"
-                >
-                  #{tag}
-                </Badge>
-              ))}
-            </div>
+            {take.type === "image" && (
+              <div className="space-y-4">
+                <p className="text-slate-900 leading-relaxed text-[15px]">{take.content}</p>
+                {take.image && (
+                  <div className="rounded-lg overflow-hidden">
+                    <Image
+                      src={take.image}
+                      alt={take.content}
+                      width={500}
+                      height={300}
+                      className="w-full h-auto"
+                    />
+                  </div>
+                )}
+              </div>
+            )}
 
-            {/* Footer with metadata and actions */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-100">
-              <div className="flex items-center gap-4 text-sm text-slate-500">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4" />
-                  <span className="font-medium">Dec 20, 2024</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-4 h-4" />
-                  <span>{formatDistanceToNow(new Date(take.createdAt))} ago</span>
+            {take.type === "chart" && take.chartData && (
+              <div className="space-y-4">
+                <p className="text-slate-900 leading-relaxed text-[15px]">{take.content}</p>
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <BarChart3 className="w-5 h-5 text-blue-600" />
+                    <h4 className="font-semibold text-slate-900">{take.chartData.title}</h4>
+                  </div>
+                  <p className="text-slate-600 text-sm mb-4">{take.chartData.description}</p>
+                  <div 
+                    className="w-full aspect-video rounded-lg overflow-hidden bg-slate-50"
+                    dangerouslySetInnerHTML={{ __html: take.chartData.embedHtml }}
+                  />
                 </div>
               </div>
+            )}
 
-              <div className="flex items-center gap-4">
-                <button
-                  onClick={handleLike}
-                  className={`flex items-center gap-1.5 transition-colors text-sm ${
-                    isLiked ? "text-red-500" : "text-slate-500 hover:text-red-500"
-                  }`}
-                >
-                  <Heart className={`w-4 h-4 transition-all duration-200 ${isLiked ? "fill-current" : ""}`} />
-                  <span className="font-medium">{likeCount}</span>
-                </button>
-                <ShareButtons take={take} />
+            {take.type === "quote" && (
+              <div className="relative">
+                <div className="bg-gradient-to-br from-slate-50 to-blue-50 rounded-xl p-6 border border-slate-200">
+                  <div className="text-3xl text-blue-600 font-serif mb-2">"</div>
+                  <blockquote className="text-slate-900 leading-relaxed text-lg font-medium mb-4">
+                    {take.content}
+                  </blockquote>
+                  {take.author && (
+                    <cite className="text-slate-600 text-sm font-medium not-italic">
+                      — {take.author}
+                    </cite>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Tags */}
+          <div className="flex flex-wrap gap-2 mb-6">
+            {take.tags.map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="bg-blue-50 text-blue-700 hover:bg-blue-100 border-0 rounded-full px-3 py-1 font-medium"
+              >
+                #{tag}
+              </Badge>
+            ))}
+          </div>
+
+          {/* Footer with metadata and actions */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 text-sm text-slate-500">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="w-4 h-4" />
+                <time dateTime={take.createdAt}>
+                  {formatDistanceToNow(new Date(take.createdAt))} ago
+                </time>
               </div>
             </div>
-          </CardContent>
-        </div>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={handleLike}
+                className={`flex items-center gap-1.5 transition-colors text-sm ${
+                  isLiked ? "text-red-500" : "text-slate-500 hover:text-red-500"
+                }`}
+              >
+                <Heart className={`w-4 h-4 transition-all duration-200 ${isLiked ? "fill-current" : ""}`} />
+                <span className="font-medium">{likeCount}</span>
+              </button>
+              <ShareButtons take={take} />
+            </div>
+          </div>
+        </CardContent>
       </Card>
     </div>
   )

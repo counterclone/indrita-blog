@@ -53,6 +53,11 @@ interface QuickTake {
   isPublished: boolean
   createdAt: string
   updatedAt: string
+  links?: Array<{
+    title: string
+    url: string
+    description: string
+  }>
 }
 
 export default function AdminQuickTakesPage() {
@@ -74,6 +79,7 @@ export default function AdminQuickTakesPage() {
     tags: "",
     trending: false,
     isPublished: true,
+    links: [{ title: "", url: "", description: "" }]
   })
 
   useEffect(() => {
@@ -107,6 +113,9 @@ export default function AdminQuickTakesPage() {
                 embedHtml: formData.chartData.embedHtml,
               }
             : undefined,
+        links: formData.type === "text" 
+          ? formData.links.filter(link => link.title && link.url)
+          : undefined
       }
 
       const url = editingTake
@@ -161,6 +170,7 @@ export default function AdminQuickTakesPage() {
       tags: take.tags.join(", "),
       trending: take.trending,
       isPublished: take.isPublished,
+      links: take.links || [{ title: "", url: "", description: "" }]
     })
     setIsDialogOpen(true)
   }
@@ -176,7 +186,28 @@ export default function AdminQuickTakesPage() {
       tags: "",
       trending: false,
       isPublished: true,
+      links: [{ title: "", url: "", description: "" }]
     })
+  }
+
+  const addLink = () => {
+    setFormData({
+      ...formData,
+      links: [...formData.links, { title: "", url: "", description: "" }]
+    })
+  }
+
+  const removeLink = (index: number) => {
+    setFormData({
+      ...formData,
+      links: formData.links.filter((_, i) => i !== index)
+    })
+  }
+
+  const updateLink = (index: number, field: keyof typeof formData.links[0], value: string) => {
+    const newLinks = [...formData.links]
+    newLinks[index] = { ...newLinks[index], [field]: value }
+    setFormData({ ...formData, links: newLinks })
   }
 
   if (isLoading) {
@@ -207,7 +238,7 @@ export default function AdminQuickTakesPage() {
                 Create or edit a quick take to share insights and observations.
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="type">Type</Label>
@@ -253,6 +284,60 @@ export default function AdminQuickTakesPage() {
                   rows={4}
                 />
               </div>
+
+              {formData.type === "text" && (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label>Related Links</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addLink}
+                    >
+                      Add Link
+                    </Button>
+                  </div>
+                  {formData.links.map((link, index) => (
+                    <div key={index} className="space-y-4 p-4 border rounded-lg relative">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute top-2 right-2"
+                        onClick={() => removeLink(index)}
+                      >
+                        ×
+                      </Button>
+                      <div className="space-y-2">
+                        <Label>Title</Label>
+                        <Input
+                          value={link.title}
+                          onChange={(e) => updateLink(index, "title", e.target.value)}
+                          placeholder="Article Title"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>URL</Label>
+                        <Input
+                          value={link.url}
+                          onChange={(e) => updateLink(index, "url", e.target.value)}
+                          placeholder="https://..."
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>Description</Label>
+                        <Textarea
+                          value={link.description}
+                          onChange={(e) => updateLink(index, "description", e.target.value)}
+                          placeholder="Brief description of the linked content..."
+                          rows={2}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {formData.type === "chart" && (
                 <div className="space-y-4">
