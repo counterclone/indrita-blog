@@ -165,6 +165,18 @@ async function getAdjacentArticles(currentArticleDate: string): Promise<Adjacent
   }
 }
 
+// Helper function to create absolute image URLs
+function getAbsoluteImageUrl(imageUrl: string): string {
+  // If the URL is already absolute, return as is
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // If it's a relative URL, prepend the domain
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.akhilhanda.com';
+  return `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+}
+
 export default async function ArticleContentPage({ params }: ArticlePageProps) {
   try {
     // Await the params before using them (required in Next.js 15)
@@ -348,6 +360,9 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       ? article.category.join(", ") 
       : article.category;
 
+    // Get absolute image URL for social sharing
+    const absoluteImageUrl = getAbsoluteImageUrl(article.image);
+
     return {
       title: `${article.title} | Akhil Handa | FirstHand`,
       description: `${article.excerpt} - Insights by Akhil Handa, former President & Chief Digital Officer at Bank of Baroda.`,
@@ -370,11 +385,11 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       openGraph: {
         title: `${article.title} | Akhil Handa`,
         description: article.excerpt,
-        url: `https://firsthand.akhilhanda.com/article-content/${cleanId}`,
+        url: `https://www.akhilhanda.com/article-content/${cleanId}`,
         siteName: "FirstHand by Akhil Handa",
         images: [
           {
-            url: `https://firsthand.akhilhanda.com${article.image}`,
+            url: absoluteImageUrl,
             width: 1200,
             height: 630,
             alt: article.title,
@@ -392,9 +407,9 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
         card: "summary_large_image",
         title: `${article.title} | Akhil Handa`,
         description: article.excerpt,
-        creator: "@akhilhanda",
-        site: "@akhilhanda",
-        images: [`https://firsthand.akhilhanda.com${article.image}`],
+        creator: "@akhilhanda12",
+        site: "@akhilhanda12",
+        images: [absoluteImageUrl],
       },
       robots: {
         index: true,
@@ -408,7 +423,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
         },
       },
       alternates: {
-        canonical: `https://firsthand.akhilhanda.com/article-content/${cleanId}`,
+        canonical: `https://www.akhilhanda.com/article-content/${cleanId}`,
       },
     };
   } catch (error) {
