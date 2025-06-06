@@ -160,6 +160,22 @@ export const metadata: Metadata = {
   },
 }
 
+// ISR configuration - revalidate every hour
+export const revalidate = 3600; // 1 hour in seconds
+
+// Enable dynamic segments for fresh data when needed
+export const dynamic = 'force-static';
+export const dynamicParams = true;
+
+/*
+ * Caching Strategy:
+ * - ISR revalidation every 1 hour (3600 seconds)
+ * - Browser cache: max-age=0 (always check), s-maxage=3600 (CDN cache 1 hour)
+ * - Automatic revalidation when new articles are published
+ * - Manual revalidation available via /api/revalidate endpoint
+ * - Hard refresh (Ctrl+F5) will bypass all caches
+ */
+
 export default async function Home() {
   // Fetch articles on the server
   const recentArticles = await getArticles();

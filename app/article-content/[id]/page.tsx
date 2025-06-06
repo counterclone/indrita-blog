@@ -165,6 +165,18 @@ async function getAdjacentArticles(currentArticleDate: string): Promise<Adjacent
   }
 }
 
+// Helper function to create absolute image URLs
+function getAbsoluteImageUrl(imageUrl: string): string {
+  // If the URL is already absolute, return as is
+  if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
+    return imageUrl;
+  }
+  
+  // If it's a relative URL, prepend the domain
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.akhilhanda.com';
+  return `${baseUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+}
+
 export default async function ArticleContentPage({ params }: ArticlePageProps) {
   try {
     // Await the params before using them (required in Next.js 15)
@@ -204,47 +216,54 @@ export default async function ArticleContentPage({ params }: ArticlePageProps) {
           excerpt={article.excerpt}
         />
         
-        <article className="container mx-auto px-4 py-8">
+        <article className="container mx-auto px-4 sm:px-6 py-8">
           <div className="max-w-4xl mx-auto">
             <Link
               href="/articles"
-              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-8"
+              className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6 sm:mb-8"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Articles
             </Link>
 
             <header className="mb-8">
-              <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
-                {Array.isArray(article.category) ? (
-                  <div className="flex items-center gap-2">
-                    {article.category.map((cat, index) => (
-                      <span key={cat}>
-                        <span className="font-medium text-blue-600">{cat}</span>
-                        {index < article.category.length - 1 && (
-                          <span className="mx-1 text-gray-400">•</span>
-                        )}
-                      </span>
-                    ))}
-                  </div>
-                ) : (
-                  <span className="font-medium text-blue-600">{article.category}</span>
-                )}
-                <span>•</span>
-                <span>{article.readTime}</span>
+              {/* Categories and Meta Info */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-sm text-gray-500 mb-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  {Array.isArray(article.category) ? (
+                    <>
+                      {article.category.map((cat, index) => (
+                        <span key={cat} className="inline-flex items-center">
+                          <span className="font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full text-xs sm:text-sm">
+                            {cat}
+                          </span>
+                        </span>
+                      ))}
+                    </>
+                  ) : (
+                    <span className="font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full text-xs sm:text-sm">
+                      {article.category}
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2 text-xs sm:text-sm">
+                  <span className="hidden sm:inline">•</span>
+                  <span>{article.readTime}</span>
+                  <span>•</span>
+                  <time dateTime={new Date(article.date).toISOString()} className="text-gray-400">
+                    {new Date(article.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </time>
+                </div>
               </div>
               
-              <h1 className="text-4xl font-bold mb-4">{article.title}</h1>
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 leading-tight">{article.title}</h1>
               
-              <div className="flex items-center justify-between text-sm text-gray-500 mb-6">
+              <div className="flex items-center text-sm text-gray-500 mb-6">
                 <span>By {article.author}</span>
-                <time dateTime={new Date(article.date).toISOString()}>
-                  {new Date(article.date).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </time>
               </div>
 
               {/* Social Share Component - Lazy Loaded */}
@@ -351,33 +370,72 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
       ? article.category.join(", ") 
       : article.category;
 
+    // Get absolute image URL for social sharing
+    const absoluteImageUrl = getAbsoluteImageUrl(article.image);
+
     return {
-      title: `${article.title} | Akhil Handa | FirstHand`,
-      description: `${article.excerpt} - Insights by Akhil Handa, former President & Chief Digital Officer at Bank of Baroda.`,
+      title: `${article.title} - Expert Analysis by Akhil Handa | Banking Modernization Guide`,
+      description: `${article.excerpt} Get expert insights on legacy system risks from Akhil Handa, former CDO of Bank of Baroda. Real case studies from Satyam & DHFL frauds.`,
       keywords: [
-        article.title,
+        // Primary target keywords
+        "legacy systems banking",
+        "outdated software risks", 
+        "banking modernization",
+        "software modernization banking",
+        "legacy system security risks",
+        // Secondary keywords
+        "COBOL modernization",
+        "FoxPro banking fraud", 
+        "Satyam scandal legacy systems",
+        "DHFL fraud case study",
+        "AI banking transformation",
+        // Author/brand keywords
         "Akhil Handa",
         "digital banking",
         "fintech innovation", 
         "financial technology",
+        "digital banking expert",
+        "Bank of Baroda CDO",
+        "FirstHand banking insights",
+        // Content-specific
         categoryDisplay,
         "banking transformation",
         "AI in banking",
         "FirstHand",
         "Bank of Baroda",
-        "Chief Digital Officer"
+        "Chief Digital Officer",
+        "banking digital transformation",
+        "financial technology security",
+        "legacy system migration",
+        "banking cybersecurity"
       ].filter(Boolean).join(", "),
       authors: [{ name: article.author || "Akhil Handa" }],
       creator: article.author || "Akhil Handa",
       publisher: "FirstHand by Akhil Handa",
+      other: {
+        'article:published_time': article.date,
+        'article:modified_time': article.date,
+        'article:author': article.author || "Akhil Handa",
+        'article:section': categoryDisplay,
+        'article:tag': Array.isArray(article.category) ? article.category.join(", ") : article.category,
+        // Additional SEO meta tags
+        'content-language': 'en-US',
+        'revisit-after': '7 days',
+        'distribution': 'global',
+        'audience': 'banking professionals, CIOs, CTOs, digital transformation leaders',
+        'classification': 'business, technology, banking, fintech',
+        'coverage': 'worldwide',
+        'rating': 'general',
+        'subject': 'banking technology, software modernization, digital transformation'
+      },
       openGraph: {
         title: `${article.title} | Akhil Handa`,
         description: article.excerpt,
-        url: `https://firsthand.akhilhanda.com/article-content/${cleanId}`,
+        url: `https://www.akhilhanda.com/article-content/${cleanId}`,
         siteName: "FirstHand by Akhil Handa",
         images: [
           {
-            url: `https://firsthand.akhilhanda.com${article.image}`,
+            url: absoluteImageUrl,
             width: 1200,
             height: 630,
             alt: article.title,
@@ -395,9 +453,9 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
         card: "summary_large_image",
         title: `${article.title} | Akhil Handa`,
         description: article.excerpt,
-        creator: "@akhilhanda",
-        site: "@akhilhanda",
-        images: [`https://firsthand.akhilhanda.com${article.image}`],
+        creator: "@akhilhanda12",
+        site: "@akhilhanda12",
+        images: [absoluteImageUrl],
       },
       robots: {
         index: true,
@@ -411,7 +469,7 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
         },
       },
       alternates: {
-        canonical: `https://firsthand.akhilhanda.com/article-content/${cleanId}`,
+        canonical: `https://www.akhilhanda.com/article-content/${cleanId}`,
       },
     };
   } catch (error) {
