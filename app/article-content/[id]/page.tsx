@@ -371,24 +371,60 @@ export async function generateMetadata({ params }: ArticlePageProps): Promise<Me
     const absoluteImageUrl = getAbsoluteImageUrl(article.image);
 
     return {
-      title: `${article.title} | Akhil Handa | FirstHand`,
-      description: `${article.excerpt} - Insights by Akhil Handa, former President & Chief Digital Officer at Bank of Baroda.`,
+      title: `${article.title} - Expert Analysis by Akhil Handa | Banking Modernization Guide`,
+      description: `${article.excerpt} Get expert insights on legacy system risks from Akhil Handa, former CDO of Bank of Baroda. Real case studies from Satyam & DHFL frauds.`,
       keywords: [
-        article.title,
+        // Primary target keywords
+        "legacy systems banking",
+        "outdated software risks", 
+        "banking modernization",
+        "software modernization banking",
+        "legacy system security risks",
+        // Secondary keywords
+        "COBOL modernization",
+        "FoxPro banking fraud", 
+        "Satyam scandal legacy systems",
+        "DHFL fraud case study",
+        "AI banking transformation",
+        // Author/brand keywords
         "Akhil Handa",
         "digital banking",
         "fintech innovation", 
         "financial technology",
+        "digital banking expert",
+        "Bank of Baroda CDO",
+        "FirstHand banking insights",
+        // Content-specific
         categoryDisplay,
         "banking transformation",
         "AI in banking",
         "FirstHand",
         "Bank of Baroda",
-        "Chief Digital Officer"
+        "Chief Digital Officer",
+        "banking digital transformation",
+        "financial technology security",
+        "legacy system migration",
+        "banking cybersecurity"
       ].filter(Boolean).join(", "),
       authors: [{ name: article.author || "Akhil Handa" }],
       creator: article.author || "Akhil Handa",
       publisher: "FirstHand by Akhil Handa",
+      other: {
+        'article:published_time': article.date,
+        'article:modified_time': article.date,
+        'article:author': article.author || "Akhil Handa",
+        'article:section': categoryDisplay,
+        'article:tag': Array.isArray(article.category) ? article.category.join(", ") : article.category,
+        // Additional SEO meta tags
+        'content-language': 'en-US',
+        'revisit-after': '7 days',
+        'distribution': 'global',
+        'audience': 'banking professionals, CIOs, CTOs, digital transformation leaders',
+        'classification': 'business, technology, banking, fintech',
+        'coverage': 'worldwide',
+        'rating': 'general',
+        'subject': 'banking technology, software modernization, digital transformation'
+      },
       openGraph: {
         title: `${article.title} | Akhil Handa`,
         description: article.excerpt,

@@ -198,12 +198,33 @@ export function ArticleStructuredData({
     "author": {
       "@type": "Person",
       "name": author,
-      "url": "https://www.akhilhanda.com/about"
+      "url": "https://www.akhilhanda.com/about",
+      "jobTitle": "Former President & Chief Digital Officer | JPMorgan, Bank of Baroda",
+      "worksFor": {
+        "@type": "Organization",
+        "name": "JPMorgan, Bank of Baroda",
+        "url": "https://www.jpmorgan.com"
+      },
+      "alumniOf": {
+        "@type": "Organization",
+        "name": "Indian Institute of Technology Delhi"
+      },
+      "expertise": [
+        "Digital Banking",
+        "Banking Modernization", 
+        "Legacy System Migration",
+        "Financial Technology",
+        "Banking Cybersecurity"
+      ]
     },
     "publisher": {
-      "@type": "Person",
-      "name": "Akhil Handa",
-      "url": "https://www.akhilhanda.com"
+      "@type": "Organization",
+      "name": "FirstHand by Akhil Handa",
+      "url": "https://www.akhilhanda.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.akhilhanda.com/firsthand-logo.png"
+      }
     },
     "datePublished": datePublished,
     "dateModified": dateModified,
@@ -214,12 +235,68 @@ export function ArticleStructuredData({
     },
     "articleSection": category.length > 0 ? category[0] : "Digital Banking",
     "keywords": category.concat([
+      "legacy systems banking",
+      "outdated software risks",
+      "banking modernization",
+      "software modernization banking", 
+      "legacy system security risks",
+      "COBOL modernization",
+      "banking digital transformation",
       "digital banking",
       "fintech",
       "Akhil Handa",
-      "financial technology",
-      "banking innovation"
-    ]).join(", ")
+      "JPMorgan",
+      "Bank of Baroda",
+      "Chief Digital Officer",
+      "digital banking expert",
+      "financial technology security"
+    ]).join(", "),
+    "inLanguage": "en-US",
+    "isAccessibleForFree": true,
+    "genre": ["Technology", "Banking", "Digital Transformation"],
+    "audience": {
+      "@type": "Audience",
+      "audienceType": "Banking Professionals, CIOs, CTOs, Digital Transformation Leaders"
+    },
+    "about": [
+      {
+        "@type": "Thing",
+        "name": "Legacy System Modernization",
+        "description": "The process of updating outdated software systems in banking"
+      },
+      {
+        "@type": "Thing", 
+        "name": "Banking Security Risks",
+        "description": "Cybersecurity vulnerabilities in outdated banking software"
+      },
+      {
+        "@type": "Thing",
+        "name": "Digital Banking Transformation", 
+        "description": "Evolution from traditional to modern digital banking platforms"
+      }
+    ],
+    "mentions": [
+      {
+        "@type": "Organization",
+        "name": "Satyam Computer Services",
+        "description": "Case study of accounting fraud involving outdated systems"
+      },
+      {
+        "@type": "Organization", 
+        "name": "DHFL",
+        "description": "Housing finance company fraud case involving FoxPro systems"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "COBOL",
+        "description": "Legacy programming language still used in banking"
+      },
+      {
+        "@type": "SoftwareApplication",
+        "name": "FoxPro", 
+        "description": "Outdated database system used in DHFL fraud case"
+      }
+    ]
   }
 
   return (
