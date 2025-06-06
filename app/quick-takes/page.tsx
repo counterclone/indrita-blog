@@ -297,7 +297,7 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
                                   )}
                                   <div className="p-4">
                                     <h5 className="font-semibold text-slate-900 mb-2">{previewLink.title}</h5>
-                                    <p className="text-sm text-slate-600 line-clamp-2">{previewLink.description}</p>
+                                    <p className="text-sm text-slate-600">{previewLink.description}</p>
                                   </div>
                                 </>
                               )}
