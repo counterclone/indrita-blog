@@ -15,6 +15,20 @@ const quickTakeSchema = new mongoose.Schema({
     description: String,
     embedHtml: String // HTML content for chart embedding
   },
+  links: [{
+    url: {
+      type: String,
+      required: true
+    },
+    previewImage: {
+      type: String,
+      required: true
+    },
+    title: {
+      type: String,
+      required: true
+    }
+  }],
   image: String,
   author: String,
   tags: [{

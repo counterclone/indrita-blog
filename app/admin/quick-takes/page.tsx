@@ -44,6 +44,11 @@ interface QuickTake {
     description: string
     embedHtml: string
   }
+  links: {
+    url: string
+    previewImage: string
+    title: string
+  }[]
   image?: string
   author?: string
   tags: string[]
@@ -69,6 +74,7 @@ export default function AdminQuickTakesPage() {
       description: "",
       embedHtml: ""
     },
+    links: [] as { url: string; previewImage: string; title: string }[],
     image: "",
     author: "",
     tags: "",
@@ -161,6 +167,11 @@ export default function AdminQuickTakesPage() {
       tags: take.tags.join(", "),
       trending: take.trending,
       isPublished: take.isPublished,
+      links: take.links.map((link) => ({
+        url: link.url,
+        previewImage: link.previewImage || "",
+        title: link.title || "",
+      })),
     })
     setIsDialogOpen(true)
   }
@@ -176,6 +187,7 @@ export default function AdminQuickTakesPage() {
       tags: "",
       trending: false,
       isPublished: true,
+      links: [],
     })
   }
 
@@ -338,6 +350,74 @@ export default function AdminQuickTakesPage() {
                   />
                 </div>
               )}
+
+              {/* Links Section */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <Label>Links</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => 
+                      setFormData({
+                        ...formData,
+                        links: [...formData.links, { url: "", previewImage: "", title: "" }]
+                      })
+                    }
+                  >
+                    Add Link
+                  </Button>
+                </div>
+                
+                {formData.links.map((link, index) => (
+                  <div key={index} className="space-y-2 p-4 border rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <Label>Link {index + 1}</Label>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="text-red-500 hover:text-red-700"
+                        onClick={() => {
+                          const newLinks = [...formData.links];
+                          newLinks.splice(index, 1);
+                          setFormData({ ...formData, links: newLinks });
+                        }}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="URL"
+                        value={link.url}
+                        onChange={(e) => {
+                          const newLinks = [...formData.links];
+                          newLinks[index].url = e.target.value;
+                          setFormData({ ...formData, links: newLinks });
+                        }}
+                      />
+                      <Input
+                        placeholder="Preview Image URL"
+                        value={link.previewImage}
+                        onChange={(e) => {
+                          const newLinks = [...formData.links];
+                          newLinks[index].previewImage = e.target.value;
+                          setFormData({ ...formData, links: newLinks });
+                        }}
+                      />
+                      <Input
+                        placeholder="Title"
+                        value={link.title}
+                        onChange={(e) => {
+                          const newLinks = [...formData.links];
+                          newLinks[index].title = e.target.value;
+                          setFormData({ ...formData, links: newLinks });
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
 
               <div className="flex items-center space-x-8">
                 <div className="flex items-center space-x-2">

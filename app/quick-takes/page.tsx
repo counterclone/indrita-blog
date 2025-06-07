@@ -15,6 +15,7 @@ import {
   ImageIcon,
   Quote,
   Type,
+  LinkIcon,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -32,6 +33,11 @@ interface QuickTake {
     description: string;
     embedHtml: string;
   };
+  links: {
+    url: string;
+    previewImage: string;
+    title: string;
+  }[];
   image?: string;
   author?: string;
   tags: string[];
@@ -164,31 +170,17 @@ function ContentTypeIcon({ type }: { type: string }) {
 function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
   const [isLiked, setIsLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(take.likes)
+  const [hoveredLink, setHoveredLink] = useState<string | null>(null)
+  const [imageError, setImageError] = useState<Record<string, boolean>>({})
 
-  const handleLike = async () => {
-    try {
-      const response = await fetch(`/api/quick-takes/${take._id}/like`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action: isLiked ? 'unlike' : 'like',
-        }),
-      });
-
-      if (response.ok) {
-        setIsLiked(!isLiked);
-        setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-      }
-    } catch (error) {
-      console.error('Error updating like:', error);
-    }
+  const handleLike = () => {
+    setIsLiked(!isLiked)
+    setLikeCount(prev => isLiked ? prev - 1 : prev + 1)
   }
 
   return (
-    <div className="animate-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${index * 100}ms` }}>
-      <Card className="group bg-white shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 rounded-2xl overflow-hidden relative">
+    <div className="relative">
+      <Card className="group bg-white shadow-sm hover:shadow-lg transition-all duration-300 border border-gray-200 rounded-2xl">
         {/* Gradient border effect */}
         <div
           className="absolute inset-0 bg-gradient-to-r from-slate-600 to-blue-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"
@@ -272,6 +264,64 @@ function QuickTakeCard({ take, index }: { take: QuickTake; index: number }) {
                 <p className="text-slate-900 leading-relaxed text-[15px] font-normal">
                   {take.content}
                 </p>
+              )}
+
+              {/* Links with Preview */}
+              {take.links && take.links.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {take.links.map((link, i) => (
+                    <div
+                      key={i}
+                      className="relative group/link"
+                      onMouseEnter={() => {
+                        setHoveredLink(link.url)
+                        setImageError(prev => ({ ...prev, [link.url]: false }))
+                      }}
+                      onMouseLeave={() => setHoveredLink(null)}
+                    >
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="w-6 h-6 flex-shrink-0 bg-blue-100 rounded-full flex items-center justify-center">
+                          <LinkIcon className="w-4 h-4 text-blue-600" />
+                        </div>
+                        <span className="text-blue-600 hover:text-blue-700 font-medium">
+                          {link.title}
+                        </span>
+                      </a>
+                      
+                      {/* Preview Popup */}
+                      {hoveredLink === link.url && !imageError[link.url] && (
+                        <div 
+                          className="absolute z-[100] bg-white rounded-lg shadow-xl border border-slate-200 p-2 opacity-0 group-hover/link:opacity-100 transition-opacity duration-200"
+                          style={{
+                            width: '320px',
+                            left: '100%',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            marginLeft: '1rem',
+                          }}
+                        >
+                          <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-slate-100">
+                            <Image
+                              src={link.previewImage}
+                              alt={link.title}
+                              fill
+                              className="object-cover"
+                              onError={() => {
+                                setImageError(prev => ({ ...prev, [link.url]: true }))
+                              }}
+                              sizes="320px"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
 
