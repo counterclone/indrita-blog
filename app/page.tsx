@@ -30,9 +30,11 @@ async function getArticles(): Promise<ArticleData[]> {
     await connectDB();
     
     // Fetch articles directly from database
+    // Fetch 7 articles to ensure we have 6 recent articles after removing the featured one
     const articles = await Article.find()
       .select('title excerpt image date author category readTime slug _id')
       .sort({ date: -1 })
+      .limit(7) // Increased to 7 to account for featured article removal
       .lean();
     
     // Convert MongoDB documents to plain objects and format dates
@@ -183,8 +185,10 @@ export default async function Home() {
   // Get the featured article based on featuredIndex
   const featuredArticle = recentArticles[featuredIndex];
   
-  // Filter out the featured article from recent articles
-  const filteredRecentArticles = recentArticles.filter((_, index) => index !== featuredIndex);
+  // Filter out the featured article from recent articles and limit to 6
+  const filteredRecentArticles = recentArticles
+    .filter((_, index) => index !== featuredIndex)
+    .slice(0, 6); // Limit to 6 articles
   
   return (
     <div className="flex flex-col">

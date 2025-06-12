@@ -17,10 +17,6 @@
   animation: fadeIn 0.3s ease-out forwards;
 }
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
