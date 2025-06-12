@@ -178,7 +178,7 @@ export const dynamicParams = true;
 export default async function Home() {
   // Fetch articles on the server
   const recentArticles = await getArticles();
-  const featuredIndex = 0; // defaults to most recent article at index 0
+  const featuredIndex = 1; // defaults to most recent article at index 0
 
   // Get the featured article based on featuredIndex
   const featuredArticle = recentArticles[featuredIndex];
