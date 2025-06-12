@@ -35,6 +35,16 @@
     padding-left: 1.5rem;
 }
 
+.article-content ul {
+    list-style-type: disc !important;
+    list-style-position: inside !important;
+}
+
+.article-content ol {
+    list-style-type: decimal !important;
+    list-style-position: inside !important;
+}
+
 .article-content li {
     margin: 0.5rem 0;
 }
@@ -44,6 +54,11 @@
     height: auto;
     margin: 1.5rem 0;
     border-radius: 0.5rem;
+}
+
+.article-content,
+.article-content * {
+    font-family: 'Inter', 'Inter Fallback', Arial, Helvetica, sans-serif !important;
 }
 
 .article-content blockquote {
